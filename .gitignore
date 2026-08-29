@@ -1,4 +1,8 @@
-﻿# Logs
+# Remove node_modules from git tracking
+/node_modules/
+package-lock.json
+
+# Logs
 logs
 *.log
 npm-debug.log*
@@ -7,20 +11,17 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Dependencies
-node_modules/
+dist
+dist-ssr
+*.local
 
-# Production build
-dist/
-dist-ssr/
-
-# Local env files
-.env
-.env.local
-.env.*.local
-
-# Editor & OS files
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
 .DS_Store
-Thumbs.db
-.vscode/
-.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
