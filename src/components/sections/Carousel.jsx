@@ -4,8 +4,6 @@ import {
   FiPlay,
   FiExternalLink,
   FiGithub,
-  FiChevronLeft,
-  FiChevronRight,
   FiZoomIn,
 } from 'react-icons/fi'
 import './Carousel.css'
@@ -79,18 +77,6 @@ export default function Carousel({
   return (
     <div className="carousel-deck-wrapper" style={{ maxWidth: `${baseWidth}px` }}>
       <div className="carousel-stage-box">
-        {/* Desktop Side Arrow (Left) */}
-        {items.length > 1 && (
-          <button
-            type="button"
-            className="carousel-side-arrow carousel-side-arrow--prev desktop-only"
-            onClick={prevSlide}
-            aria-label="Previous project"
-          >
-            <FiChevronLeft aria-hidden="true" />
-          </button>
-        )}
-
         {/* Card Stage with AnimatePresence */}
         <div className="carousel-card-viewport">
           <AnimatePresence initial={false} custom={direction} mode="popLayout">
@@ -203,34 +189,11 @@ export default function Carousel({
             </motion.div>
           </AnimatePresence>
         </div>
-
-        {/* Desktop Side Arrow (Right) */}
-        {items.length > 1 && (
-          <button
-            type="button"
-            className="carousel-side-arrow carousel-side-arrow--next desktop-only"
-            onClick={nextSlide}
-            aria-label="Next project"
-          >
-            <FiChevronRight aria-hidden="true" />
-          </button>
-        )}
       </div>
 
-      {/* Navigation Footer with Mobile Bottom Arrows + Dots + Counter */}
+      {/* Navigation Footer with Dots + Counter */}
       {items.length > 1 && (
         <div className="carousel-deck-footer">
-          {/* Mobile Prev Arrow */}
-          <button
-            type="button"
-            className="carousel-footer-arrow carousel-footer-arrow--prev mobile-only"
-            onClick={prevSlide}
-            aria-label="Previous project"
-          >
-            <FiChevronLeft aria-hidden="true" />
-            <span>Prev</span>
-          </button>
-
           <div className="carousel-deck-dots">
             {items.map((_, index) => (
               <button
@@ -247,17 +210,6 @@ export default function Carousel({
           <span className="carousel-deck-counter">
             <strong>{String(currentIndex + 1).padStart(2, '0')}</strong> / {String(items.length).padStart(2, '0')}
           </span>
-
-          {/* Mobile Next Arrow */}
-          <button
-            type="button"
-            className="carousel-footer-arrow carousel-footer-arrow--next mobile-only"
-            onClick={nextSlide}
-            aria-label="Next project"
-          >
-            <span>Next</span>
-            <FiChevronRight aria-hidden="true" />
-          </button>
         </div>
       )}
     </div>
