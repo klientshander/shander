@@ -44,7 +44,7 @@ export default function Carousel({
 
   // Handle touch / drag swipe
   const handleDragEnd = (_, info) => {
-    const swipeThreshold = 40
+    const swipeThreshold = 35
     if (info.offset.x < -swipeThreshold) {
       nextSlide()
     } else if (info.offset.x > swipeThreshold) {
@@ -60,28 +60,28 @@ export default function Carousel({
 
   const slideVariants = {
     enter: (dir) => ({
-      x: dir > 0 ? 80 : -80,
+      x: dir > 0 ? 60 : -60,
       opacity: 0,
-      scale: 0.97,
+      scale: 0.98,
     }),
     center: {
       x: 0,
       opacity: 1,
       scale: 1,
       transition: {
-        x: { type: 'spring', stiffness: 320, damping: 30 },
-        opacity: { duration: 0.22 },
-        scale: { duration: 0.22 },
+        x: { type: 'spring', stiffness: 340, damping: 32 },
+        opacity: { duration: 0.2 },
+        scale: { duration: 0.2 },
       },
     },
     exit: (dir) => ({
-      x: dir > 0 ? -80 : 80,
+      x: dir > 0 ? -60 : 60,
       opacity: 0,
-      scale: 0.97,
+      scale: 0.98,
       transition: {
-        x: { type: 'spring', stiffness: 320, damping: 30 },
-        opacity: { duration: 0.2 },
-        scale: { duration: 0.2 },
+        x: { type: 'spring', stiffness: 340, damping: 32 },
+        opacity: { duration: 0.18 },
+        scale: { duration: 0.18 },
       },
     }),
   }
@@ -89,11 +89,11 @@ export default function Carousel({
   return (
     <div className="carousel-deck-wrapper" style={{ maxWidth: `${baseWidth}px` }}>
       <div className="carousel-stage-box">
-        {/* Previous Arrow Button */}
+        {/* Desktop Side Arrow (Left) */}
         {items.length > 1 && (
           <button
             type="button"
-            className="carousel-side-arrow carousel-side-arrow--prev"
+            className="carousel-side-arrow carousel-side-arrow--prev desktop-only"
             onClick={prevSlide}
             aria-label="Previous project"
           >
@@ -113,7 +113,7 @@ export default function Carousel({
               exit="exit"
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.25}
+              dragElastic={0.2}
               onDragEnd={handleDragEnd}
               className="carousel-deck-card"
             >
@@ -125,7 +125,7 @@ export default function Carousel({
                   tabIndex={0}
                   aria-label={`View ${item.title} image`}
                 >
-                  <img src={item.cover} alt={item.title} />
+                  <img src={item.cover} alt={item.title} loading="lazy" />
                   <span className="carousel-deck-zoom" aria-hidden="true">
                     <FiZoomIn />
                   </span>
@@ -185,17 +185,17 @@ export default function Carousel({
                       className="carousel-deck-btn carousel-deck-btn--demo"
                       onClick={() => onOpenDemo?.(item)}
                     >
-                      <FiPlay aria-hidden="true" /> Demo
+                      <FiPlay aria-hidden="true" /> Watch Demo
                     </button>
                   )}
                   {item.liveUrl && item.liveUrl !== '#' && (
                     <a
-                      className="carousel-deck-btn"
+                      className="carousel-deck-btn carousel-deck-btn--live"
                       href={item.liveUrl}
                       target="_blank"
                       rel="noreferrer"
                     >
-                      <FiExternalLink aria-hidden="true" /> Live
+                      <FiExternalLink aria-hidden="true" /> Live Preview
                     </a>
                   )}
                   {item.codeUrl && item.codeUrl !== '#' && (
@@ -214,11 +214,11 @@ export default function Carousel({
           </AnimatePresence>
         </div>
 
-        {/* Next Arrow Button */}
+        {/* Desktop Side Arrow (Right) */}
         {items.length > 1 && (
           <button
             type="button"
-            className="carousel-side-arrow carousel-side-arrow--next"
+            className="carousel-side-arrow carousel-side-arrow--next desktop-only"
             onClick={nextSlide}
             aria-label="Next project"
           >
@@ -227,9 +227,20 @@ export default function Carousel({
         )}
       </div>
 
-      {/* Pagination dots & Counter */}
+      {/* Navigation Footer with Mobile Bottom Arrows + Dots + Counter */}
       {items.length > 1 && (
         <div className="carousel-deck-footer">
+          {/* Mobile Prev Arrow */}
+          <button
+            type="button"
+            className="carousel-footer-arrow carousel-footer-arrow--prev mobile-only"
+            onClick={prevSlide}
+            aria-label="Previous project"
+          >
+            <FiChevronLeft aria-hidden="true" />
+            <span>Prev</span>
+          </button>
+
           <div className="carousel-deck-dots">
             {items.map((_, index) => (
               <button
@@ -242,9 +253,21 @@ export default function Carousel({
               />
             ))}
           </div>
+
           <span className="carousel-deck-counter">
-            Project <strong>{String(currentIndex + 1).padStart(2, '0')}</strong> of {String(items.length).padStart(2, '0')}
+            <strong>{String(currentIndex + 1).padStart(2, '0')}</strong> / {String(items.length).padStart(2, '0')}
           </span>
+
+          {/* Mobile Next Arrow */}
+          <button
+            type="button"
+            className="carousel-footer-arrow carousel-footer-arrow--next mobile-only"
+            onClick={nextSlide}
+            aria-label="Next project"
+          >
+            <span>Next</span>
+            <FiChevronRight aria-hidden="true" />
+          </button>
         </div>
       )}
     </div>
