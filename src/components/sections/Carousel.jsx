@@ -1,442 +1,225 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { motion, useMotionValue, useTransform } from 'framer-motion'
+import { useEffect, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
-  FiCircle,
-  FiCode,
-  FiFileText,
-  FiLayers,
-  FiLayout,
   FiPlay,
   FiExternalLink,
   FiGithub,
   FiChevronLeft,
   FiChevronRight,
+  FiZoomIn,
 } from 'react-icons/fi'
 import './Carousel.css'
 
-const DEFAULT_ITEMS = [
-  {
-    title: 'Text Animations',
-    description: 'Cool text animations for your projects.',
-    id: 1,
-    icon: <FiFileText className="carousel-icon" />,
-  },
-  {
-    title: 'Animations',
-    description: 'Smooth animations for your projects.',
-    id: 2,
-    icon: <FiCircle className="carousel-icon" />,
-  },
-  {
-    title: 'Components',
-    description: 'Reusable components for your projects.',
-    id: 3,
-    icon: <FiLayers className="carousel-icon" />,
-  },
-  {
-    title: 'Backgrounds',
-    description: 'Beautiful backgrounds and patterns for your projects.',
-    id: 4,
-    icon: <FiLayout className="carousel-icon" />,
-  },
-  {
-    title: 'Common UI',
-    description: 'Common UI components are coming soon!',
-    id: 5,
-    icon: <FiCode className="carousel-icon" />,
-  },
-]
-
-const DRAG_BUFFER = 0
-const VELOCITY_THRESHOLD = 500
-const GAP = 16
-const SPRING_OPTIONS = { type: 'spring', stiffness: 300, damping: 30 }
-
-// Tracks the carousel container's real rendered width so card sizing follows
-// the viewport instead of a fixed desktop pixel value (the cause of mobile
-// overflow/clipping).
-function useContainerWidth(ref, fallback) {
-  const [width, setWidth] = useState(() => {
-    if (typeof window === 'undefined') return fallback
-    return Math.min(fallback, window.innerWidth - 40)
-  })
-
-  useEffect(() => {
-    const node = ref.current
-    if (!node) return undefined
-    const observer = new ResizeObserver((entries) => {
-      const entry = entries[0]
-      if (entry) setWidth(entry.contentRect.width)
-    })
-    observer.observe(node)
-    return () => observer.disconnect()
-  }, [ref])
-
-  return width
-}
-
-function CarouselItem({
-  item,
-  index,
-  itemWidth,
-  round,
-  trackItemOffset,
-  x,
-  transition,
-  onOpenCover,
-  onOpenDemo,
-  flat,
-}) {
-  const range = [
-    -(index + 1) * trackItemOffset,
-    -index * trackItemOffset,
-    -(index - 1) * trackItemOffset,
-  ]
-  // The 3D rotateY flip relies on perspective + the container's
-  // overflow:hidden to hide the tilted neighbor cards. Mobile browsers
-  // (particularly iOS/mobile Safari) don't always clip 3D-transformed
-  // layers against an ancestor's overflow:hidden, so the tilted cards can
-  // visibly spill past the edges of the screen while dragging. On small
-  // screens we flatten the rotation to 0 instead of disabling the effect
-  // in a way that would change the layout.
-  const outputRange = flat ? [0, 0, 0] : [90, 0, -90]
-  const rotateY = useTransform(x, range, outputRange, { clamp: false })
-
-  return (
-    <motion.div
-      key={`${item?.id ?? index}-${index}`}
-      className={`carousel-item ${round ? 'round' : ''}`}
-      style={{
-        width: itemWidth,
-        height: round ? itemWidth : '100%',
-        rotateY: rotateY,
-        ...(round && { borderRadius: '50%' }),
-      }}
-      transition={transition}
-    >
-      {item.cover && !round ? (
-        <div
-          className="carousel-item-cover"
-          onClick={() => onOpenCover?.(item)}
-          role="button"
-          tabIndex={0}
-        >
-          <img src={item.cover} alt={item.title} />
-        </div>
-      ) : item.videoUrl && !round ? (
-        <div
-          className="carousel-item-cover carousel-item-cover--video"
-          onClick={() => onOpenDemo?.(item)}
-          role="button"
-          tabIndex={0}
-        >
-          <video
-            src={item.videoUrl}
-            muted
-            loop
-            playsInline
-            onMouseEnter={(e) => e.currentTarget.play().catch(() => {})}
-            onMouseLeave={(e) => {
-              e.currentTarget.pause()
-              e.currentTarget.currentTime = 0
-            }}
-          />
-          <div className="carousel-cover-play-badge">
-            <FiPlay aria-hidden="true" />
-            <span>Watch Demo</span>
-          </div>
-        </div>
-      ) : null}
-
-      <div className={`carousel-item-header ${round ? 'round' : ''}`}>
-        <span className="carousel-icon-container">{item.icon}</span>
-        {item.category && !round && (
-          <span className="carousel-item-category">{item.category}</span>
-        )}
-      </div>
-
-      <div className="carousel-item-content">
-        <div className="carousel-item-title">{item.title}</div>
-        <p className="carousel-item-description">{item.description}</p>
-
-        {item.tags?.length > 0 && !round && (
-          <div className="carousel-item-tags">
-            {item.tags.map((tag) => (
-              <span key={tag} className="carousel-tag-pill">
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {(item.liveUrl || item.codeUrl || item.videoUrl) && !round && (
-          <div className="carousel-item-actions">
-            {item.videoUrl && (
-              <button
-                type="button"
-                className="carousel-action-btn"
-                onClick={() => onOpenDemo?.(item)}
-              >
-                <FiPlay aria-hidden="true" /> Demo
-              </button>
-            )}
-            {item.liveUrl && item.liveUrl !== '#' && (
-              <a
-                className="carousel-action-btn"
-                href={item.liveUrl}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <FiExternalLink aria-hidden="true" /> Live
-              </a>
-            )}
-            {item.codeUrl && item.codeUrl !== '#' && (
-              <a
-                className="carousel-action-btn"
-                href={item.codeUrl}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <FiGithub aria-hidden="true" /> Code
-              </a>
-            )}
-          </div>
-        )}
-      </div>
-    </motion.div>
-  )
-}
-
 export default function Carousel({
-  items = DEFAULT_ITEMS,
-  baseWidth = 540,
-  autoplay = false,
-  autoplayDelay = 3000,
-  pauseOnHover = false,
-  loop = false,
-  round = false,
+  items = [],
+  baseWidth = 760,
   onOpenCover,
   onOpenDemo,
 }) {
-  const containerRef = useRef(null)
-  const measuredWidth = useContainerWidth(containerRef, baseWidth)
-  const effectiveWidth = Math.min(baseWidth, measuredWidth)
-  // measuredWidth comes from ResizeObserver's contentRect, which is already
-  // the container's *content* box (padding excluded) — so it's the real
-  // space available for cards. No need to subtract the container's padding
-  // again here.
-  const itemWidth = effectiveWidth
-  const trackItemOffset = itemWidth + GAP
-  // Flatten the 3D flip below ~560px — see the comment in CarouselItem.
-  const isCompact = effectiveWidth <= 560
-  const itemsForRender = useMemo(() => {
-    if (!loop) return items
-    if (items.length === 0) return []
-    return [items[items.length - 1], ...items, items[0]]
-  }, [items, loop])
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [direction, setDirection] = useState(0)
 
-  const [position, setPosition] = useState(loop ? 1 : 0)
-  const x = useMotionValue(0)
-  const [isHovered, setIsHovered] = useState(false)
-  const [isJumping, setIsJumping] = useState(false)
-  const [isAnimating, setIsAnimating] = useState(false)
-
+  // Reset to first slide when filtered items change
   useEffect(() => {
-    if (pauseOnHover && containerRef.current) {
-      const container = containerRef.current
-      const handleMouseEnter = () => setIsHovered(true)
-      const handleMouseLeave = () => setIsHovered(false)
-      container.addEventListener('mouseenter', handleMouseEnter)
-      container.addEventListener('mouseleave', handleMouseLeave)
-      return () => {
-        container.removeEventListener('mouseenter', handleMouseEnter)
-        container.removeEventListener('mouseleave', handleMouseLeave)
-      }
-    }
-  }, [pauseOnHover])
+    setCurrentIndex(0)
+  }, [items])
 
-  useEffect(() => {
-    if (!autoplay || itemsForRender.length <= 1) return undefined
-    if (pauseOnHover && isHovered) return undefined
+  const nextSlide = () => {
+    if (items.length <= 1) return
+    setDirection(1)
+    setCurrentIndex((prev) => (prev + 1) % items.length)
+  }
 
-    const timer = setInterval(() => {
-      setPosition((prev) => Math.min(prev + 1, itemsForRender.length - 1))
-    }, autoplayDelay)
+  const prevSlide = () => {
+    if (items.length <= 1) return
+    setDirection(-1)
+    setCurrentIndex((prev) => (prev - 1 + items.length) % items.length)
+  }
 
-    return () => clearInterval(timer)
-  }, [autoplay, autoplayDelay, isHovered, pauseOnHover, itemsForRender.length])
+  const goToSlide = (index) => {
+    if (index === currentIndex) return
+    setDirection(index > currentIndex ? 1 : -1)
+    setCurrentIndex(index)
+  }
 
-  useEffect(() => {
-    const startingPosition = loop ? 1 : 0
-    setPosition(startingPosition)
-    x.set(-startingPosition * trackItemOffset)
-  }, [items.length, loop, trackItemOffset, x])
-
-  useEffect(() => {
-    if (!loop && position > itemsForRender.length - 1) {
-      setPosition(Math.max(0, itemsForRender.length - 1))
-    }
-  }, [itemsForRender.length, loop, position])
-
-  const effectiveTransition = isJumping ? { duration: 0 } : SPRING_OPTIONS
-
-  const handleAnimationStart = () => {
-    setIsAnimating(true)
-  };
-
-  const handleAnimationComplete = () => {
-    if (!loop || itemsForRender.length <= 1) {
-      setIsAnimating(false)
-      return
-    }
-    const lastCloneIndex = itemsForRender.length - 1
-
-    if (position === lastCloneIndex) {
-      setIsJumping(true)
-      const target = 1
-      setPosition(target)
-      x.set(-target * trackItemOffset)
-      requestAnimationFrame(() => {
-        setIsJumping(false)
-        setIsAnimating(false)
-      })
-      return
-    }
-
-    if (position === 0) {
-      setIsJumping(true)
-      const target = items.length
-      setPosition(target)
-      x.set(-target * trackItemOffset)
-      requestAnimationFrame(() => {
-        setIsJumping(false)
-        setIsAnimating(false)
-      })
-      return
-    }
-
-    setIsAnimating(false)
-  };
-
+  // Handle touch / drag swipe
   const handleDragEnd = (_, info) => {
-    const { offset, velocity } = info
-    const direction =
-      offset.x < -DRAG_BUFFER || velocity.x < -VELOCITY_THRESHOLD
-        ? 1
-        : offset.x > DRAG_BUFFER || velocity.x > VELOCITY_THRESHOLD
-          ? -1
-          : 0
+    const swipeThreshold = 40
+    if (info.offset.x < -swipeThreshold) {
+      nextSlide()
+    } else if (info.offset.x > swipeThreshold) {
+      prevSlide()
+    }
+  }
 
-    if (direction === 0) return
+  if (!items || items.length === 0) {
+    return <div className="carousel-empty">No projects found in this category.</div>
+  }
 
-    setPosition((prev) => {
-      const next = prev + direction
-      const max = itemsForRender.length - 1
-      return Math.max(0, Math.min(next, max))
-    })
-  };
+  const item = items[currentIndex] || items[0]
 
-  const dragProps = loop
-    ? {}
-    : {
-        dragConstraints: {
-          left: -trackItemOffset * Math.max(itemsForRender.length - 1, 0),
-          right: 0,
-        },
-      }
-
-  const activeIndex =
-    items.length === 0
-      ? 0
-      : loop
-        ? (position - 1 + items.length) % items.length
-        : Math.min(position, items.length - 1)
+  const slideVariants = {
+    enter: (dir) => ({
+      x: dir > 0 ? 80 : -80,
+      opacity: 0,
+      scale: 0.97,
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+      scale: 1,
+      transition: {
+        x: { type: 'spring', stiffness: 320, damping: 30 },
+        opacity: { duration: 0.22 },
+        scale: { duration: 0.22 },
+      },
+    },
+    exit: (dir) => ({
+      x: dir > 0 ? -80 : 80,
+      opacity: 0,
+      scale: 0.97,
+      transition: {
+        x: { type: 'spring', stiffness: 320, damping: 30 },
+        opacity: { duration: 0.2 },
+        scale: { duration: 0.2 },
+      },
+    }),
+  }
 
   return (
-    <div
-      ref={containerRef}
-      className={`carousel-container ${round ? 'round' : ''}`}
-      style={{
-        width: '100%',
-        maxWidth: `${baseWidth}px`,
-        ...(round && { height: `${effectiveWidth}px`, borderRadius: '50%' }),
-      }}
-    >
-      <motion.div
-        className="carousel-track"
-        drag={isAnimating ? false : 'x'}
-        {...dragProps}
-        style={{
-          width: itemWidth,
-          gap: `${GAP}px`,
-          ...(isCompact
-            ? {}
-            : {
-                perspective: 1000,
-                perspectiveOrigin: `${position * trackItemOffset + itemWidth / 2}px 50%`,
-              }),
-          x,
-        }}
-        onDragEnd={handleDragEnd}
-        animate={{ x: -(position * trackItemOffset) }}
-        transition={effectiveTransition}
-        onAnimationStart={handleAnimationStart}
-        onAnimationComplete={handleAnimationComplete}
-      >
-        {itemsForRender.map((item, index) => (
-          <CarouselItem
-            key={`${item?.id ?? index}-${index}`}
-            item={item}
-            index={index}
-            itemWidth={itemWidth}
-            round={round}
-            trackItemOffset={trackItemOffset}
-            x={x}
-            transition={effectiveTransition}
-            onOpenCover={onOpenCover}
-            onOpenDemo={onOpenDemo}
-            flat={isCompact}
-          />
-        ))}
-      </motion.div>
-
-      {/* Navigation Arrow Controls & Indicator Row */}
-      <div className={`carousel-controls-row ${round ? 'round' : ''}`}>
-        {items.length > 1 && !round && (
+    <div className="carousel-deck-wrapper" style={{ maxWidth: `${baseWidth}px` }}>
+      <div className="carousel-stage-box">
+        {/* Previous Arrow Button */}
+        {items.length > 1 && (
           <button
             type="button"
-            className="carousel-arrow-btn carousel-arrow-btn--prev"
-            onClick={() => setPosition((prev) => Math.max(0, prev - 1))}
-            disabled={position === 0}
+            className="carousel-side-arrow carousel-side-arrow--prev"
+            onClick={prevSlide}
             aria-label="Previous project"
           >
             <FiChevronLeft aria-hidden="true" />
           </button>
         )}
 
-        <div className="carousel-indicators">
-          {items.map((_, index) => (
-            <motion.button
-              type="button"
-              key={index}
-              className={`carousel-indicator ${activeIndex === index ? 'active' : 'inactive'}`}
-              aria-label={`Go to slide ${index + 1}`}
-              aria-current={activeIndex === index}
-              animate={{
-                scale: activeIndex === index ? 1.25 : 1,
-              }}
-              onClick={() => setPosition(loop ? index + 1 : index)}
-              transition={{ duration: 0.15 }}
-            />
-          ))}
+        {/* Card Stage with AnimatePresence */}
+        <div className="carousel-card-viewport">
+          <AnimatePresence initial={false} custom={direction} mode="wait">
+            <motion.div
+              key={item.id ?? currentIndex}
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.25}
+              onDragEnd={handleDragEnd}
+              className="carousel-deck-card"
+            >
+              {item.cover ? (
+                <div
+                  className="carousel-deck-cover"
+                  onClick={() => onOpenCover?.(item)}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`View ${item.title} image`}
+                >
+                  <img src={item.cover} alt={item.title} />
+                  <span className="carousel-deck-zoom" aria-hidden="true">
+                    <FiZoomIn />
+                  </span>
+                </div>
+              ) : item.videoUrl ? (
+                <div
+                  className="carousel-deck-cover carousel-deck-cover--video"
+                  onClick={() => onOpenDemo?.(item)}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Play ${item.title} video demo`}
+                >
+                  <video src={item.videoUrl} muted loop playsInline />
+                  <div className="carousel-deck-play-badge">
+                    <FiPlay aria-hidden="true" />
+                    <span>Watch Demo</span>
+                  </div>
+                </div>
+              ) : null}
+
+              <div className="carousel-deck-header">
+                <span className="carousel-deck-icon">{item.icon}</span>
+                {item.category && (
+                  <span className="carousel-deck-category">{item.category}</span>
+                )}
+              </div>
+
+              <div className="carousel-deck-content">
+                <h3 className="carousel-deck-title">{item.title}</h3>
+                <p className="carousel-deck-description">{item.description}</p>
+
+                {item.metrics?.length > 0 && (
+                  <div className="carousel-deck-metrics">
+                    {item.metrics.map((m) => (
+                      <div key={m.label} className="carousel-deck-metric">
+                        <span className="carousel-deck-metric-val">{m.value}</span>
+                        <span className="carousel-deck-metric-label">{m.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {item.tags?.length > 0 && (
+                  <div className="carousel-deck-tags">
+                    {item.tags.map((tag) => (
+                      <span key={tag} className="carousel-deck-tag">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="carousel-deck-actions">
+                  {item.videoUrl && (
+                    <button
+                      type="button"
+                      className="carousel-deck-btn carousel-deck-btn--demo"
+                      onClick={() => onOpenDemo?.(item)}
+                    >
+                      <FiPlay aria-hidden="true" /> Demo
+                    </button>
+                  )}
+                  {item.liveUrl && item.liveUrl !== '#' && (
+                    <a
+                      className="carousel-deck-btn"
+                      href={item.liveUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <FiExternalLink aria-hidden="true" /> Live
+                    </a>
+                  )}
+                  {item.codeUrl && item.codeUrl !== '#' && (
+                    <a
+                      className="carousel-deck-btn"
+                      href={item.codeUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <FiGithub aria-hidden="true" /> Code
+                    </a>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
 
-        {items.length > 1 && !round && (
+        {/* Next Arrow Button */}
+        {items.length > 1 && (
           <button
             type="button"
-            className="carousel-arrow-btn carousel-arrow-btn--next"
-            onClick={() => setPosition((prev) => Math.min(itemsForRender.length - 1, prev + 1))}
-            disabled={position >= itemsForRender.length - 1}
+            className="carousel-side-arrow carousel-side-arrow--next"
+            onClick={nextSlide}
             aria-label="Next project"
           >
             <FiChevronRight aria-hidden="true" />
@@ -444,10 +227,24 @@ export default function Carousel({
         )}
       </div>
 
-      {!round && items.length > 1 && (
-        <div className="carousel-counter-strip">
-          <span>Project <strong>{activeIndex + 1}</strong> of {items.length}</span>
-          <span className="carousel-counter-hint">· Drag or click arrows to browse</span>
+      {/* Pagination dots & Counter */}
+      {items.length > 1 && (
+        <div className="carousel-deck-footer">
+          <div className="carousel-deck-dots">
+            {items.map((_, index) => (
+              <button
+                type="button"
+                key={index}
+                className={`carousel-deck-dot ${currentIndex === index ? 'is-active' : ''}`}
+                onClick={() => goToSlide(index)}
+                aria-label={`Go to project ${index + 1}`}
+                aria-current={currentIndex === index}
+              />
+            ))}
+          </div>
+          <span className="carousel-deck-counter">
+            Project <strong>{String(currentIndex + 1).padStart(2, '0')}</strong> of {String(items.length).padStart(2, '0')}
+          </span>
         </div>
       )}
     </div>
