@@ -64,7 +64,7 @@ export const projects = [
       'A brand identity project wordmarks, color systems, and visual languages built to be instantly recognizable, with a Spider-Man themed redesign.',
     tags: ['React', 'Brand Identity'],
     category: 'Brand',
-    liveUrl: '#',
+    liveUrl: 'https://website-landings-phs1.vercel.app/',
     codeUrl: '#',
     icon: 'brand',
     cover: '/gallery/background/Brandnewday.png',
