@@ -1,11 +1,11 @@
 /* ==========================================================================
-   Project Slideshow Deck (Carousel)
+   Project Slideshow Deck (Carousel) — Sharp & Technical Style
    ========================================================================== */
 
 .carousel-deck-wrapper {
   position: relative;
   width: 100%;
-  max-width: 760px;
+  max-width: 900px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -18,7 +18,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 16px;
 }
 
 /* Visibility utilities */
@@ -30,14 +30,14 @@
   display: none;
 }
 
-/* Side navigation arrows */
+/* Side navigation arrows — Sharp */
 .carousel-side-arrow {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  border-radius: 0;
   background: var(--surface-raised);
   border: 1px solid var(--border);
   color: var(--text);
@@ -57,24 +57,24 @@
   background: var(--text);
   color: var(--bg);
   border-color: var(--text);
-  transform: scale(1.1);
+  transform: scale(1.05);
   box-shadow: var(--shadow-lift);
 }
 
 .carousel-side-arrow:active {
-  transform: scale(0.95);
+  transform: scale(0.96);
 }
 
-/* Viewport & Card container */
+/* Viewport & Card container — Sharp & Expanded on PC */
 .carousel-card-viewport {
   position: relative;
   width: 100%;
   overflow: hidden;
-  border-radius: var(--radius-lg, 24px);
+  border-radius: 0;
   border: 1px solid var(--border);
   background: var(--surface);
   box-shadow: var(--shadow-card);
-  min-height: 540px;
+  min-height: 560px;
 }
 
 .carousel-deck-card {
@@ -84,6 +84,7 @@
   cursor: grab;
   user-select: none;
   background: var(--surface);
+  border-radius: 0;
   touch-action: pan-y;
 }
 
@@ -91,13 +92,14 @@
   cursor: grabbing;
 }
 
-/* Cover & Media */
+/* Cover & Media — Sharp */
 .carousel-deck-cover {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  max-height: 340px;
+  max-height: 420px;
   overflow: hidden;
+  border-radius: 0;
   background: var(--surface-raised);
   cursor: zoom-in;
 }
@@ -113,7 +115,7 @@
 
 .carousel-deck-cover:hover img,
 .carousel-deck-cover:hover video {
-  transform: scale(1.03);
+  transform: scale(1.02);
 }
 
 .carousel-deck-cover--video {
@@ -122,13 +124,14 @@
 
 .carousel-deck-zoom {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 14px;
+  right: 14px;
   width: 32px;
   height: 32px;
-  border-radius: 8px;
-  background: rgba(0, 0, 0, 0.6);
+  border-radius: 0;
+  background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -150,22 +153,22 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(2px);
   color: #fff;
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   transition: background-color 0.2s ease;
 }
 
 .carousel-deck-play-badge svg {
-  width: 44px;
-  height: 44px;
-  padding: 11px;
-  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  padding: 12px;
+  border-radius: 0;
   background: var(--accent);
   color: var(--text-contrast, #000);
   box-shadow: 0 0 20px var(--accent);
@@ -177,72 +180,72 @@
 }
 
 .carousel-deck-cover--video:hover .carousel-deck-play-badge svg {
-  transform: scale(1.15);
+  transform: scale(1.1);
 }
 
-/* Card Header */
+/* Card Header — Sharp */
 .carousel-deck-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px 0;
+  padding: 22px 28px 0;
 }
 
 .carousel-deck-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 0;
   background: var(--accent-soft);
   color: var(--accent);
   border: 1px solid var(--border);
-  font-size: 1.15rem;
+  font-size: 1.25rem;
 }
 
 .carousel-deck-category {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding: 4px 11px;
-  border-radius: 999px;
+  letter-spacing: 0.08em;
+  padding: 5px 12px;
+  border-radius: 0;
   background: var(--surface-raised);
   border: 1px solid var(--border);
   color: var(--text-muted);
 }
 
-/* Card Body Content */
+/* Card Body Content — Larger PC scale */
 .carousel-deck-content {
-  padding: 16px 24px 24px;
+  padding: 18px 28px 28px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .carousel-deck-title {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.35rem;
+  font-size: 1.55rem;
   color: var(--text);
   line-height: 1.25;
 }
 
 .carousel-deck-description {
-  font-size: 0.92rem;
+  font-size: 0.96rem;
   color: var(--text-muted);
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
-/* Metrics */
+/* Metrics — Sharp */
 .carousel-deck-metrics {
   display: flex;
-  gap: 14px;
-  padding: 10px 14px;
+  gap: 22px;
+  padding: 12px 18px;
   background: var(--surface-raised);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 0;
 }
 
 .carousel-deck-metric {
@@ -253,40 +256,41 @@
 
 .carousel-deck-metric-val {
   font-family: var(--font-display);
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--accent);
 }
 
 .carousel-deck-metric-label {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.64rem;
   color: var(--text-faint);
   text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-/* Tags */
+/* Tags — Sharp */
 .carousel-deck-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 7px;
 }
 
 .carousel-deck-tag {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
-  padding: 4px 9px;
-  border-radius: 6px;
+  font-size: 0.72rem;
+  padding: 4px 10px;
+  border-radius: 0;
   background: var(--surface-raised);
   border: 1px solid var(--border);
   color: var(--text-faint);
 }
 
-/* Actions */
+/* Actions — Sharp */
 .carousel-deck-actions {
   display: flex;
-  gap: 10px;
-  padding-top: 14px;
+  gap: 12px;
+  padding-top: 16px;
   border-top: 1px solid var(--border-soft);
   margin-top: 4px;
 }
@@ -294,14 +298,14 @@
 .carousel-deck-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border-radius: 8px;
+  gap: 7px;
+  padding: 9px 18px;
+  border-radius: 0;
   background: var(--surface-raised);
   border: 1px solid var(--border);
   color: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   text-decoration: none;
   cursor: pointer;
   transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
@@ -319,62 +323,63 @@
   border-color: var(--accent-border, var(--border));
 }
 
-/* Footer Pagination & Counter */
+/* Footer Pagination & Counter — Sharp */
 .carousel-deck-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  margin-top: 18px;
-  padding: 0 8px;
+  margin-top: 20px;
+  padding: 0 4px;
 }
 
 .carousel-deck-dots {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
-  padding: 6px 14px;
+  padding: 8px 16px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: 0;
 }
 
 .carousel-deck-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+  width: 14px;
+  height: 3px;
+  border-radius: 0;
   border: none;
   background: var(--border-strong, #555);
   cursor: pointer;
   opacity: 0.4;
   padding: 0;
-  transition: background-color 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.2s ease, opacity 0.2s ease, width 0.2s ease;
 }
 
 .carousel-deck-dot.is-active {
   background: var(--accent);
   opacity: 1;
-  transform: scale(1.3);
+  width: 22px;
 }
 
 .carousel-deck-counter {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   color: var(--text-faint);
+  letter-spacing: 0.05em;
 }
 
 .carousel-deck-counter strong {
   color: var(--text);
 }
 
-/* Mobile Prev/Next Footer Buttons */
+/* Mobile Prev/Next Footer Buttons — Sharp */
 .carousel-footer-arrow {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   padding: 7px 14px;
-  border-radius: 999px;
+  border-radius: 0;
   background: var(--surface);
   border: 1px solid var(--border);
   color: var(--text);
@@ -413,7 +418,7 @@
   font-size: 0.85rem;
 }
 
-/* Mobile Adjustments */
+/* Mobile Adjustments (Mobile View Only) */
 @media (max-width: 680px) {
   .desktop-only {
     display: none !important;
@@ -435,7 +440,7 @@
 
   .carousel-card-viewport {
     min-height: auto;
-    border-radius: var(--radius-md, 16px);
+    border-radius: 0;
   }
 
   .carousel-deck-cover {
@@ -465,7 +470,7 @@
     width: 32px;
     height: 32px;
     font-size: 1rem;
-    border-radius: 8px;
+    border-radius: 0;
   }
 
   .carousel-deck-category {
@@ -568,8 +573,12 @@
   }
 
   .carousel-deck-dot {
-    width: 7px;
-    height: 7px;
+    width: 10px;
+    height: 3px;
+  }
+
+  .carousel-deck-dot.is-active {
+    width: 16px;
   }
 }
 
@@ -582,4 +591,5 @@
     padding: 6px 10px;
     font-size: 0.7rem;
   }
-}
+}
+

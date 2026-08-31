@@ -80,7 +80,7 @@ export default function Projects() {
       <div className="carousel-stage">
         <Carousel
           items={carouselItems}
-          baseWidth={760}
+          baseWidth={900}
           onOpenCover={(p) => openLightbox(p.cover, p.title, p.title)}
           onOpenDemo={(p) => openVideoModal(`${p.title} Demo`, p.videoUrl)}
         />

@@ -60,28 +60,18 @@ export default function Carousel({
 
   const slideVariants = {
     enter: (dir) => ({
-      x: dir > 0 ? 60 : -60,
-      opacity: 0,
-      scale: 0.98,
+      x: dir > 0 ? '100%' : '-100%',
     }),
     center: {
       x: 0,
-      opacity: 1,
-      scale: 1,
       transition: {
-        x: { type: 'spring', stiffness: 340, damping: 32 },
-        opacity: { duration: 0.2 },
-        scale: { duration: 0.2 },
+        x: { type: 'spring', stiffness: 280, damping: 30, mass: 0.8 },
       },
     },
     exit: (dir) => ({
-      x: dir > 0 ? -60 : 60,
-      opacity: 0,
-      scale: 0.98,
+      x: dir > 0 ? '-100%' : '100%',
       transition: {
-        x: { type: 'spring', stiffness: 340, damping: 32 },
-        opacity: { duration: 0.18 },
-        scale: { duration: 0.18 },
+        x: { type: 'spring', stiffness: 280, damping: 30, mass: 0.8 },
       },
     }),
   }
@@ -103,7 +93,7 @@ export default function Carousel({
 
         {/* Card Stage with AnimatePresence */}
         <div className="carousel-card-viewport">
-          <AnimatePresence initial={false} custom={direction} mode="wait">
+          <AnimatePresence initial={false} custom={direction} mode="popLayout">
             <motion.div
               key={item.id ?? currentIndex}
               custom={direction}
