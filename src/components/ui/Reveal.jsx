@@ -1,5 +1,4 @@
-import { useRef } from 'react'
-import { motion, useInView } from 'framer-motion'
+import { motion } from 'framer-motion'
 
 /**
  * Fades + slides its children into view the first time they cross the
@@ -13,8 +12,6 @@ export default function Reveal({
   distance = 20,
   ...rest
 }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: '0px 0px -40px 0px' })
   const MotionTag = motion[as] ?? motion.div
 
   const getInitial = () => {
@@ -27,9 +24,9 @@ export default function Reveal({
 
   return (
     <MotionTag
-      ref={ref}
       initial={getInitial()}
-      animate={isInView ? { opacity: 1, y: 0, x: 0, scale: 1 } : getInitial()}
+      whileInView={{ opacity: 1, y: 0, x: 0, scale: 1 }}
+      viewport={{ once: true, margin: '0px 0px -30px 0px' }}
       transition={{
         duration: 0.55,
         delay,

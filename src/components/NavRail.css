@@ -249,9 +249,25 @@
     padding: 16px 0 18px;
   }
 
+  /* On mobile the navrail sits at the very bottom of the stacked layout,
+     so the theme toggle would be scrolled past everything else to reach.
+     Pull it out of flow into a small fixed pill at the top of the screen
+     instead. */
   .navrail__toggle-row {
-    padding: 0 16px;
-    margin-bottom: 14px;
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 250;
+    padding: 7px 12px;
+    margin-bottom: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    box-shadow: var(--shadow-lift);
+  }
+
+  .navrail__toggle-label {
+    display: none;
   }
 
   .navrail__list {

@@ -9,10 +9,16 @@
   --outer-r: 28px;
   --p-distance: 14px;
   max-width: 100%;
+  /* Forces this element onto its own compositing layer so overflow:hidden
+     reliably clips the 3D-rotated cards inside it — mobile Safari/Chrome
+     can otherwise let them bleed past this box's edges. */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 .carousel-track {
   display: flex;
+  overflow: hidden;
   transform-style: preserve-3d;
 }
 

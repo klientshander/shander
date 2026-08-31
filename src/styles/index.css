@@ -117,6 +117,10 @@
 html {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  /* Safety net: nothing on the page should ever need horizontal scroll —
+     this catches any element (e.g. the project carousel's 3D cards) that
+     tries to bleed past the viewport edge on mobile. */
+  overflow-x: hidden;
 }
 
 body {
@@ -125,6 +129,7 @@ body {
   font-family: var(--font-body);
   transition: background-color 0.35s ease, color 0.35s ease;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 img {

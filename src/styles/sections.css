@@ -23,6 +23,18 @@
   overflow: hidden;
 }
 
+@media (max-width: 1080px) {
+  .panel {
+    padding: 28px;
+  }
+}
+
+@media (max-width: 600px) {
+  .panel {
+    padding: 18px;
+  }
+}
+
 .section-lead {
   max-width: 640px;
   font-size: 1.05rem;

@@ -7,7 +7,7 @@ export const profile = {
   avatar: '/gallery/shander.png',
   tagline:
     "2nd year BS Information Systems student at Mount Carmel College of Escalante City Inc, building modern, functional web apps with PHP, Laravel, React, and MySQL.",
-  resumeUrl: '/resume.pdf', // drop your résumé file in /public and rename it to resume.pdf, or point this at your own file
+  resumeUrl: '/resume.docx', // points at public/resume.docx — replace this file (or swap in a PDF and update the path) to update your résumé
   // Rotates in the sidebar's typing effect — edit freely.
   typingRoles: [
     'web developer',

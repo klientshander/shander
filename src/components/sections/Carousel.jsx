@@ -83,13 +83,21 @@ function CarouselItem({
   transition,
   onOpenCover,
   onOpenDemo,
+  flat,
 }) {
   const range = [
     -(index + 1) * trackItemOffset,
     -index * trackItemOffset,
     -(index - 1) * trackItemOffset,
   ]
-  const outputRange = [90, 0, -90]
+  // The 3D rotateY flip relies on perspective + the container's
+  // overflow:hidden to hide the tilted neighbor cards. Mobile browsers
+  // (particularly iOS/mobile Safari) don't always clip 3D-transformed
+  // layers against an ancestor's overflow:hidden, so the tilted cards can
+  // visibly spill past the edges of the screen while dragging. On small
+  // screens we flatten the rotation to 0 instead of disabling the effect
+  // in a way that would change the layout.
+  const outputRange = flat ? [0, 0, 0] : [90, 0, -90]
   const rotateY = useTransform(x, range, outputRange, { clamp: false })
 
   return (
@@ -209,11 +217,16 @@ export default function Carousel({
   onOpenDemo,
 }) {
   const containerRef = useRef(null)
-  const containerPadding = 20
   const measuredWidth = useContainerWidth(containerRef, baseWidth)
   const effectiveWidth = Math.min(baseWidth, measuredWidth)
-  const itemWidth = effectiveWidth - containerPadding * 2
+  // measuredWidth comes from ResizeObserver's contentRect, which is already
+  // the container's *content* box (padding excluded) — so it's the real
+  // space available for cards. No need to subtract the container's padding
+  // again here.
+  const itemWidth = effectiveWidth
   const trackItemOffset = itemWidth + GAP
+  // Flatten the 3D flip below ~560px — see the comment in CarouselItem.
+  const isCompact = effectiveWidth <= 560
   const itemsForRender = useMemo(() => {
     if (!loop) return items
     if (items.length === 0) return []
@@ -354,8 +367,12 @@ export default function Carousel({
         style={{
           width: itemWidth,
           gap: `${GAP}px`,
-          perspective: 1000,
-          perspectiveOrigin: `${position * trackItemOffset + itemWidth / 2}px 50%`,
+          ...(isCompact
+            ? {}
+            : {
+                perspective: 1000,
+                perspectiveOrigin: `${position * trackItemOffset + itemWidth / 2}px 50%`,
+              }),
           x,
         }}
         onDragEnd={handleDragEnd}
@@ -376,6 +393,7 @@ export default function Carousel({
             transition={effectiveTransition}
             onOpenCover={onOpenCover}
             onOpenDemo={onOpenDemo}
+            flat={isCompact}
           />
         ))}
       </motion.div>
