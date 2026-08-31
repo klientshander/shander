@@ -9,6 +9,8 @@ import {
   FiPlay,
   FiExternalLink,
   FiGithub,
+  FiChevronLeft,
+  FiChevronRight,
 } from 'react-icons/fi'
 import './Carousel.css'
 
@@ -398,7 +400,20 @@ export default function Carousel({
         ))}
       </motion.div>
 
-      <div className={`carousel-indicators-container ${round ? 'round' : ''}`}>
+      {/* Navigation Arrow Controls & Indicator Row */}
+      <div className={`carousel-controls-row ${round ? 'round' : ''}`}>
+        {items.length > 1 && !round && (
+          <button
+            type="button"
+            className="carousel-arrow-btn carousel-arrow-btn--prev"
+            onClick={() => setPosition((prev) => Math.max(0, prev - 1))}
+            disabled={position === 0}
+            aria-label="Previous project"
+          >
+            <FiChevronLeft aria-hidden="true" />
+          </button>
+        )}
+
         <div className="carousel-indicators">
           {items.map((_, index) => (
             <motion.button
@@ -415,7 +430,26 @@ export default function Carousel({
             />
           ))}
         </div>
+
+        {items.length > 1 && !round && (
+          <button
+            type="button"
+            className="carousel-arrow-btn carousel-arrow-btn--next"
+            onClick={() => setPosition((prev) => Math.min(itemsForRender.length - 1, prev + 1))}
+            disabled={position >= itemsForRender.length - 1}
+            aria-label="Next project"
+          >
+            <FiChevronRight aria-hidden="true" />
+          </button>
+        )}
       </div>
+
+      {!round && items.length > 1 && (
+        <div className="carousel-counter-strip">
+          <span>Project <strong>{activeIndex + 1}</strong> of {items.length}</span>
+          <span className="carousel-counter-hint">· Drag or click arrows to browse</span>
+        </div>
+      )}
     </div>
   )
 }
