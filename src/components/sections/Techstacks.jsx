@@ -48,16 +48,10 @@ export default function Techstacks() {
           const Icon = techIconMap[tech.icon] ?? fallbackTechIcon
           return (
             <Reveal as="div" className="skill-card" key={tech.name} delay={0.02}>
-              <div className="skill-card__top">
-                <span className="skill-card__name">
-                  <Icon aria-hidden="true" />
-                  {tech.name}
-                </span>
-                <span className="skill-card__pct">{tech.level}%</span>
-              </div>
-              <div className="skill-card__track">
-                <div className="skill-card__fill" style={{ width: `${tech.level}%` }} />
-              </div>
+              <span className="skill-card__name">
+                <Icon aria-hidden="true" />
+                {tech.name}
+              </span>
             </Reveal>
           )
         })}

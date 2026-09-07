@@ -94,7 +94,7 @@ export default function CommandPalette({ onNavigate }) {
                     <Icon aria-hidden="true" />
                     <span>{item.label}</span>
                     <span className="cmd-box__key">
-                      {String(navItems.findIndex((n) => n.id === item.id)).padStart(2, '0')}
+                      {String(navItems.findIndex((n) => n.id === item.id) + 1).padStart(2, '0')}
                     </span>
                   </button>
                 )

@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import Lenis from 'lenis'
 import 'lenis/dist/lenis.css'
 import Sidebar from './components/Sidebar'
-import NavRail from './components/NavRail'
+import HeaderNav from './components/HeaderNav'
 import BackgroundMesh from './components/ui/BackgroundMesh'
 import ProgressBar from './components/chrome/ProgressBar'
 import Toast from './components/chrome/Toast'
@@ -17,7 +17,7 @@ import { UIProvider, useUI } from './context/UIContext'
 import { useTheme } from './hooks/useTheme'
 import { navItems } from './data/nav'
 
-import About from './components/sections/About'
+import Home from './components/sections/Home'
 import Education from './components/sections/Education'
 import Certification from './components/sections/Certification'
 import Techstacks from './components/sections/Techstacks'
@@ -29,11 +29,11 @@ import './styles/chrome.css'
 import './styles/sections.css'
 
 const sectionComponents = {
-  about: About,
-  education: Education,
+  home: Home,
+  projects: Projects,
   certification: Certification,
   techstacks: Techstacks,
-  projects: Projects,
+  education: Education,
   gallery: Gallery,
   contact: Contact,
 }
@@ -43,7 +43,7 @@ const sectionOrder = navItems.map((item) => item.id)
 function AppShell() {
   const [activeSection, setActiveSection] = useState(() => {
     const fromHash = window.location.hash.replace('#', '')
-    return sectionOrder.includes(fromHash) ? fromHash : 'about'
+    return sectionOrder.includes(fromHash) ? fromHash : 'home'
   })
   const [progress, setProgress] = useState(0)
   const { theme, toggleTheme } = useTheme()
@@ -199,13 +199,19 @@ function AppShell() {
 
   return (
     <>
-      <BackgroundMesh />
+      <BackgroundMesh theme={theme} />
       <ProgressBar progress={progress} />
 
       <div className="frame">
-        <Sidebar onNavigate={handleNavigate} theme={theme} />
+        <Sidebar activeSection={activeSection} onNavigate={handleNavigate} theme={theme} />
 
         <main className="main-panel" ref={mainRef}>
+          <HeaderNav
+            activeSection={activeSection}
+            onNavigate={handleNavigate}
+            theme={theme}
+            onToggleTheme={toggleTheme}
+          />
           <div className="main-panel__body">
             {sectionOrder.map((id, index) => {
               const SectionComponent = sectionComponents[id]
@@ -228,7 +234,7 @@ function AppShell() {
                           color: navItem?.color ?? 'var(--accent)',
                         }}
                       />
-                      <span className="slide-header__channel">CH.0{index}</span>
+                      <span className="slide-header__channel">CH.0{index + 1}</span>
                       <span className="slide-header__divider">/</span>
                       <span className="slide-header__label">{navItem?.label ?? id}</span>
                     </div>
@@ -252,13 +258,6 @@ function AppShell() {
             })}
           </div>
         </main>
-
-        <NavRail
-          activeSection={activeSection}
-          onNavigate={handleNavigate}
-          theme={theme}
-          onToggleTheme={toggleTheme}
-        />
       </div>
 
       <BackToTop visible={progress > 8} onClick={scrollToTop} />

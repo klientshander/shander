@@ -1,16 +1,32 @@
-// Purely decorative, fixed behind the whole app — a blueprint dot-grid,
-// four slow colour blobs sampled from the section spectrum, and a grain
-// layer. Doesn't participate in layout or navigation, so it's safe to sit
-// at the top of the tree without touching the app's structure.
-export default function BackgroundMesh() {
+import Threads from './Threads'
+
+export default function BackgroundMesh({ theme = 'dark' }) {
+  const isLight = theme === 'light'
+  const threadsColor = isLight ? [0.15, 0.15, 0.15] : [1, 1, 1]
+
   return (
     <div className="bg-mesh" aria-hidden="true">
-      <span className="bg-mesh__blob bg-mesh__blob--a" />
-      <span className="bg-mesh__blob bg-mesh__blob--b" />
-      <span className="bg-mesh__blob bg-mesh__blob--c" />
-      <span className="bg-mesh__blob bg-mesh__blob--d" />
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          width: '100vw',
+          height: '100vh',
+          pointerEvents: 'none',
+          zIndex: 0,
+          opacity: isLight ? 0.35 : 0.5,
+        }}
+      >
+        <Threads
+          amplitude={1}
+          distance={0}
+          enableMouseInteraction={true}
+          color={threadsColor}
+        />
+      </div>
       <span className="bg-mesh__grid" />
       <span className="bg-mesh__grain" />
     </div>
   )
 }
+

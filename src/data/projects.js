@@ -13,7 +13,7 @@ export const projects = [
     liveUrl: 'https://personalspace.free.nf/index.php?page=login',
     codeUrl: '#',
     icon: 'lock',
-    cover: '/gallery/background/personal-space.png',
+    cover: '/gallery/background/personalhub.png',
     metrics: [
       { label: 'Backend', value: 'PHP' },
       { label: 'Database', value: 'MySQL' },
@@ -22,25 +22,7 @@ export const projects = [
     videoUrl: '',
   },
   {
-    id: 'proj-2',
-    title: 'Mini Hospital Management System',
-    description:
-      'A full-featured hospital management system with patient records, appointment scheduling, and analytics React frontend, Laravel API backend, MySQL for data integrity.',
-    tags: ['React', 'Laravel', 'MySQL'],
-    category: 'System',
-    liveUrl: '#',
-    codeUrl: '#',
-    icon: 'activity',
-    cover: '/gallery/background/Hospital.png',
-    metrics: [
-      { label: 'Backend', value: 'Laravel' },
-      { label: 'Frontend', value: 'React' },
-    ],
-    progress: 80,
-    videoUrl: '',
-  },
-  {
-    id: 'proj-3',
+id: 'proj-3',
     title: 'Grahams Store',
     description:
       'A modern online dessert store showcasing Graham-based treats, with a warm palette, product catalog, and inviting bakery-style atmosphere.',
@@ -58,6 +40,24 @@ export const projects = [
     videoUrl: '',
   },
   {
+        id: 'proj-2',
+    title: 'Mini Hospital Management System',
+    description:
+      'A full-featured hospital management system with patient records, appointment scheduling, and analytics React frontend, Laravel API backend, MySQL for data integrity.',
+    tags: ['React', 'Laravel', 'MySQL'],
+    category: 'System',
+    liveUrl: '#',
+    codeUrl: '#',
+    icon: 'activity',
+    cover: '/gallery/background/Clinic.png',
+    metrics: [
+      { label: 'Backend', value: 'Laravel' },
+      { label: 'Frontend', value: 'React' },
+    ],
+    progress: 80,
+    videoUrl: '',
+  },
+  {
     id: 'proj-4',
     title: 'Brand New Day Spider-Man',
     description:
@@ -67,7 +67,7 @@ export const projects = [
     liveUrl: 'https://website-landings-phs1.vercel.app/',
     codeUrl: '#',
     icon: 'brand',
-    cover: '/gallery/background/Brandnewday.png',
+    cover: '/gallery/background/brandnew.png',
     metrics: [
       { label: 'Type', value: 'Brand' },
       { label: 'Framework', value: 'React' },
@@ -121,7 +121,7 @@ export const projects = [
     liveUrl: 'https://studentscarmel.infinityfreeapp.com/index.php?page=login',
     codeUrl: '#',
     icon: 'users',
-    cover: '/gallery/background/Student.png',
+    cover: '/gallery/background/students.png',
     metrics: [
       { label: 'Backend', value: 'PHP' },
       { label: 'Database', value: 'MySQL' },

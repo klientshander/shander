@@ -5,7 +5,7 @@
 .carousel-deck-wrapper {
   position: relative;
   width: 100%;
-  max-width: 900px;
+  max-width: 1060px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -25,11 +25,10 @@
   position: relative;
   width: 100%;
   overflow: hidden;
-  border-radius: 5px;
+  border-radius: var(--radius-md, 12px);
   border: 1px solid var(--border);
   background: var(--surface);
-  box-shadow: var(--shadow-card);
-  min-height: 560px;
+  box-shadow: var(--shadow-lift);
 }
 
 .carousel-deck-card {
@@ -39,7 +38,7 @@
   cursor: grab;
   user-select: none;
   background: var(--surface);
-  border-radius: 5px;
+  border-radius: var(--radius-md, 12px);
   touch-action: pan-y;
 }
 
@@ -51,10 +50,9 @@
 .carousel-deck-cover {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;
-  max-height: 420px;
+  aspect-ratio: 16 / 9.5;
   overflow: hidden;
-  border-radius: 5px 5px 0 0;
+  border-radius: var(--radius-md, 12px) var(--radius-md, 12px) 0 0;
   background: var(--surface-raised);
   cursor: zoom-in;
 }
@@ -64,6 +62,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center top;
   display: block;
   transition: transform 0.35s ease;
 }
@@ -79,11 +78,11 @@
 
 .carousel-deck-zoom {
   position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 32px;
-  height: 32px;
-  border-radius: 5px;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
   background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(4px);
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -108,25 +107,25 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 8px;
   background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(2px);
   color: #fff;
   font-family: var(--font-mono);
-  font-size: 0.82rem;
+  font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   transition: background-color 0.2s ease;
 }
 
 .carousel-deck-play-badge svg {
-  width: 48px;
-  height: 48px;
-  padding: 12px;
+  width: 38px;
+  height: 38px;
+  padding: 10px;
   border-radius: 5px;
   background: var(--accent);
   color: var(--text-contrast, #000);
-  box-shadow: 0 0 20px var(--accent);
+  box-shadow: 0 0 15px var(--accent);
   transition: transform 0.25s ease;
 }
 
@@ -135,7 +134,7 @@
 }
 
 .carousel-deck-cover--video:hover .carousel-deck-play-badge svg {
-  transform: scale(1.1);
+  transform: scale(1.08);
 }
 
 /* Card Header */
@@ -143,82 +142,82 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 22px 28px 0;
+  padding: 14px 20px 0;
 }
 
 .carousel-deck-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 5px;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
   background: var(--accent-soft);
   color: var(--accent);
   border: 1px solid var(--border);
-  font-size: 1.25rem;
+  font-size: 1.05rem;
 }
 
 .carousel-deck-category {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.65rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  padding: 5px 12px;
-  border-radius: 5px;
+  padding: 3px 9px;
+  border-radius: 4px;
   background: var(--surface-raised);
   border: 1px solid var(--border);
   color: var(--text-muted);
 }
 
-/* Card Body Content — Larger PC scale */
+/* Card Body Content */
 .carousel-deck-content {
-  padding: 18px 28px 28px;
+  padding: 12px 20px 20px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
 }
 
 .carousel-deck-title {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.55rem;
+  font-size: 1.22rem;
   color: var(--text);
   line-height: 1.25;
 }
 
 .carousel-deck-description {
-  font-size: 0.96rem;
+  font-size: 0.85rem;
   color: var(--text-muted);
-  line-height: 1.65;
+  line-height: 1.55;
 }
 
 /* Metrics */
 .carousel-deck-metrics {
   display: flex;
-  gap: 22px;
-  padding: 12px 18px;
+  gap: 16px;
+  padding: 8px 14px;
   background: var(--surface-raised);
   border: 1px solid var(--border);
-  border-radius: 5px;
+  border-radius: 4px;
 }
 
 .carousel-deck-metric {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
 .carousel-deck-metric-val {
   font-family: var(--font-display);
-  font-size: 1.05rem;
+  font-size: 0.88rem;
   font-weight: 700;
   color: var(--accent);
 }
 
 .carousel-deck-metric-label {
   font-family: var(--font-mono);
-  font-size: 0.64rem;
+  font-size: 0.58rem;
   color: var(--text-faint);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -228,14 +227,14 @@
 .carousel-deck-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 7px;
+  gap: 5px;
 }
 
 .carousel-deck-tag {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  padding: 4px 10px;
-  border-radius: 5px;
+  font-size: 0.66rem;
+  padding: 3px 8px;
+  border-radius: 4px;
   background: var(--surface-raised);
   border: 1px solid var(--border);
   color: var(--text-faint);
@@ -244,23 +243,23 @@
 /* Actions */
 .carousel-deck-actions {
   display: flex;
-  gap: 12px;
-  padding-top: 16px;
+  gap: 10px;
+  padding-top: 12px;
   border-top: 1px solid var(--border-soft);
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .carousel-deck-btn {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 9px 18px;
-  border-radius: 5px;
+  gap: 5px;
+  padding: 7px 14px;
+  border-radius: 4px;
   background: var(--surface-raised);
   border: 1px solid var(--border);
   color: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   text-decoration: none;
   cursor: pointer;
   transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
@@ -284,7 +283,7 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  margin-top: 20px;
+  margin-top: 12px;
   padding: 0 4px;
 }
 
