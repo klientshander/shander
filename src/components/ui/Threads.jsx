@@ -161,12 +161,12 @@ export default function Threads({
 
     const mesh = new Mesh(gl, { geometry, program })
 
-    const MAX_RENDER_DIM = 1920
+    const MAX_RENDER_DIM = 1600
     function resize() {
       if (!container) return
       const { clientWidth, clientHeight } = container
       if (!clientWidth || !clientHeight) return
-      const baseDpr = Math.min(window.devicePixelRatio || 1, 2)
+      const baseDpr = Math.min(window.devicePixelRatio || 1, 1.5)
       const longestSide = Math.max(clientWidth, clientHeight) * baseDpr
       const dpr = longestSide > MAX_RENDER_DIM ? (baseDpr * MAX_RENDER_DIM) / longestSide : baseDpr
       renderer.dpr = dpr
@@ -207,9 +207,12 @@ export default function Threads({
     )
     intersectionObserver.observe(container)
 
+    let lastRenderTime = 0
     function update(t) {
       animationFrameId.current = requestAnimationFrame(update)
       if (!isVisible || document.hidden) return
+      if (t - lastRenderTime < 33) return
+      lastRenderTime = t
 
       const { color, amplitude, distance, enableMouseInteraction } = propsRef.current
 

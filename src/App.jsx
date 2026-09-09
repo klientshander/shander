@@ -51,6 +51,9 @@ function AppShell() {
   const mainRef = useRef(null)
   const sectionRefs = useRef(new Map())
   const lenisRef = useRef(null)
+  const progressRafRef = useRef(0)
+  const pendingProgressRef = useRef(0)
+  const displayedProgressRef = useRef(-1)
   const reduceMotionRef = useRef(
     typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
   )
@@ -98,8 +101,17 @@ function AppShell() {
 
     lenisRef.current = lenis
 
-    const onScroll = ({ progress }) => {
-      setProgress(Math.min(100, Math.max(0, progress * 100)))
+    const onScroll = ({ progress: scrollProgress }) => {
+      pendingProgressRef.current = Math.round(Math.min(100, Math.max(0, scrollProgress * 100)))
+      if (progressRafRef.current) return
+
+      progressRafRef.current = requestAnimationFrame(() => {
+        progressRafRef.current = 0
+        const nextProgress = pendingProgressRef.current
+        if (nextProgress === displayedProgressRef.current) return
+        displayedProgressRef.current = nextProgress
+        setProgress(nextProgress)
+      })
     }
     lenis.on('scroll', onScroll)
 
@@ -112,6 +124,7 @@ function AppShell() {
 
     return () => {
       cancelAnimationFrame(rafId)
+      if (progressRafRef.current) cancelAnimationFrame(progressRafRef.current)
       lenis.destroy()
     }
   }, [])
