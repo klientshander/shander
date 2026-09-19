@@ -28,7 +28,7 @@ export default function ChessModal() {
             style={{ maxWidth: '520px', width: '92%' }}
           >
             <div className="overlay__header">
-              <span className="overlay__label">♟️ Do you wanna play with Shander?</span>
+              <span className="overlay__label">Play with Shander</span>
               <button type="button" className="overlay__close" onClick={closeChessModal}>
                 <FiX aria-hidden="true" /> Close
               </button>

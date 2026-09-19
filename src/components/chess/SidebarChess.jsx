@@ -219,7 +219,7 @@ export default function SidebarChess({ onExpand, isModal = false }) {
       <div className="sidebar-chess__header">
         <div className="sidebar-chess__title-group">
           <span className="sidebar-chess__icon">♟️</span>
-          <span className="sidebar-chess__title">Do you wanna play with Shander?</span>
+          <span className="sidebar-chess__title">Play with me</span>
           <span className={`sidebar-chess__badge ${turn === 'w' ? 'sidebar-chess__badge--white' : 'sidebar-chess__badge--black'}`}>
             {statusMessage}
           </span>
