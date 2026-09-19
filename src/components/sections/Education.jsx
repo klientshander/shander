@@ -1,5 +1,5 @@
 import { HiOutlineAcademicCap } from 'react-icons/hi'
-import { FiBookOpen, FiAward } from 'react-icons/fi'
+import { FiBookOpen, FiAward, FiExternalLink } from 'react-icons/fi'
 import { education, academicProgress } from '../../data/education'
 import Reveal from '../ui/Reveal'
 import RingProgress from '../ui/RingProgress'
@@ -22,7 +22,22 @@ export default function Education() {
             Year {academicProgress.currentYear} of {academicProgress.totalYears}
           </span>
           <h3 className="edu-ring__title">{current?.degree}</h3>
-          <p className="edu-ring__sub">{current?.school}</p>
+          <p className="edu-ring__sub">
+            {current?.url ? (
+              <a
+                href={current.url}
+                target="_blank"
+                rel="noreferrer"
+                className="edu-ring__school-link"
+                title="Visit school website"
+              >
+                {current.school}
+                <FiExternalLink className="edu-link-icon" aria-hidden="true" />
+              </a>
+            ) : (
+              current?.school
+            )}
+          </p>
         </div>
       </Reveal>
 
@@ -36,7 +51,22 @@ export default function Education() {
                   <Icon aria-hidden="true" />
                 </span>
                 <span className="timeline-item__period">{item.period}</span>
-                <h3 className="timeline-item__title">{item.school}</h3>
+                <h3 className="timeline-item__title">
+                  {item.url ? (
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="timeline-item__school-link"
+                      title="Visit school website"
+                    >
+                      {item.school}
+                      <FiExternalLink className="edu-link-icon" aria-hidden="true" />
+                    </a>
+                  ) : (
+                    item.school
+                  )}
+                </h3>
                 <p className="timeline-item__subtitle">{item.degree}</p>
                 <p className="timeline-item__desc">{item.description}</p>
                 {item.badge && (

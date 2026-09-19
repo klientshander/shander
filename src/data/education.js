@@ -12,6 +12,7 @@ export const education = [
     school: 'Mount Carmel College of Escalante City Inc',
     degree: 'B.S. in Information Systems',
     period: '2025 2029 (ongoing)',
+    url: 'https://mccei.edu.ph/',
     description:
       "Currently a 2nd year student. Named Dean's Lister in first year for academic excellence.",
     icon: 'college',
@@ -22,6 +23,7 @@ export const education = [
     school: 'Escalante National High School',
     degree: 'Senior High School — HUMSS Strand',
     period: '2020 2024',
+    url: '',
     description:
       'Graduated with honors. Taught myself PHP and Laravel during this time — that self-driven curiosity for web development led me to pursue Information Systems.',
     icon: 'school',
