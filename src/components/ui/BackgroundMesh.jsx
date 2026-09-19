@@ -1,8 +1,8 @@
-import Threads from './Threads'
+import BackgroundBoxes from './BackgroundBoxes'
 
 export default function BackgroundMesh({ theme = 'dark' }) {
   const isLight = theme === 'light'
-  const threadsColor = isLight ? [0.15, 0.15, 0.15] : [1, 1, 1]
+  const borderColor = isLight ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.08)'
 
   return (
     <div className="bg-mesh" aria-hidden="true">
@@ -14,17 +14,16 @@ export default function BackgroundMesh({ theme = 'dark' }) {
           height: '100vh',
           pointerEvents: 'none',
           zIndex: 0,
-          opacity: isLight ? 0.35 : 0.5,
         }}
       >
-        <Threads
-          amplitude={1}
-          distance={0}
-          enableMouseInteraction={true}
-          color={threadsColor}
+        <BackgroundBoxes
+          boxSize={40}
+          borderWidth={1}
+          borderColor={borderColor}
+          backgroundColor="transparent"
+          isLight={isLight}
         />
       </div>
-      <span className="bg-mesh__grid" />
       <span className="bg-mesh__grain" />
     </div>
   )

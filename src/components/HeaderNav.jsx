@@ -1,13 +1,20 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiCommand, FiSun, FiMoon, FiMenu, FiX, FiArrowUpRight } from 'react-icons/fi'
+import { FiCommand, FiSun, FiMoon, FiMenu, FiX, FiArrowUpRight, FiVolume2, FiVolumeX } from 'react-icons/fi'
 import { FaLinkedin, FaGithub, FaFacebookMessenger } from 'react-icons/fa6'
 import { headerNavItems, navItems } from '../data/nav'
 import { profile, socials } from '../data/profile'
 import { useUI } from '../context/UIContext'
 import './HeaderNav.css'
 
-export default function HeaderNav({ activeSection, onNavigate, theme, onToggleTheme }) {
+export default function HeaderNav({
+  activeSection,
+  onNavigate,
+  theme,
+  onToggleTheme,
+  soundEnabled = true,
+  onToggleSound,
+}) {
   const { openCmd } = useUI()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -107,6 +114,19 @@ export default function HeaderNav({ activeSection, onNavigate, theme, onToggleTh
               </motion.div>
             </div>
           </button>
+
+          {/* Sound Effects Toggle Button */}
+          {onToggleSound && (
+            <button
+              type="button"
+              className={`headernav__btn sound-toggle ${soundEnabled ? 'sound-toggle--active' : ''}`}
+              onClick={onToggleSound}
+              aria-label={soundEnabled ? 'Disable sound effects' : 'Enable sound effects'}
+              title={soundEnabled ? 'Mute sound effects' : 'Enable sound effects'}
+            >
+              {soundEnabled ? <FiVolume2 aria-hidden="true" /> : <FiVolumeX aria-hidden="true" />}
+            </button>
+          )}
 
           {/* Mobile Menu Toggle Button */}
           <button

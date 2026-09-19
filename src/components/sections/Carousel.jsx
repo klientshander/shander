@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   FiPlay,
   FiExternalLink,
   FiGithub,
   FiZoomIn,
+  FiVolume2,
+  FiVolumeX,
 } from 'react-icons/fi'
 import './Carousel.css'
 
@@ -16,6 +18,30 @@ export default function Carousel({
 }) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [direction, setDirection] = useState(0)
+  const [isMuted, setIsMuted] = useState(true)
+  const videoRef = useRef(null)
+
+  // Sync muted state to video element
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = isMuted
+    }
+  }, [isMuted, currentIndex])
+
+  const handleVolumeToggle = (e) => {
+    e.stopPropagation()
+    e.preventDefault()
+    setIsMuted((prev) => {
+      const next = !prev
+      if (videoRef.current) {
+        videoRef.current.muted = next
+        if (!next && videoRef.current.paused) {
+          videoRef.current.play().catch(() => {})
+        }
+      }
+      return next
+    })
+  }
 
   // Reset to first slide when filtered items change
   useEffect(() => {
@@ -93,34 +119,56 @@ export default function Carousel({
               onDragEnd={handleDragEnd}
               className="carousel-deck-card"
             >
-              {item.cover ? (
-                <div
-                  className="carousel-deck-cover"
-                  onClick={() => onOpenCover?.(item)}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`View ${item.title} image`}
-                >
-                  <img src={item.cover} alt={item.title} loading="lazy" />
-                  <span className="carousel-deck-zoom" aria-hidden="true">
-                    <FiZoomIn />
-                  </span>
-                </div>
-              ) : item.videoUrl ? (
-                <div
-                  className="carousel-deck-cover carousel-deck-cover--video"
-                  onClick={() => onOpenDemo?.(item)}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`Play ${item.title} video demo`}
-                >
-                  <video src={item.videoUrl} muted loop playsInline />
-                  <div className="carousel-deck-play-badge">
-                    <FiPlay aria-hidden="true" />
-                    <span>Watch Demo</span>
-                  </div>
-                </div>
-              ) : null}
+              {(() => {
+                const isVideo =
+                  (item.cover && (item.cover.endsWith('.mp4') || item.cover.endsWith('.webm') || item.cover.includes('/video/'))) ||
+                  (!item.cover && item.videoUrl)
+                const mediaSrc = isVideo
+                  ? (item.cover?.includes('.mp4') || item.cover?.includes('.webm') || item.cover?.includes('/video/') ? item.cover : item.videoUrl)
+                  : item.cover
+
+                if (isVideo && mediaSrc) {
+                  return (
+                    <div
+                      className="carousel-deck-cover carousel-deck-cover--video"
+                      onClick={() => onOpenDemo?.(item)}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Play ${item.title} video demo`}
+                    >
+                      <video ref={videoRef} src={mediaSrc} autoPlay muted={isMuted} loop playsInline />
+                      <button
+                        type="button"
+                        className="carousel-deck-volume-btn"
+                        onClick={handleVolumeToggle}
+                        aria-label={isMuted ? 'Unmute video' : 'Mute video'}
+                        title={isMuted ? 'Unmute audio' : 'Mute audio'}
+                      >
+                        {isMuted ? <FiVolumeX aria-hidden="true" /> : <FiVolume2 aria-hidden="true" />}
+                      </button>
+                    </div>
+                  )
+                }
+
+                if (item.cover) {
+                  return (
+                    <div
+                      className="carousel-deck-cover"
+                      onClick={() => onOpenCover?.(item)}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`View ${item.title} image`}
+                    >
+                      <img src={item.cover} alt={item.title} loading="lazy" />
+                      <span className="carousel-deck-zoom" aria-hidden="true">
+                        <FiZoomIn />
+                      </span>
+                    </div>
+                  )
+                }
+
+                return null
+              })()}
 
               <div className="carousel-deck-header">
                 <span className="carousel-deck-icon">{item.icon}</span>

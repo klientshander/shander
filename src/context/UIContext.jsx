@@ -6,6 +6,7 @@ export function UIProvider({ children }) {
   const [lightbox, setLightbox] = useState({ open: false, src: '', alt: '', caption: '' })
   const [certModal, setCertModal] = useState({ open: false, title: '', org: '', img: '' })
   const [videoModal, setVideoModal] = useState({ open: false, title: '', url: '' })
+  const [chessModal, setChessModal] = useState({ open: false })
   const [cmdOpen, setCmdOpen] = useState(false)
   const [toast, setToast] = useState({ show: false, message: '' })
   const toastTimer = useRef(null)
@@ -25,6 +26,9 @@ export function UIProvider({ children }) {
   }, [])
   const closeVideoModal = useCallback(() => setVideoModal((s) => ({ ...s, open: false, url: '' })), [])
 
+  const openChessModal = useCallback(() => setChessModal({ open: true }), [])
+  const closeChessModal = useCallback(() => setChessModal({ open: false }), [])
+
   const openCmd = useCallback(() => setCmdOpen(true), [])
   const closeCmd = useCallback(() => setCmdOpen(false), [])
 
@@ -38,6 +42,7 @@ export function UIProvider({ children }) {
     setLightbox((s) => ({ ...s, open: false }))
     setCertModal((s) => ({ ...s, open: false }))
     setVideoModal((s) => ({ ...s, open: false, url: '' }))
+    setChessModal({ open: false })
     setCmdOpen(false)
   }, [])
 
@@ -52,6 +57,9 @@ export function UIProvider({ children }) {
       videoModal,
       openVideoModal,
       closeVideoModal,
+      chessModal,
+      openChessModal,
+      closeChessModal,
       cmdOpen,
       openCmd,
       closeCmd,
@@ -59,7 +67,7 @@ export function UIProvider({ children }) {
       showToast,
       closeAllOverlays,
     }),
-    [lightbox, certModal, videoModal, cmdOpen, toast, openLightbox, closeLightbox, openCertModal, closeCertModal, openVideoModal, closeVideoModal, openCmd, closeCmd, showToast, closeAllOverlays]
+    [lightbox, certModal, videoModal, chessModal, openChessModal, closeChessModal, cmdOpen, toast, openLightbox, closeLightbox, openCertModal, closeCertModal, openVideoModal, closeVideoModal, openCmd, closeCmd, showToast, closeAllOverlays]
   )
 
   return <UIContext.Provider value={value}>{children}</UIContext.Provider>

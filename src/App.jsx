@@ -13,8 +13,10 @@ import CommandPalette from './components/chrome/CommandPalette'
 import Lightbox from './components/chrome/Lightbox'
 import CertModal from './components/chrome/CertModal'
 import VideoModal from './components/chrome/VideoModal'
+import ChessModal from './components/chrome/ChessModal'
 import { UIProvider, useUI } from './context/UIContext'
 import { useTheme } from './hooks/useTheme'
+import { useSoundEffects } from './hooks/useSoundEffects'
 import { navItems } from './data/nav'
 
 import Home from './components/sections/Home'
@@ -47,6 +49,7 @@ function AppShell() {
   })
   const [progress, setProgress] = useState(0)
   const { theme, toggleTheme } = useTheme()
+  const { soundEnabled, toggleSound } = useSoundEffects()
   const { openCmd, closeAllOverlays } = useUI()
   const mainRef = useRef(null)
   const sectionRefs = useRef(new Map())
@@ -196,11 +199,13 @@ function AppShell() {
         handleNavigate(sectionOrder[idx - 1])
       } else if (e.key.toLowerCase() === 'd') {
         toggleTheme()
+      } else if (e.key.toLowerCase() === 'm') {
+        toggleSound()
       }
     }
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
-  }, [activeSection, handleNavigate, openCmd, closeAllOverlays, toggleTheme])
+  }, [activeSection, handleNavigate, openCmd, closeAllOverlays, toggleTheme, toggleSound])
 
   const scrollToTop = () => {
     if (lenisRef.current) {
@@ -224,6 +229,8 @@ function AppShell() {
             onNavigate={handleNavigate}
             theme={theme}
             onToggleTheme={toggleTheme}
+            soundEnabled={soundEnabled}
+            onToggleSound={toggleSound}
           />
           <div className="main-panel__body">
             {sectionOrder.map((id, index) => {
@@ -262,7 +269,7 @@ function AppShell() {
                     whileInView={reduceMotionRef.current ? undefined : { opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.15 }}
                     transition={{ duration: 0.45, ease: 'easeOut' }}
-                    style={{ width: '100%' }}
+                    className="page-section__content"
                   >
                     <SectionComponent onNavigate={handleNavigate} />
                   </motion.div>
@@ -280,6 +287,7 @@ function AppShell() {
       <Lightbox />
       <CertModal />
       <VideoModal />
+      <ChessModal />
     </>
   )
 }

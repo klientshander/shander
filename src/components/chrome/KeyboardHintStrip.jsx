@@ -8,7 +8,10 @@ export default function KeyboardHintStrip() {
         <kbd>&#8984;K</kbd> quick nav
       </span>
       <span>
-        <kbd>D</kbd> toggle theme
+        <kbd>D</kbd> theme
+      </span>
+      <span>
+        <kbd>M</kbd> sound
       </span>
     </div>
   )

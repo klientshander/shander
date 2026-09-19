@@ -47,8 +47,35 @@
   width: 100%;
 }
 
+.page-section__content {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+#home.page-section {
+  min-height: calc(100vh - 100px);
+  min-height: calc(100dvh - 100px);
+  display: flex;
+  flex-direction: column;
+}
+
+#home .home-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+#home .home-hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
 .page-section + .page-section {
-  padding-top: 22px;
+  padding-top: 24px;
   border-top: 1px solid var(--border-soft);
 }
 

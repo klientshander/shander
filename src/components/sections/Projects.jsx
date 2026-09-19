@@ -82,7 +82,7 @@ export default function Projects() {
           items={carouselItems}
           baseWidth={1060}
           onOpenCover={(p) => openLightbox(p.cover, p.title, p.title)}
-          onOpenDemo={(p) => openVideoModal(`${p.title} Demo`, p.videoUrl)}
+          onOpenDemo={(p) => openVideoModal(`${p.title} Demo`, p.videoUrl || p.cover)}
         />
       </div>
     </>

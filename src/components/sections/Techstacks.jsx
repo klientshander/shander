@@ -1,9 +1,8 @@
 import { useMemo, useState } from 'react'
 import { FiCode } from 'react-icons/fi'
-import { techGroups, radarCategories } from '../../data/techstacks'
+import { techGroups } from '../../data/techstacks'
 import { techIconMap, fallbackTechIcon } from '../../data/techIcons'
 import Reveal from '../ui/Reveal'
-import SkillsRadar from '../ui/SkillsRadar'
 
 const allSkills = techGroups.flatMap((group) =>
   group.items.map((item) => ({ ...item, groupId: group.id, groupLabel: group.label }))
@@ -19,10 +18,6 @@ export default function Techstacks() {
 
   return (
     <>
-      <Reveal as="div" className="radar-wrap">
-        <SkillsRadar categories={radarCategories} />
-      </Reveal>
-
       <div className="filter-tabs" role="tablist" aria-label="Filter tech stack by category">
         <button
           type="button"

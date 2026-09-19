@@ -15,21 +15,15 @@ import {
 import { FaLinkedin, FaFacebookMessenger, FaGithub } from 'react-icons/fa6'
 import { profile, socials } from '../data/profile'
 import { navItems } from '../data/nav'
-import { techGroups } from '../data/techstacks'
-import { techIconMap, fallbackTechIcon } from '../data/techIcons'
+import { useUI } from '../context/UIContext'
 import TypingText from './ui/TypingText'
 import Sparkline from './ui/Sparkline'
 import PixelTransition from './ui/PixelTransition'
+import SidebarChess from './chess/SidebarChess'
 import './Sidebar.css'
 
-// Standout skills for the sidebar preview grid
-const topSkillNames = ['PHP', 'Laravel', 'React', 'MySQL', 'JavaScript', 'CSS']
-const allTech = techGroups.flatMap((group) => group.items)
-const topSkills = topSkillNames
-  .map((name) => allTech.find((item) => item.name === name))
-  .filter(Boolean)
-
 export default function Sidebar({ activeSection = 'home', onNavigate, theme }) {
+  const { openChessModal } = useUI()
   const initials = profile.name
     .split(' ')
     .map((part) => part[0])
@@ -135,30 +129,8 @@ export default function Sidebar({ activeSection = 'home', onNavigate, theme }) {
 
       
 
-      <div className="sidebar__divider" />
-
-      {/* ===== Standout Skills ===== */}
-      <div className="sidebar__skills">
-        <div className="sidebar__section-title">
-          <span>Top Arsenal</span>
-          <button type="button" onClick={() => onNavigate('techstacks')}>
-            View all &rarr;
-          </button>
-        </div>
-        <div className="sidebar__skill-grid">
-          {topSkills.map((skill) => {
-            const Icon = techIconMap[skill.icon] ?? fallbackTechIcon
-            return (
-              <div className="sidebar__skill" key={skill.name}>
-                <span className="sidebar__skill-icon">
-                  <Icon aria-hidden="true" />
-                </span>
-                <span className="sidebar__skill-name">{skill.name}</span>
-              </div>
-            )
-          })}
-        </div>
-      </div>
+      {/* ===== Mini Chess Game ===== */}
+      <SidebarChess onExpand={openChessModal} />
 
       <div className="sidebar__divider" />
 
