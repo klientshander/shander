@@ -209,7 +209,7 @@ export default function SidebarChess({ onExpand, isModal = false }) {
     }
     if (isDraw) return '🤝 Draw / Stalemate'
     if (isCheck) return '⚠️ Check!'
-    if (isBotThinking) return '🤖 Bot is thinking...'
+    if (isBotThinking) return '🤖 shander is thinking...'
     return turn === 'w' ? "White's Turn" : "Black's Turn"
   }, [isCheckmate, isDraw, isCheck, isBotThinking, turn])
 

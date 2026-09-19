@@ -60,21 +60,18 @@ export default function Projects() {
           className={`filter-tab ${filter === 'all' ? 'is-active' : ''}`}
           onClick={() => setFilter('all')}
         >
-          All ({projects.length})
+          All
         </button>
-        {projectCategories.map((cat) => {
-          const count = projects.filter((p) => p.category === cat).length
-          return (
-            <button
-              type="button"
-              key={cat}
-              className={`filter-tab ${filter === cat ? 'is-active' : ''}`}
-              onClick={() => setFilter(cat)}
-            >
-              {cat} ({count})
-            </button>
-          )
-        })}
+        {projectCategories.map((cat) => (
+          <button
+            type="button"
+            key={cat}
+            className={`filter-tab ${filter === cat ? 'is-active' : ''}`}
+            onClick={() => setFilter(cat)}
+          >
+            {cat}
+          </button>
+        ))}
       </div>
 
       <div className="carousel-stage">
