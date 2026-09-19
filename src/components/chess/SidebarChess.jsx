@@ -220,9 +220,6 @@ export default function SidebarChess({ onExpand, isModal = false }) {
         <div className="sidebar-chess__title-group">
           <span className="sidebar-chess__icon">♟️</span>
           <span className="sidebar-chess__title">Play with me</span>
-          <span className={`sidebar-chess__badge ${turn === 'w' ? 'sidebar-chess__badge--white' : 'sidebar-chess__badge--black'}`}>
-            {statusMessage}
-          </span>
         </div>
 
         <div className="sidebar-chess__header-actions">
@@ -261,7 +258,26 @@ export default function SidebarChess({ onExpand, isModal = false }) {
             transition={{ duration: 0.22 }}
             className="sidebar-chess__body"
           >
-            {/* Mode & Tool Bar */}
+            {/* Status & Difficulty Row */}
+            <div className="sidebar-chess__status-row">
+              <span className={`sidebar-chess__badge ${turn === 'w' ? 'sidebar-chess__badge--white' : 'sidebar-chess__badge--black'}`}>
+                {statusMessage}
+              </span>
+              {vsBot && (
+                <select
+                  className="sidebar-chess__difficulty"
+                  value={botDifficulty}
+                  onChange={(e) => setBotDifficulty(e.target.value)}
+                  aria-label="Bot difficulty"
+                >
+                  <option value="easy">Casual</option>
+                  <option value="medium">Normal</option>
+                  <option value="hard">Master</option>
+                </select>
+              )}
+            </div>
+
+            {/* Mode & Action Tools Bar */}
             <div className="sidebar-chess__controls">
               <div className="sidebar-chess__mode-toggle">
                 <button
@@ -285,19 +301,6 @@ export default function SidebarChess({ onExpand, isModal = false }) {
                   <FiUser /> 2-Player
                 </button>
               </div>
-
-              {vsBot && (
-                <select
-                  className="sidebar-chess__difficulty"
-                  value={botDifficulty}
-                  onChange={(e) => setBotDifficulty(e.target.value)}
-                  aria-label="Bot difficulty"
-                >
-                  <option value="easy">Casual</option>
-                  <option value="medium">Normal</option>
-                  <option value="hard">Master</option>
-                </select>
-              )}
 
               <div className="sidebar-chess__action-btns">
                 <button

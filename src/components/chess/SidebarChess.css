@@ -26,16 +26,13 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  flex-wrap: wrap;
 }
 
 .sidebar-chess__title-group {
   display: flex;
   align-items: center;
   gap: 6px;
-  flex: 1 1 auto;
   min-width: 0;
-  flex-wrap: wrap;
 }
 
 .sidebar-chess__icon {
@@ -45,16 +42,25 @@
 
 .sidebar-chess__title {
   font-family: var(--font-pixel, var(--font-mono));
-  font-size: 0.72rem;
+  font-size: 0.8rem;
   color: var(--text);
-  letter-spacing: 0.02em;
-  white-space: normal;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* Status & Difficulty Row */
+.sidebar-chess__status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 2px 0 4px;
 }
 
 .sidebar-chess__badge {
   font-family: var(--font-mono);
   font-size: 0.62rem;
-  padding: 2px 7px;
+  padding: 3px 8px;
   border-radius: 4px;
   background: var(--surface);
   border: 1px solid var(--border);
