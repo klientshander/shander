@@ -1,0 +1,899 @@
+/* ==========================================================================
+   Concept 4: Interactive Device Studio (Desktop & Mobile Frame Switcher)
+   Featuring realistic device mockups & normal thin typography
+   ========================================================================== */
+
+.device-studio {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================================================
+   Main Studio Layout: Device Stage (Left) & Control/Info (Right)
+   ========================================================================== */
+
+.device-studio__main {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 36px;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: var(--shadow-lift);
+}
+
+[data-theme="light"] .device-studio__main {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 20px 48px -15px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .device-studio__main {
+  background: #111115;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 24px 50px -15px rgba(0, 0, 0, 0.6);
+}
+
+/* Stage Area holding the active frame */
+.device-studio__stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 440px;
+  position: relative;
+}
+
+.device-studio__frame-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ==========================================================================
+   1. Desktop Browser Frame
+   ========================================================================== */
+
+.device-frame--desktop {
+  width: 100%;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.25s ease;
+}
+
+[data-theme="light"] .device-frame--desktop {
+  background: #f8f8fa;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .device-frame--desktop {
+  background: #191920;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.desktop-chrome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.04);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+[data-theme="dark"] .desktop-chrome {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.desktop-chrome__dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.desktop-chrome__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  opacity: 0.85;
+}
+
+.desktop-chrome__dot--red {
+  background: #ff5f56;
+}
+
+.desktop-chrome__dot--yellow {
+  background: #ffbd2e;
+}
+
+.desktop-chrome__dot--green {
+  background: #27c93f;
+}
+
+.desktop-chrome__address {
+  flex: 1;
+  max-width: 320px;
+  margin: 0 12px;
+  padding: 4px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.desktop-chrome__url {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 300;
+  color: var(--text-faint);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.desktop-chrome__actions {
+  display: flex;
+  align-items: center;
+}
+
+.desktop-chrome__action-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  color: var(--text-faint);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  transition: color 0.15s ease;
+}
+
+.desktop-chrome__action-btn:hover {
+  color: var(--text);
+}
+
+.desktop-screen {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: #000000;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   2. Mobile Smartphone Frame
+   ========================================================================== */
+
+.device-frame--mobile {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.phone-case {
+  width: 270px;
+  background: #111114;
+  border: 3px solid #282830;
+  border-radius: 42px;
+  padding: 10px 9px 8px;
+  box-shadow:
+    0 24px 60px -15px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+[data-theme="light"] .phone-case {
+  background: #1e1e24;
+  border-color: #383842;
+}
+
+.phone-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 14px 6px;
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 500;
+}
+
+.phone-time {
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.phone-island {
+  width: 68px;
+  height: 16px;
+  background: #000000;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+}
+
+.phone-camera {
+  width: 7px;
+  height: 7px;
+  background: #1c1c28;
+  border-radius: 999px;
+  border: 1px solid #333345;
+}
+
+.phone-signals {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.phone-signal-bar {
+  width: 10px;
+  height: 8px;
+  border-left: 2px solid #ffffff;
+  border-bottom: 2px solid #ffffff;
+}
+
+.phone-battery {
+  width: 14px;
+  height: 7px;
+  border: 1px solid #ffffff;
+  border-radius: 2px;
+  position: relative;
+}
+
+.phone-battery::after {
+  content: '';
+  position: absolute;
+  right: -2px;
+  top: 1px;
+  width: 1px;
+  height: 3px;
+  background: #ffffff;
+}
+
+.phone-screen {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9 / 17.5;
+  border-radius: 28px;
+  overflow: hidden;
+  background: #000000;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.phone-home-indicator {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.45);
+  border-radius: 999px;
+  z-index: 5;
+}
+
+/* ==========================================================================
+   Media inside Screens
+   ========================================================================== */
+
+.device-media-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.device-media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  transition: transform 0.35s ease;
+}
+
+.device-media-wrap:hover .device-media {
+  transform: scale(1.02);
+}
+
+.device-media-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.device-media-wrap:hover .device-media-overlay {
+  opacity: 1;
+}
+
+.device-zoom-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+  font-weight: 300;
+  letter-spacing: 0.03em;
+}
+
+.device-volume-btn {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  cursor: pointer;
+  z-index: 6;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.device-volume-btn:hover {
+  transform: scale(1.08);
+  background: #000000;
+}
+
+.device-volume-btn--phone {
+  bottom: 22px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  font-size: 0.85rem;
+}
+
+.device-media-fallback {
+  color: var(--text-faint);
+  font-size: 0.85rem;
+  font-weight: 300;
+}
+
+/* ==========================================================================
+   Control & Information Pane (Normal, Thin Typography)
+   ========================================================================== */
+
+.device-studio__info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Device Mode Switcher Tabs */
+.device-mode-switcher {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.device-switcher-label {
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  text-transform: uppercase;
+}
+
+.device-switcher-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface-raised);
+  padding: 3px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+}
+
+.device-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.device-pill.is-active {
+  background: var(--accent);
+  color: var(--text-contrast, #000);
+  font-weight: 400;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Project Meta Row */
+.studio-info__meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.studio-info__counter {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.studio-counter-num {
+  font-family: var(--font-body);
+  font-size: 1.85rem;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.studio-counter-sep {
+  color: var(--text-faint);
+  font-size: 0.85rem;
+  font-weight: 300;
+}
+
+.studio-counter-total {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 300;
+  color: var(--text-faint);
+}
+
+.studio-badge-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.studio-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid var(--border);
+  background: var(--surface-raised);
+  color: var(--text-muted);
+}
+
+.studio-badge--cat {
+  border-color: var(--accent-border, var(--border));
+  color: var(--text);
+}
+
+/* Project Title */
+.studio-project-title {
+  font-family: var(--font-body);
+  font-size: 1.65rem;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  line-height: 1.25;
+  margin: 0;
+}
+
+/* Description (Light 300 weight) */
+.studio-project-desc {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-weight: 300;
+  line-height: 1.66;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Tech Chips */
+.studio-tech-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.studio-chip {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-soft);
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  font-weight: 300;
+  color: var(--text-faint);
+  letter-spacing: 0.02em;
+}
+
+/* Key Metrics */
+.studio-metrics-bar {
+  display: flex;
+  gap: 16px;
+  padding: 8px 14px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+}
+
+.studio-metric-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.studio-metric-val {
+  font-family: var(--font-body);
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.studio-metric-lbl {
+  font-family: var(--font-body);
+  font-size: 0.58rem;
+  font-weight: 300;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Action Buttons */
+.studio-action-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.studio-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  cursor: pointer;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  color: var(--text);
+  transition: all 0.18s ease;
+}
+
+.studio-btn:hover {
+  transform: translateY(-1.5px);
+  border-color: var(--accent-border, var(--border-strong));
+  background: var(--surface);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.studio-btn--primary {
+  background: var(--accent);
+  color: var(--text-contrast, #000);
+  border-color: var(--accent);
+}
+
+.studio-btn--primary:hover {
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+  box-shadow: 0 6px 18px rgba(255, 255, 255, 0.2);
+}
+
+.studio-btn--demo {
+  color: var(--text);
+}
+
+/* ==========================================================================
+   Bottom Visual Filmstrip Dock
+   ========================================================================== */
+
+.device-dock {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.device-dock__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+.device-dock__label {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  text-transform: uppercase;
+}
+
+.device-dock__nav-btns {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.device-dock__nav-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.15s ease;
+}
+
+.device-dock__nav-btn:hover {
+  color: var(--text);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.device-dock__scroll-area {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 6px 2px 14px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.device-dock__scroll-area::-webkit-scrollbar {
+  height: 4px;
+}
+
+.device-dock__scroll-area::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+.device-dock__track {
+  display: flex;
+  gap: 14px;
+  width: max-content;
+}
+
+/* Thumbnail Dock Card */
+.device-dock__card {
+  display: flex;
+  flex-direction: column;
+  width: 180px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 6px;
+  cursor: pointer;
+  text-align: left;
+  user-select: none;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.device-dock__card:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-strong);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.device-dock__card.is-active {
+  border-color: var(--accent);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  background: var(--surface-raised);
+}
+
+[data-theme="dark"] .device-dock__card.is-active {
+  box-shadow: 0 8px 26px rgba(255, 255, 255, 0.08);
+}
+
+.device-dock__thumb-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000000;
+  margin-bottom: 8px;
+}
+
+.device-dock__thumb-media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.device-dock__thumb-fallback {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #222, #111);
+}
+
+.device-dock__thumb-tint {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.65) 100%);
+}
+
+.device-dock__thumb-num {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  font-family: var(--font-body);
+  font-size: 0.64rem;
+  font-weight: 400;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+}
+
+.device-dock__info-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 4px 4px;
+}
+
+.device-dock__item-title {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25;
+}
+
+.device-dock__item-cat {
+  font-family: var(--font-body);
+  font-size: 0.62rem;
+  font-weight: 300;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.device-studio-empty {
+  padding: 40px;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 300;
+  color: var(--text-faint);
+}
+
+/* ==========================================================================
+   Responsive Breakpoints
+   ========================================================================== */
+
+@media (max-width: 960px) {
+  .device-studio__main {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 20px;
+  }
+
+  .device-project-title {
+    font-size: 1.45rem;
+  }
+
+  .device-dock__card {
+    width: 160px;
+  }
+}
+
+@media (max-width: 600px) {
+  .device-studio__main {
+    padding: 14px;
+    border-radius: 18px;
+    gap: 20px;
+  }
+
+  .desktop-chrome {
+    padding: 8px 10px;
+  }
+
+  .desktop-chrome__address {
+    margin: 0 6px;
+    padding: 3px 8px;
+  }
+
+  .phone-case {
+    width: 240px;
+    border-radius: 36px;
+  }
+
+  .studio-counter-num {
+    font-size: 1.6rem;
+  }
+
+  .studio-project-title {
+    font-size: 1.3rem;
+  }
+
+  .studio-project-desc {
+    font-size: 0.86rem;
+  }
+
+  .device-dock__card {
+    width: 140px;
+    padding: 5px;
+  }
+
+  .device-dock__item-title {
+    font-size: 0.74rem;
+  }
+}
+

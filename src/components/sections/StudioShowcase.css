@@ -1,0 +1,696 @@
+/* ==========================================================================
+   Studio Canvas & Visual Filmstrip Dock Showcase
+   Clean, modern, thin typography with prominent project images & videos
+   ========================================================================== */
+
+.studio-showcase {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================================================
+   Hero Stage Layout (Browser Window + Info Pane)
+   ========================================================================== */
+
+.studio-stage {
+  position: relative;
+  width: 100%;
+}
+
+.studio-canvas-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  gap: 32px;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: var(--shadow-lift);
+}
+
+[data-theme="light"] .studio-canvas-layout {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 20px 45px -15px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .studio-canvas-layout {
+  background: #121216;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 24px 50px -15px rgba(0, 0, 0, 0.55);
+}
+
+/* ==========================================================================
+   Studio Window (Browser Mockup Frame)
+   ========================================================================== */
+
+.studio-window {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  transition: border-color 0.25s ease;
+}
+
+[data-theme="light"] .studio-window {
+  background: #f8f8fa;
+  border-color: rgba(0, 0, 0, 0.07);
+}
+
+[data-theme="dark"] .studio-window {
+  background: #1a1a20;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Window Header Bar */
+.studio-window__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.03);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+[data-theme="dark"] .studio-window__header {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.studio-window__dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.studio-window__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  opacity: 0.85;
+}
+
+.studio-window__dot--red {
+  background: #ff5f56;
+}
+
+.studio-window__dot--yellow {
+  background: #ffbd2e;
+}
+
+.studio-window__dot--green {
+  background: #27c93f;
+}
+
+.studio-window__address {
+  flex: 1;
+  max-width: 320px;
+  margin: 0 12px;
+  padding: 4px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.studio-window__url {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 300;
+  color: var(--text-faint);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.studio-window__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.studio-window__action-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  color: var(--text-faint);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.studio-window__action-btn:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Window Visual Body */
+.studio-window__body {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: #000000;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.studio-window__video-wrap,
+.studio-window__img-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.studio-window__media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  transition: transform 0.35s ease;
+}
+
+.studio-window__body:hover .studio-window__media {
+  transform: scale(1.02);
+}
+
+.studio-window__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.studio-window__body:hover .studio-window__overlay {
+  opacity: 1;
+}
+
+.studio-window__zoom-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 300;
+  letter-spacing: 0.03em;
+}
+
+.studio-volume-btn {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  cursor: pointer;
+  z-index: 5;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.studio-volume-btn:hover {
+  transform: scale(1.08);
+  background: #000000;
+}
+
+.studio-window__placeholder {
+  color: var(--text-faint);
+  font-size: 0.85rem;
+  font-weight: 300;
+}
+
+/* ==========================================================================
+   Studio Information Pane (Normal, Thin Typography)
+   ========================================================================== */
+
+.studio-info {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 6px 4px;
+}
+
+.studio-info__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.studio-info__index-wrap {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: var(--font-body);
+}
+
+.studio-info__index {
+  font-size: 2rem;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.studio-info__index-total {
+  font-size: 0.85rem;
+  font-weight: 300;
+  color: var(--text-faint);
+  letter-spacing: 0.04em;
+}
+
+.studio-info__badge-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.studio-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid var(--border);
+  background: var(--surface-raised);
+  color: var(--text-muted);
+}
+
+.studio-badge--category {
+  border-color: var(--accent-border, var(--border));
+  color: var(--text);
+}
+
+/* Main Project Title */
+.studio-info__title {
+  font-family: var(--font-body);
+  font-size: 1.6rem;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  line-height: 1.25;
+  margin: 0;
+}
+
+/* Thin Bio Description */
+.studio-info__desc {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-weight: 300;
+  line-height: 1.65;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Tech Chips */
+.studio-info__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.studio-tag-chip {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-soft);
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  font-weight: 300;
+  color: var(--text-faint);
+  letter-spacing: 0.02em;
+}
+
+/* Metrics */
+.studio-info__metrics {
+  display: flex;
+  gap: 16px;
+  padding: 8px 14px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+}
+
+.studio-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.studio-metric__val {
+  font-family: var(--font-body);
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.studio-metric__label {
+  font-family: var(--font-body);
+  font-size: 0.58rem;
+  font-weight: 300;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Action Buttons */
+.studio-info__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.studio-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  cursor: pointer;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  color: var(--text);
+  transition: all 0.18s ease;
+}
+
+.studio-btn:hover {
+  transform: translateY(-1.5px);
+  border-color: var(--accent-border, var(--border-strong));
+  background: var(--surface);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.studio-btn--primary {
+  background: var(--accent);
+  color: var(--text-contrast, #000);
+  border-color: var(--accent);
+}
+
+.studio-btn--primary:hover {
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+  box-shadow: 0 6px 18px rgba(255, 255, 255, 0.2);
+}
+
+.studio-btn--demo {
+  color: var(--text);
+}
+
+/* ==========================================================================
+   Visual Filmstrip Dock (Project Thumbnails)
+   ========================================================================== */
+
+.studio-dock-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.studio-dock-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+.studio-dock-title {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  text-transform: uppercase;
+}
+
+.studio-dock-arrows {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.studio-dock-arrow-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.15s ease;
+}
+
+.studio-dock-arrow-btn:hover {
+  color: var(--text);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.studio-dock-container {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 6px 2px 14px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.studio-dock-container::-webkit-scrollbar {
+  height: 4px;
+}
+
+.studio-dock-container::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+.studio-dock-track {
+  display: flex;
+  gap: 14px;
+  width: max-content;
+}
+
+/* Thumbnail Card */
+.studio-dock-card {
+  display: flex;
+  flex-direction: column;
+  width: 180px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 6px;
+  cursor: pointer;
+  text-align: left;
+  user-select: none;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.studio-dock-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-strong);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.studio-dock-card.is-active {
+  border-color: var(--accent);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  background: var(--surface-raised);
+}
+
+[data-theme="dark"] .studio-dock-card.is-active {
+  box-shadow: 0 8px 26px rgba(255, 255, 255, 0.08);
+}
+
+.studio-dock-card__thumb {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000000;
+  margin-bottom: 8px;
+}
+
+.studio-dock-card__media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.studio-dock-card__fallback {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #222, #111);
+}
+
+.studio-dock-card__tint {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.65) 100%);
+}
+
+.studio-dock-card__num {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  font-family: var(--font-body);
+  font-size: 0.64rem;
+  font-weight: 400;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+}
+
+.studio-dock-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 4px 4px;
+}
+
+.studio-dock-card__title {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25;
+}
+
+.studio-dock-card__cat {
+  font-family: var(--font-body);
+  font-size: 0.62rem;
+  font-weight: 300;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.studio-empty {
+  padding: 40px;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 300;
+  color: var(--text-faint);
+}
+
+/* ==========================================================================
+   Responsive Breakpoints
+   ========================================================================== */
+
+@media (max-width: 920px) {
+  .studio-canvas-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 20px;
+  }
+
+  .studio-info__title {
+    font-size: 1.45rem;
+  }
+
+  .studio-dock-card {
+    width: 160px;
+  }
+}
+
+@media (max-width: 600px) {
+  .studio-canvas-layout {
+    padding: 14px;
+    border-radius: 18px;
+    gap: 18px;
+  }
+
+  .studio-window__header {
+    padding: 8px 10px;
+  }
+
+  .studio-window__address {
+    margin: 0 6px;
+    padding: 3px 8px;
+  }
+
+  .studio-info__index {
+    font-size: 1.6rem;
+  }
+
+  .studio-info__title {
+    font-size: 1.3rem;
+  }
+
+  .studio-info__desc {
+    font-size: 0.86rem;
+  }
+
+  .studio-dock-card {
+    width: 140px;
+    padding: 5px;
+  }
+
+  .studio-dock-card__title {
+    font-size: 0.74rem;
+  }
+}
+

@@ -7,7 +7,9 @@ export function UIProvider({ children }) {
   const [certModal, setCertModal] = useState({ open: false, title: '', org: '', img: '' })
   const [videoModal, setVideoModal] = useState({ open: false, title: '', url: '' })
   const [chessModal, setChessModal] = useState({ open: false })
+  const [chatModal, setChatModal] = useState({ open: false })
   const [cmdOpen, setCmdOpen] = useState(false)
+  const [snippetModal, setSnippetModal] = useState({ open: false })
   const [toast, setToast] = useState({ show: false, message: '' })
   const toastTimer = useRef(null)
 
@@ -29,6 +31,12 @@ export function UIProvider({ children }) {
   const openChessModal = useCallback(() => setChessModal({ open: true }), [])
   const closeChessModal = useCallback(() => setChessModal({ open: false }), [])
 
+  const openSnippetModal = useCallback(() => setSnippetModal({ open: true }), [])
+  const closeSnippetModal = useCallback(() => setSnippetModal({ open: false }), [])
+
+  const openChatModal = useCallback(() => setChatModal({ open: true }), [])
+  const closeChatModal = useCallback(() => setChatModal({ open: false }), [])
+
   const openCmd = useCallback(() => setCmdOpen(true), [])
   const closeCmd = useCallback(() => setCmdOpen(false), [])
 
@@ -43,6 +51,8 @@ export function UIProvider({ children }) {
     setCertModal((s) => ({ ...s, open: false }))
     setVideoModal((s) => ({ ...s, open: false, url: '' }))
     setChessModal({ open: false })
+    setSnippetModal({ open: false })
+    setChatModal({ open: false })
     setCmdOpen(false)
   }, [])
 
@@ -60,6 +70,12 @@ export function UIProvider({ children }) {
       chessModal,
       openChessModal,
       closeChessModal,
+      snippetModal,
+      openSnippetModal,
+      closeSnippetModal,
+      chatModal,
+      openChatModal,
+      closeChatModal,
       cmdOpen,
       openCmd,
       closeCmd,
@@ -67,7 +83,32 @@ export function UIProvider({ children }) {
       showToast,
       closeAllOverlays,
     }),
-    [lightbox, certModal, videoModal, chessModal, openChessModal, closeChessModal, cmdOpen, toast, openLightbox, closeLightbox, openCertModal, closeCertModal, openVideoModal, closeVideoModal, openCmd, closeCmd, showToast, closeAllOverlays]
+    [
+      lightbox,
+      certModal,
+      videoModal,
+      chessModal,
+      snippetModal,
+      chatModal,
+      cmdOpen,
+      toast,
+      openLightbox,
+      closeLightbox,
+      openCertModal,
+      closeCertModal,
+      openVideoModal,
+      closeVideoModal,
+      openChessModal,
+      closeChessModal,
+      openSnippetModal,
+      closeSnippetModal,
+      openChatModal,
+      closeChatModal,
+      openCmd,
+      closeCmd,
+      showToast,
+      closeAllOverlays,
+    ]
   )
 
   return <UIContext.Provider value={value}>{children}</UIContext.Provider>

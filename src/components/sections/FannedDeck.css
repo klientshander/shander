@@ -1,0 +1,412 @@
+/* ==========================================================================
+   3D Fanned Card Deck Component
+   Matching bryllim.com reference media_1789886268801.png
+   ========================================================================== */
+
+:root {
+  --fanned-left-x: -170px;
+  --fanned-right-x: 170px;
+  --fanned-wing-y: 28px;
+  --fanned-wing-hover-y: 16px;
+  --fanned-left-rot: -13deg;
+  --fanned-right-rot: 13deg;
+  --fanned-card-width: 395px;
+}
+
+.fanned-deck-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0 20px;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 3D Perspective Stage */
+.fanned-deck-stage {
+  position: relative;
+  width: 100%;
+  min-height: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1200px;
+  overflow: visible;
+  padding: 20px 0 40px;
+}
+
+/* Fanned Card Base */
+.fanned-card {
+  position: absolute;
+  width: var(--fanned-card-width);
+  max-width: 90vw;
+  border-radius: 24px;
+  padding: 26px 24px 24px;
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border-soft, rgba(0, 0, 0, 0.08));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  touch-action: pan-y;
+  will-change: transform, opacity, box-shadow;
+}
+
+[data-theme="light"] .fanned-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .fanned-card {
+  background: #141419;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Center active card elevation */
+.fanned-card--center {
+  cursor: grab;
+  box-shadow:
+    0 24px 50px -12px rgba(0, 0, 0, 0.18),
+    0 8px 24px -4px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] .fanned-card--center {
+  box-shadow:
+    0 28px 60px -12px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(255, 255, 255, 0.09);
+}
+
+.fanned-card--center:active {
+  cursor: grabbing;
+}
+
+/* Wing cards */
+.fanned-card--left,
+.fanned-card--right {
+  cursor: pointer;
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="dark"] .fanned-card--left,
+[data-theme="dark"] .fanned-card--right {
+  box-shadow: 0 18px 42px -8px rgba(0, 0, 0, 0.5);
+}
+
+/* Top Badges Area */
+.fanned-card__top {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 18px;
+}
+
+.fanned-card__badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Stylized dark pill badge e.g. ❪ #1 PAID FITNESS APP ❫ */
+.fanned-card__pill-dark {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #000000;
+  color: #ffffff;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="dark"] .fanned-card__pill-dark {
+  background: #ffffff;
+  color: #000000;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.15);
+}
+
+.fanned-card__bracket {
+  font-size: 0.88rem;
+  line-height: 1;
+  font-weight: 300;
+  opacity: 0.8;
+}
+
+.fanned-card__pill-label {
+  line-height: 1.2;
+}
+
+/* Outlined pill category badge */
+.fanned-card__pill-outline {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  font-family: var(--font-body);
+  font-size: 0.62rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .fanned-card__pill-outline {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--text-muted);
+}
+
+/* Secondary Subtitle pill e.g. APPS MADE IN THE PHILIPPINES */
+.fanned-card__sub-badge {
+  display: inline-block;
+  width: fit-content;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  font-family: var(--font-body);
+  font-size: 0.58rem;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+[data-theme="dark"] .fanned-card__sub-badge {
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+/* App Title & Squircle Icon Row */
+.fanned-card__app-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 14px;
+}
+
+/* Squircle iOS-style App Icon (54x54px, 14px radius) */
+.fanned-card__squircle-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+  transition: transform 0.2s ease;
+  overflow: hidden;
+}
+
+.fanned-card:hover .fanned-card__squircle-icon {
+  transform: scale(1.04);
+}
+
+.fanned-card__title-col {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Clean typewriter/monospace app title matching Kabi — Gym Bro */
+.fanned-card__title {
+  font-family: 'DM Mono', monospace, -apple-system, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  line-height: 1.25;
+  margin: 0;
+}
+
+/* 2-line clean, thin description */
+.fanned-card__description {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 300;
+  line-height: 1.55;
+  color: var(--text-muted);
+  min-height: 2.7em;
+  margin: 0 0 20px 0;
+}
+
+/* Bottom Action Store Badges (Side-by-side App Store & Google Play) */
+.fanned-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  margin-top: auto;
+}
+
+.fanned-card__actions .store-badge {
+  flex: 1 1 0;
+  min-width: 0;
+  justify-content: center;
+  padding: 6px 10px;
+}
+
+/* Navigation Controls below the Deck */
+.fanned-deck-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 10px;
+  font-family: var(--font-body);
+}
+
+.fanned-deck-nav-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.15s ease;
+}
+
+.fanned-deck-nav-btn:hover {
+  border-color: var(--accent);
+  color: var(--text);
+  transform: translateY(-1px);
+}
+
+.fanned-deck-dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+.fanned-deck-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  border: none;
+  background: var(--border-strong, #666);
+  opacity: 0.35;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.22s ease;
+}
+
+.fanned-deck-dot.is-active {
+  width: 20px;
+  background: var(--accent);
+  opacity: 1;
+}
+
+.fanned-deck-counter {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 300;
+  color: var(--text-faint);
+  letter-spacing: 0.04em;
+  margin-left: 6px;
+}
+
+.fanned-deck-counter strong {
+  color: var(--text);
+  font-weight: 400;
+}
+
+.fanned-empty {
+  padding: 40px;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 300;
+  color: var(--text-faint);
+}
+
+/* ==========================================================================
+   Responsive Breakpoints
+   ========================================================================== */
+
+@media (max-width: 880px) {
+  :root {
+    --fanned-left-x: -110px;
+    --fanned-right-x: 110px;
+    --fanned-left-rot: -10deg;
+    --fanned-right-rot: 10deg;
+    --fanned-card-width: 350px;
+  }
+
+  .fanned-card {
+    padding: 22px 18px 18px;
+  }
+
+  .fanned-card__title {
+    font-size: 1.05rem;
+  }
+
+  .fanned-card__description {
+    font-size: 0.84rem;
+  }
+
+  .fanned-card__actions {
+    gap: 6px;
+  }
+}
+
+@media (max-width: 580px) {
+  :root {
+    --fanned-left-x: -45px;
+    --fanned-right-x: 45px;
+    --fanned-left-rot: -8deg;
+    --fanned-right-rot: 8deg;
+    --fanned-card-width: 320px;
+    --fanned-wing-y: 20px;
+  }
+
+  .fanned-deck-stage {
+    min-height: 440px;
+    padding: 10px 0 20px;
+  }
+
+  .fanned-card {
+    border-radius: 20px;
+    padding: 18px 16px 16px;
+  }
+
+  .fanned-card__pill-dark {
+    font-size: 0.62rem;
+    padding: 3px 9px;
+  }
+
+  .fanned-card__squircle-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+  }
+
+  .fanned-card__title {
+    font-size: 0.98rem;
+  }
+
+  .fanned-card__description {
+    font-size: 0.8rem;
+    margin-bottom: 16px;
+  }
+
+  .fanned-deck-counter {
+    display: none;
+  }
+}

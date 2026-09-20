@@ -1,18 +1,23 @@
-// `cover` paths follow the /public/gallery/background/<name>.png convention —
-// drop your screenshots in there with matching filenames and they'll appear
-// automatically. Leave `cover` empty and a generated placeholder is used
-// instead. `videoUrl` accepts a YouTube link or a direct .mp4/.webm file.
+// Project catalog for Shander Santillan's portfolio
 export const projects = [
   {
     id: 'proj-1',
     title: 'Personalspace',
+    appTitle: 'Personalspace — Vault',
+    featuredBadge: '❪ #1 FEATURED APP ❫',
+    appType: 'SYSTEM',
+    subBadge: 'APPS MADE IN THE PHILIPPINES',
     description:
       'A single-user personal workspace no admin account can view, reset, or reuse your login. Built for privacy-first personal productivity.',
     tags: ['PHP', 'MySQL', 'HTML', 'CSS'],
     category: 'System',
     liveUrl: 'https://personalspace.free.nf/index.php?page=login',
-    codeUrl: '#',
-    icon: 'lock',
+    codeUrl: 'https://github.com/shanderr',
+    icon: 'vault',
+    appIcon: {
+      bg: '#18181b',
+      color: '#ffffff',
+    },
     cover: '/video/gemini_generated_video_e66788d9.mp4',
     videoUrl: '/video/gemini_generated_video_e66788d9.mp4',
     metrics: [
@@ -24,13 +29,21 @@ export const projects = [
   {
     id: 'proj-3',
     title: 'Grahams Store',
+    appTitle: 'Grahams — Dessert Shop',
+    featuredBadge: '❪ DESSERT STORE ❫',
+    appType: 'STORE',
+    subBadge: 'APPS MADE IN THE PHILIPPINES',
     description:
       'A modern online dessert store showcasing Graham-based treats, with a warm palette, product catalog, and inviting bakery-style atmosphere.',
     tags: ['PHP', 'HTML', 'CSS'],
     category: 'Brand',
     liveUrl: 'https://grahamsbyshander.vercel.app/',
-    codeUrl: '#',
-    icon: 'shopping',
+    codeUrl: 'https://github.com/shanderr',
+    icon: 'grahams',
+    appIcon: {
+      bg: '#f59e0b',
+      color: '#ffffff',
+    },
     cover: '/video/gemini_generated_video_3cf0b37a.mp4',
     metrics: [
       { label: 'Type', value: 'Store' },
@@ -40,15 +53,23 @@ export const projects = [
     videoUrl: '/video/gemini_generated_video_3cf0b37a.mp4',
   },
   {
-        id: 'proj-2',
+    id: 'proj-2',
     title: 'Mini Hospital Management System',
+    appTitle: 'ClinicCare — Hospital ERP',
+    featuredBadge: '❪ CLINICAL ERP ❫',
+    appType: 'SYSTEM',
+    subBadge: 'HEALTHCARE IN THE PHILIPPINES',
     description:
       'A full-featured hospital management system with patient records, appointment scheduling, and analytics React frontend, Laravel API backend, MySQL for data integrity.',
     tags: ['React', 'Laravel', 'MySQL'],
     category: 'System',
     liveUrl: '#',
-    codeUrl: '#',
-    icon: 'activity',
+    codeUrl: 'https://github.com/shanderr',
+    icon: 'clinic',
+    appIcon: {
+      bg: '#10b981',
+      color: '#ffffff',
+    },
     cover: '/gallery/background/Clinic.png',
     metrics: [
       { label: 'Backend', value: 'Laravel' },
@@ -60,13 +81,21 @@ export const projects = [
   {
     id: 'proj-4',
     title: 'Brand New Day Spider-Man',
+    appTitle: 'Spider-Man — Brand Day',
+    featuredBadge: '❪ BRAND IDENTITY ❫',
+    appType: 'BRAND',
+    subBadge: 'VISUAL DESIGN SYSTEM',
     description:
       'A brand identity project wordmarks, color systems, and visual languages built to be instantly recognizable, with a Spider-Man themed redesign.',
     tags: ['React', 'Brand Identity'],
     category: 'Brand',
     liveUrl: 'https://website-landings-phs1.vercel.app/',
-    codeUrl: '#',
-    icon: 'brand',
+    codeUrl: 'https://github.com/shanderr',
+    icon: 'spiderman',
+    appIcon: {
+      bg: '#ef4444',
+      color: '#ffffff',
+    },
     cover: '/gallery/background/brandnew.png',
     metrics: [
       { label: 'Type', value: 'Brand' },
@@ -76,15 +105,49 @@ export const projects = [
     videoUrl: '',
   },
   {
+    id: 'proj-7',
+    title: 'Mini Student Management System',
+    appTitle: 'Carmel — Student Portal',
+    featuredBadge: '❪ STUDENT PORTAL ❫',
+    appType: 'PORTAL',
+    subBadge: 'CENTRALIZED SCHOOL DATABASE',
+    description:
+      'A web-based application for schools and teachers to manage student records add, view, update, search, and delete from one centralized platform.',
+    tags: ['PHP', 'MySQL', 'HTML', 'CSS'],
+    category: 'System',
+    liveUrl: 'https://studentscarmel.infinityfreeapp.com/index.php?page=login',
+    codeUrl: 'https://github.com/shanderr',
+    icon: 'carmel',
+    appIcon: {
+      bg: '#2563eb',
+      color: '#ffffff',
+    },
+    cover: '/gallery/background/students.png',
+    metrics: [
+      { label: 'Backend', value: 'PHP' },
+      { label: 'Database', value: 'MySQL' },
+    ],
+    progress: 100,
+    videoUrl: '',
+  },
+  {
     id: 'proj-5',
     title: 'Creative Video Editing',
+    appTitle: 'Zenitsu AMV — Motion Cut',
+    featuredBadge: '❪ MOTION & AMV ❫',
+    appType: 'MOTION',
+    subBadge: 'CINEMATIC SHORT-FORM',
     description:
       'A video-editing portfolio piece focused on clean cuts, cinematic pacing, transitions, typography, and short-form visual storytelling.',
     tags: ['CapCut', 'Motion', 'Video Editing'],
     category: 'Video Editing',
     liveUrl: '#',
     codeUrl: '#',
-    icon: 'video',
+    icon: 'zenitsu',
+    appIcon: {
+      bg: '#8b5cf6',
+      color: '#ffffff',
+    },
     cover: '',
     videoUrl: '/gallery/Zenitsu.mp4',
     metrics: [
@@ -96,35 +159,25 @@ export const projects = [
   {
     id: 'proj-6',
     title: 'Picture and Graphic design',
+    appTitle: 'Graphic Suite — Creative',
+    featuredBadge: '❪ GRAPHIC SUITE ❫',
+    appType: 'DESIGN',
+    subBadge: 'POSTERS & BRAND ASSETS',
     description:
       'A visual design collection featuring poster layouts, social graphics, photo composition, typography, and polished promotional artwork.',
     tags: ['Figma', 'Graphic Design', 'Photoshop'],
     category: 'Picture/Design',
     liveUrl: '#',
     codeUrl: '#',
-    icon: 'design',
+    icon: 'graphics',
+    appIcon: {
+      bg: '#ec4899',
+      color: '#ffffff',
+    },
     cover: '/gallery/my-gallery/lj-libunao.jpg',
     metrics: [
       { label: 'Design', value: 'Figma' },
       { label: 'Output', value: 'Graphics' },
-    ],
-    progress: 100,
-    videoUrl: '',
-  },
-  {
-    id: 'proj-7',
-    title: 'Mini Student Management System',
-    description:
-      'A web-based application for schools and teachers to manage student records add, view, update, search, and delete from one centralized platform.',
-    tags: ['PHP', 'MySQL', 'HTML', 'CSS'],
-    category: 'System',
-    liveUrl: 'https://studentscarmel.infinityfreeapp.com/index.php?page=login',
-    codeUrl: '#',
-    icon: 'users',
-    cover: '/gallery/background/students.png',
-    metrics: [
-      { label: 'Backend', value: 'PHP' },
-      { label: 'Database', value: 'MySQL' },
     ],
     progress: 100,
     videoUrl: '',

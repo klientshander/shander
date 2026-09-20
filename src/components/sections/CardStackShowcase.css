@@ -1,0 +1,465 @@
+/* ==========================================================================
+   Concept D: Interactive Physics Card Stack (Swipe & Shuffle)
+   Clean, modern, thin typography with real project imagery & looping video
+   ========================================================================== */
+
+.stack-showcase-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================================================
+   3D Stack Stage
+   ========================================================================== */
+
+.stack-stage {
+  position: relative;
+  width: 100%;
+  min-height: 560px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1200px;
+  padding: 20px 0 30px;
+}
+
+/* Base Stack Card */
+.stack-card {
+  position: absolute;
+  width: 480px;
+  max-width: 90vw;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  touch-action: pan-y;
+  will-change: transform, opacity;
+  transform-origin: center 85%;
+}
+
+[data-theme="light"] .stack-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.09);
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="dark"] .stack-card {
+  background: #141419;
+  border-color: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.55);
+}
+
+/* Top Active Card */
+.stack-card--top {
+  cursor: grab;
+  box-shadow:
+    0 24px 50px -12px rgba(0, 0, 0, 0.22),
+    0 8px 24px -4px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .stack-card--top {
+  box-shadow:
+    0 28px 60px -12px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.stack-card--top:active {
+  cursor: grabbing;
+}
+
+.stack-card--under {
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Media Box inside Card
+   ========================================================================== */
+
+.stack-card__media-box {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9.5;
+  background: #000000;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stack-card__video-wrap,
+.stack-card__img-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.stack-card__media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  transition: transform 0.35s ease;
+}
+
+.stack-card--top:hover .stack-card__media {
+  transform: scale(1.02);
+}
+
+.stack-card__zoom-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.stack-card--top:hover .stack-card__zoom-overlay {
+  opacity: 1;
+}
+
+.stack-card__zoom-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+  font-weight: 300;
+  letter-spacing: 0.03em;
+}
+
+.stack-card__vol-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  cursor: pointer;
+  z-index: 5;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.stack-card__vol-btn:hover {
+  transform: scale(1.08);
+  background: #000000;
+}
+
+.stack-card__index-tag {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  font-weight: 400;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+}
+
+.stack-card__fallback {
+  color: var(--text-faint);
+  font-size: 0.85rem;
+  font-weight: 300;
+}
+
+/* ==========================================================================
+   Card Body Content (Normal, Thin Typography)
+   ========================================================================== */
+
+.stack-card__body {
+  padding: 18px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stack-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stack-card__cat-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 0.64rem;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid var(--border);
+  background: var(--surface-raised);
+  color: var(--text-muted);
+}
+
+.stack-card__sub-pill {
+  font-family: var(--font-body);
+  font-size: 0.64rem;
+  font-weight: 300;
+  color: var(--text-faint);
+}
+
+/* Project Title */
+.stack-card__title {
+  font-family: var(--font-body);
+  font-size: 1.35rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  line-height: 1.25;
+  margin: 0;
+}
+
+/* Description (Light 300 weight) */
+.stack-card__desc {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 300;
+  line-height: 1.62;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Tech Chips */
+.stack-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.stack-card__chip {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-soft);
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  font-weight: 300;
+  color: var(--text-faint);
+  letter-spacing: 0.02em;
+}
+
+/* Action Buttons */
+.stack-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.stack-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  cursor: pointer;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  color: var(--text);
+  transition: all 0.18s ease;
+}
+
+.stack-btn:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent-border, var(--border-strong));
+  background: var(--surface);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.stack-btn--primary {
+  background: var(--accent);
+  color: var(--text-contrast, #000);
+  border-color: var(--accent);
+}
+
+.stack-btn--primary:hover {
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+}
+
+.stack-btn--demo {
+  color: var(--text);
+}
+
+/* ==========================================================================
+   Controls Bar & Footer
+   ========================================================================== */
+
+.stack-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: -6px;
+}
+
+.stack-control-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 300;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.stack-control-btn:hover {
+  color: var(--text);
+  border-color: var(--accent);
+  background: var(--surface);
+  transform: translateY(-1px);
+}
+
+.stack-control-btn--shuffle {
+  background: var(--accent);
+  color: var(--text-contrast, #000);
+  border-color: var(--accent);
+  font-weight: 400;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+}
+
+.stack-control-btn--shuffle:hover {
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.2);
+}
+
+.stack-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 480px;
+  padding: 0 4px;
+}
+
+.stack-swipe-hint {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 300;
+  color: var(--text-faint);
+  letter-spacing: 0.02em;
+}
+
+.stack-dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stack-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  border: none;
+  background: var(--border-strong, #666);
+  opacity: 0.35;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s ease;
+}
+
+.stack-dot.is-active {
+  width: 18px;
+  background: var(--accent);
+  opacity: 1;
+}
+
+.stack-empty {
+  padding: 40px;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 300;
+  color: var(--text-faint);
+}
+
+/* ==========================================================================
+   Responsive Breakpoints
+   ========================================================================== */
+
+@media (max-width: 580px) {
+  .stack-stage {
+    min-height: 520px;
+    padding: 10px 0 20px;
+  }
+
+  .stack-card {
+    width: 340px;
+    border-radius: 16px;
+  }
+
+  .stack-card__body {
+    padding: 14px 16px 16px;
+    gap: 8px;
+  }
+
+  .stack-card__title {
+    font-size: 1.15rem;
+  }
+
+  .stack-card__desc {
+    font-size: 0.82rem;
+  }
+
+  .stack-footer-row {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+}
+

@@ -1,0 +1,126 @@
+/* ==========================================================================
+   Store Badge Component (App Store / Google Play / Web / GitHub / Video)
+   ========================================================================== */
+
+.store-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 14px;
+  background: #000000;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 9px;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  text-align: left;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+[data-theme="light"] .store-badge {
+  background: #0d0d11;
+  color: #ffffff !important;
+  border-color: #222226;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+}
+
+.store-badge:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: #15151c;
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.32);
+}
+
+.store-badge:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.store-badge:disabled,
+.store-badge--disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.store-badge__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  line-height: 1;
+  flex-shrink: 0;
+  color: #ffffff;
+}
+
+.store-badge__svg-apple {
+  font-size: 1.45rem;
+}
+
+.store-badge__svg-play {
+  font-size: 1.25rem;
+  color: #34a853; /* Subtle Google Play tint or white */
+}
+
+.store-badge__svg-web {
+  font-size: 1.3rem;
+  color: #60a5fa;
+}
+
+.store-badge__svg-gh {
+  font-size: 1.3rem;
+}
+
+.store-badge__svg-video {
+  font-size: 1.25rem;
+  color: #f43f5e;
+}
+
+.store-badge__lines {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.store-badge__sub {
+  font-size: 0.52rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+  font-weight: 500;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+.store-badge__title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #ffffff;
+  line-height: 1.1;
+}
+
+@media (max-width: 480px) {
+  .store-badge {
+    padding: 6px 11px;
+    gap: 7px;
+  }
+
+  .store-badge__icon {
+    font-size: 1.15rem;
+  }
+
+  .store-badge__sub {
+    font-size: 0.48rem;
+  }
+
+  .store-badge__title {
+    font-size: 0.74rem;
+  }
+}
+

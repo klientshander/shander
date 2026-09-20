@@ -1,10 +1,21 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiCommand, FiSun, FiMoon, FiMenu, FiX, FiArrowUpRight, FiVolume2, FiVolumeX } from 'react-icons/fi'
-import { FaLinkedin, FaGithub, FaFacebookMessenger } from 'react-icons/fa6'
+import {
+  FiSun,
+  FiMoon,
+  FiMenu,
+  FiX,
+  FiArrowUpRight,
+  FiVolume2,
+  FiVolumeX,
+  FiMessageSquare,
+  FiCode,
+} from 'react-icons/fi'
+import { FaLinkedin, FaGithub, FaFacebookMessenger, FaXTwitter } from 'react-icons/fa6'
 import { headerNavItems, navItems } from '../data/nav'
 import { profile, socials } from '../data/profile'
 import { useUI } from '../context/UIContext'
+import { playClickSound, playHoverSound } from '../utils/sound'
 import './HeaderNav.css'
 
 export default function HeaderNav({
@@ -15,10 +26,11 @@ export default function HeaderNav({
   soundEnabled = true,
   onToggleSound,
 }) {
-  const { openCmd } = useUI()
+  const { openCmd, openChessModal, openSnippetModal, openChatModal } = useUI()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleNavClick = (id) => {
+    playClickSound()
     onNavigate(id)
     setMobileMenuOpen(false)
   }
@@ -29,7 +41,13 @@ export default function HeaderNav({
     <header className="headernav">
       <div className="headernav__container">
         {/* Brand / Logo */}
-        <div className="headernav__brand" onClick={() => handleNavClick('home')}>
+        <div
+          className="headernav__brand"
+          onClick={() => handleNavClick('home')}
+          role="button"
+          tabIndex={0}
+          title="Home"
+        >
           <div className="headernav__logo">
             <img src="/favicon.svg" alt="logo" className="headernav__logo-img" />
           </div>
@@ -42,52 +60,20 @@ export default function HeaderNav({
           </div>
         </div>
 
-        {/* Desktop Navigation Links */}
-        <nav className="headernav__nav" aria-label="Main navigation">
-          {headerNavItems.map(({ id, label, icon: Icon, color }, index) => {
-            const isActive = activeSection === id
-            return (
-              <a
-                key={id}
-                href={`#${id}`}
-                className={`headernav__link ${isActive ? 'is-active' : ''}`}
-                style={{ '--item-color': color }}
-                onClick={(e) => {
-                  e.preventDefault()
-                  handleNavClick(id)
-                }}
-                aria-current={isActive ? 'page' : undefined}
-              >
-                <span className="headernav__link-idx">{String(index + 1).padStart(2, '0')}</span>
-                <span className="headernav__link-icon">
-                  <Icon aria-hidden="true" />
-                </span>
-                <span className="headernav__link-label">{label}</span>
-                {isActive && (
-                  <motion.span
-                    layoutId="headernav-active-pill"
-                    className="headernav__active-pill"
-                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                  />
-                )}
-              </a>
-            )
-          })}
-        </nav>
-
         {/* Right Tools & Actions */}
         <div className="headernav__actions">
-        
-          {/* Custom Designed Theme Toggle Switch */}
+          {/* Custom Theme Toggle Switch */}
           <button
             type="button"
             className={`theme-toggle ${isLight ? 'theme-toggle--light' : 'theme-toggle--dark'}`}
-            onClick={onToggleTheme}
+            onClick={() => {
+              playClickSound()
+              onToggleTheme()
+            }}
             aria-label={`Switch to ${isLight ? 'dark' : 'light'} mode`}
-            title={`Switch to ${isLight ? 'dark' : 'light'} mode (Press D)`}
+            title={`Switch to ${isLight ? 'dark' : 'light'} mode`}
           >
             <div className="theme-toggle__track">
-              {/* Background ambient symbols */}
               <span className="theme-toggle__ambient theme-toggle__ambient--sun" aria-hidden="true">
                 <FiSun />
               </span>
@@ -95,7 +81,6 @@ export default function HeaderNav({
                 <FiMoon />
               </span>
 
-              {/* Sliding glowing knob */}
               <motion.div
                 className="theme-toggle__thumb"
                 layout
@@ -115,12 +100,15 @@ export default function HeaderNav({
             </div>
           </button>
 
-          {/* Sound Effects Toggle Button */}
+          {/* Sound Toggle Button */}
           {onToggleSound && (
             <button
               type="button"
               className={`headernav__btn sound-toggle ${soundEnabled ? 'sound-toggle--active' : ''}`}
-              onClick={onToggleSound}
+              onClick={() => {
+                playClickSound()
+                onToggleSound()
+              }}
               aria-label={soundEnabled ? 'Disable sound effects' : 'Enable sound effects'}
               title={soundEnabled ? 'Mute sound effects' : 'Enable sound effects'}
             >
@@ -132,7 +120,10 @@ export default function HeaderNav({
           <button
             type="button"
             className="headernav__btn headernav__btn--menu"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            onClick={() => {
+              playClickSound()
+              setMobileMenuOpen(!mobileMenuOpen)
+            }}
             aria-label="Toggle navigation menu"
             aria-expanded={mobileMenuOpen}
           >
@@ -151,6 +142,7 @@ export default function HeaderNav({
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
           >
+            <div className="headernav__drawer-section-title">Navigation</div>
             <div className="headernav__drawer-list">
               {navItems.map(({ id, label, icon: Icon, color }, index) => {
                 const isActive = activeSection === id
@@ -173,6 +165,50 @@ export default function HeaderNav({
               })}
             </div>
 
+            {/* Quick Actions & Games */}
+            <div className="headernav__drawer-section-title">Shortcuts &amp; Activities</div>
+            <div className="headernav__drawer-shortcuts">
+              <button
+                type="button"
+                className="headernav__drawer-shortcut-btn"
+                onClick={() => {
+                  playClickSound()
+                  setMobileMenuOpen(false)
+                  openChessModal()
+                }}
+              >
+                <span>Play chess with me</span>
+                <span className="headernav__drawer-shortcut-badge">Alt + K</span>
+              </button>
+
+              <button
+                type="button"
+                className="headernav__drawer-shortcut-btn"
+                onClick={() => {
+                  playClickSound()
+                  setMobileMenuOpen(false)
+                  openSnippetModal()
+                }}
+              >
+                <span>Code Snippet Guesser</span>
+                <span className="headernav__drawer-shortcut-badge">Alt + J</span>
+              </button>
+
+              <button
+                type="button"
+                className="headernav__drawer-shortcut-btn"
+                onClick={() => {
+                  playClickSound()
+                  setMobileMenuOpen(false)
+                  openChatModal()
+                }}
+              >
+                <span>Conversation Hub</span>
+                <span className="headernav__drawer-shortcut-badge">Live Chat</span>
+              </button>
+            </div>
+
+            {/* Drawer Footer with Socials & Contact */}
             <div className="headernav__drawer-footer">
               <div className="headernav__drawer-socials">
                 <a href={socials.github} target="_blank" rel="noreferrer" aria-label="GitHub">
@@ -181,6 +217,11 @@ export default function HeaderNav({
                 <a href={socials.linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn">
                   <FaLinkedin />
                 </a>
+                {socials.x && (
+                  <a href={socials.x} target="_blank" rel="noreferrer" aria-label="X / Twitter">
+                    <FaXTwitter />
+                  </a>
+                )}
                 <a href={socials.messenger} target="_blank" rel="noreferrer" aria-label="Messenger">
                   <FaFacebookMessenger />
                 </a>

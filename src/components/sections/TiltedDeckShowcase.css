@@ -1,0 +1,514 @@
+/* ==========================================================================
+   3D Tilted Real-Media Card Deck Showcase
+   Exact match to user reference media_1789886634706.png
+   ========================================================================== */
+
+.tilted-deck-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 3D Perspective Stage with subtle dot matrix grid */
+.tilted-deck-stage {
+  position: relative;
+  width: 100%;
+  min-height: 560px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1200px;
+  overflow: visible;
+  padding: 20px 0 30px;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+  border-radius: 24px;
+}
+
+[data-theme="light"] .tilted-deck-stage {
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.06) 1px, transparent 1px);
+}
+
+/* ==========================================================================
+   Tilted Card Component
+   ========================================================================== */
+
+.tilted-card {
+  position: absolute;
+  width: 450px;
+  max-width: 88vw;
+  background: var(--surface, #141419);
+  border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.1));
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  touch-action: pan-y;
+  will-change: transform, opacity;
+  box-sizing: border-box;
+}
+
+[data-theme="light"] .tilted-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.09);
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="dark"] .tilted-card {
+  background: #111116;
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.65);
+}
+
+/* Front active card */
+.tilted-card--front {
+  cursor: grab;
+  box-shadow:
+    0 28px 65px -15px rgba(0, 0, 0, 0.75),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .tilted-card--front {
+  box-shadow:
+    0 24px 50px -12px rgba(0, 0, 0, 0.22),
+    0 8px 24px -4px rgba(0, 0, 0, 0.08);
+}
+
+.tilted-card--front:active {
+  cursor: grabbing;
+}
+
+/* Back & left wing cards */
+.tilted-card--back,
+.tilted-card--left {
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   Media Box inside Card
+   ========================================================================== */
+
+.tilted-card__media-box {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: #000000;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tilted-card__video-wrap,
+.tilted-card__img-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.tilted-card__media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  transition: transform 0.35s ease;
+}
+
+.tilted-card--front:hover .tilted-card__media {
+  transform: scale(1.02);
+}
+
+/* Frosted glass index tag e.g. 02 / 07 */
+.tilted-card__index-pill {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 300;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  padding: 3px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.03em;
+  z-index: 4;
+}
+
+/* Audio Mute/Unmute button */
+.tilted-card__vol-btn {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: rgba(10, 10, 15, 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  cursor: pointer;
+  z-index: 5;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.tilted-card__vol-btn:hover {
+  transform: scale(1.08);
+  background: #000000;
+}
+
+.tilted-card__zoom-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.tilted-card--front:hover .tilted-card__zoom-overlay {
+  opacity: 1;
+}
+
+.tilted-card__zoom-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+  font-weight: 300;
+  letter-spacing: 0.03em;
+}
+
+.tilted-card__fallback {
+  color: var(--text-faint);
+  font-size: 0.85rem;
+  font-weight: 300;
+}
+
+/* ==========================================================================
+   Card Body Content (matching media_1789886634706.png)
+   ========================================================================== */
+
+.tilted-card__body {
+  padding: 22px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tilted-card__header-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tilted-card__badge-cat {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  font-family: var(--font-body);
+  font-size: 0.64rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+[data-theme="light"] .tilted-card__badge-cat {
+  border-color: rgba(0, 0, 0, 0.14);
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.tilted-card__badge-sub {
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 300;
+  color: var(--text-faint);
+  margin-left: 4px;
+  text-transform: uppercase;
+}
+
+/* Project Title */
+.tilted-card__title {
+  font-family: var(--font-body);
+  font-size: 1.45rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  line-height: 1.25;
+  margin: 2px 0 0 0;
+}
+
+/* Description (Light 300 weight) */
+.tilted-card__desc {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin: 0;
+  min-height: 2.7em;
+}
+
+/* Tech Chips */
+.tilted-card__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 2px 0 6px;
+}
+
+.tilted-card__chip {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  font-weight: 300;
+  color: var(--text-faint);
+  letter-spacing: 0.02em;
+}
+
+[data-theme="light"] .tilted-card__chip {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+/* Action Buttons: White Live Demo, Dark GitHub, Dark Video */
+.tilted-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="light"] .tilted-card__actions {
+  border-top-color: rgba(0, 0, 0, 0.06);
+}
+
+.tilted-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  user-select: none;
+}
+
+.tilted-btn--white {
+  background: #ffffff;
+  color: #000000;
+  font-weight: 500;
+  border: 1px solid #ffffff;
+  box-shadow: 0 4px 14px rgba(255, 255, 255, 0.15);
+}
+
+.tilted-btn--white:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 18px rgba(255, 255, 255, 0.28);
+}
+
+.tilted-btn--dark {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  font-weight: 400;
+}
+
+[data-theme="light"] .tilted-btn--dark {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.14);
+  color: #111111;
+}
+
+.tilted-btn--dark:hover {
+  transform: translateY(-1.5px);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+/* ==========================================================================
+   Navigation & Controls
+   ========================================================================== */
+
+.tilted-deck-nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 4px;
+}
+
+.tilted-deck-arrow-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.15s ease;
+}
+
+.tilted-deck-arrow-btn:hover {
+  border-color: var(--accent);
+  color: var(--text);
+  transform: translateY(-1px);
+}
+
+.tilted-deck-dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+.tilted-deck-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  border: none;
+  background: var(--border-strong, #666);
+  opacity: 0.35;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s ease;
+}
+
+.tilted-deck-dot.is-active {
+  width: 18px;
+  background: var(--accent);
+  opacity: 1;
+}
+
+/* Keyboard Shortcuts Hint Bar matching bottom of media_1789886634706.png */
+.tilted-deck-shortcuts-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 6px;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 300;
+  color: var(--text-faint);
+  user-select: none;
+}
+
+.tilted-shortcut-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tilted-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-family: monospace;
+  font-size: 0.65rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .tilted-kbd {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #111111;
+}
+
+.tilted-shortcut-sep {
+  opacity: 0.4;
+  font-size: 0.6rem;
+}
+
+.tilted-deck-empty {
+  padding: 40px;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 300;
+  color: var(--text-faint);
+}
+
+/* ==========================================================================
+   Responsive Breakpoints
+   ========================================================================== */
+
+@media (max-width: 680px) {
+  .tilted-deck-stage {
+    min-height: 520px;
+    padding: 10px 0 20px;
+  }
+
+  .tilted-card {
+    width: 340px;
+    border-radius: 16px;
+  }
+
+  .tilted-card__body {
+    padding: 16px 18px 18px;
+    gap: 8px;
+  }
+
+  .tilted-card__title {
+    font-size: 1.2rem;
+  }
+
+  .tilted-card__desc {
+    font-size: 0.82rem;
+  }
+
+  .tilted-deck-shortcuts-bar {
+    flex-wrap: wrap;
+    gap: 8px 12px;
+  }
+}
+
