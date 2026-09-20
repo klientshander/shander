@@ -1,30 +1,72 @@
 import { useState, useEffect, useRef } from 'react'
+import { createClient } from '@supabase/supabase-js'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FiX, FiMessageSquare } from 'react-icons/fi'
 import { useUI } from '../../context/UIContext'
 import { playClickSound, playCardSlideSound } from '../../utils/sound'
 import './ConversationHubModal.css'
 
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null
+
+const formatTime = (value) => {
+  const date = value ? new Date(value) : new Date()
+
+  if (Number.isNaN(date.getTime())) {
+    return 'just now'
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(date)
+}
+
+const normalizeMessage = (message) => ({
+  id: message.id ?? `local-${Date.now()}-${Math.random()}`,
+  name: message.name || 'Visitor',
+  location: message.location || 'Website visitor',
+  time: formatTime(message.created_at || message.time),
+  text: message.text || '',
+  avatar: message.avatar || '/gallery/shander.png',
+  isSelf: Boolean(message.isSelf),
+})
+
+const dedupeMessages = (messages, incoming) => {
+  const map = new Map()
+
+  messages.forEach((message) => map.set(message.id, message))
+  map.set(incoming.id, incoming)
+
+  return Array.from(map.values())
+}
+
+const getSessionId = () => {
+  const key = 'shander_visitor_session'
+
+  try {
+    const current = sessionStorage.getItem(key)
+    if (current) return current
+
+    const nextId = globalThis.crypto?.randomUUID?.() || `session-${Date.now()}-${Math.random()}`
+    sessionStorage.setItem(key, nextId)
+    return nextId
+  } catch {
+    return `session-${Date.now()}-${Math.random()}`
+  }
+}
+
 export default function ConversationHubModal() {
   const { chatModal, closeChatModal } = useUI()
-  const [messages, setMessages] = useState(() => {
-    try {
-      const saved = localStorage.getItem('shander_conv_hub_messages')
-      if (saved) {
-        const parsed = JSON.parse(saved)
-        if (Array.isArray(parsed)) {
-          return parsed
-        }
-      }
-    } catch {}
-    return []
-  })
+  const [messages, setMessages] = useState([])
+  const [visitorCount, setVisitorCount] = useState(0)
 
   const [userName, setUserName] = useState(() => {
     try {
-      return localStorage.getItem('shander_conv_hub_user') || 'Hi'
+      return localStorage.getItem('shander_conv_hub_user') || 'Visitor'
     } catch {
-      return 'Hi'
+      return 'Visitor'
     }
   })
 
@@ -38,7 +80,116 @@ export default function ConversationHubModal() {
     messagesEndRef.current?.scrollIntoView({ behavior })
   }
 
-  // Scroll to bottom when opening modal or on new message
+  useEffect(() => {
+    const loadMessages = async () => {
+      if (supabase) {
+        const { data, error } = await supabase
+          .from('conversation_messages')
+          .select('*')
+          .order('created_at', { ascending: true })
+          .limit(200)
+
+        if (!error && Array.isArray(data)) {
+          setMessages(data.map(normalizeMessage))
+          return
+        }
+      }
+
+      try {
+        const saved = localStorage.getItem('shander_conv_hub_messages')
+        if (!saved) {
+          setMessages([])
+          return
+        }
+
+        const parsed = JSON.parse(saved)
+        setMessages(Array.isArray(parsed) ? parsed.map(normalizeMessage) : [])
+      } catch {
+        setMessages([])
+      }
+    }
+
+    const loadVisitorCount = async () => {
+      if (!supabase) {
+        setVisitorCount(1)
+        return
+      }
+
+      const { count, error } = await supabase.from('site_visits').select('*', { count: 'exact' })
+
+      if (!error && typeof count === 'number') {
+        setVisitorCount(count)
+      }
+    }
+
+    const registerVisitor = async () => {
+      if (!supabase) return
+
+      const sessionId = getSessionId()
+      const seenKey = 'shander_visitor_registered'
+
+      if (sessionStorage.getItem(seenKey) === 'true') return
+
+      const { error } = await supabase.from('site_visits').insert([
+        {
+          session_id: sessionId,
+          user_agent: navigator.userAgent,
+          referrer: document.referrer || 'direct',
+        },
+      ])
+
+      if (!error) {
+        sessionStorage.setItem(seenKey, 'true')
+      }
+
+      const { count: totalCount } = await supabase.from('site_visits').select('*', { count: 'exact' })
+      if (typeof totalCount === 'number') {
+        setVisitorCount(totalCount)
+      }
+    }
+
+    loadMessages()
+    loadVisitorCount()
+    registerVisitor()
+
+    if (!supabase) return
+
+    const messagesChannel = supabase
+      .channel('public:conversation_messages')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'conversation_messages' },
+        (payload) => {
+          const nextMessage = normalizeMessage({
+            ...payload.new,
+            isSelf: false,
+          })
+
+          setMessages((current) => dedupeMessages(current, nextMessage))
+        }
+      )
+      .subscribe()
+
+    const visitorChannel = supabase
+      .channel('public:site_visits')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'site_visits' },
+        async () => {
+          const { count } = await supabase.from('site_visits').select('*', { count: 'exact' })
+          if (typeof count === 'number') {
+            setVisitorCount(count)
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(messagesChannel)
+      supabase.removeChannel(visitorChannel)
+    }
+  }, [])
+
   useEffect(() => {
     if (chatModal.open) {
       setTimeout(() => {
@@ -52,53 +203,69 @@ export default function ConversationHubModal() {
     if (chatModal.open) {
       scrollToBottom('smooth')
     }
-  }, [messages.length])
+  }, [messages.length, chatModal.open])
 
-  // Save display name
   const handleSaveName = () => {
     const trimmed = nameInput.trim() || 'Visitor'
     setUserName(trimmed)
     setIsEditingName(false)
+
     try {
       localStorage.setItem('shander_conv_hub_user', trimmed)
     } catch {}
   }
 
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault()
     const trimmed = inputText.trim()
     if (!trimmed) return
 
     playClickSound()
 
+    const safeName = userName || 'Visitor'
     const newMessage = {
       id: `user-${Date.now()}`,
-      name: userName || 'Hi',
-      location: 'Negros Occidental, PH',
+      name: safeName,
+      location: 'Website visitor',
       time: 'just now',
       text: trimmed,
       avatar: '/gallery/shander.png',
       isSelf: true,
     }
 
-    const updatedMessages = [...messages, newMessage]
-    setMessages(updatedMessages)
+    if (supabase) {
+      const { data, error } = await supabase
+        .from('conversation_messages')
+        .insert([
+          {
+            name: safeName,
+            location: 'Website visitor',
+            text: trimmed,
+            avatar: '/gallery/shander.png',
+          },
+        ])
+        .select()
+
+      if (!error && data && data[0]) {
+        const savedMessage = normalizeMessage({ ...data[0], isSelf: true })
+        setMessages((current) => dedupeMessages(current, savedMessage))
+      } else {
+        const stored = JSON.parse(localStorage.getItem('shander_conv_hub_messages') || '[]')
+        const nextMessages = [...stored, newMessage]
+        localStorage.setItem('shander_conv_hub_messages', JSON.stringify(nextMessages))
+        setMessages((current) => dedupeMessages(current, newMessage))
+      }
+    } else {
+      const stored = JSON.parse(localStorage.getItem('shander_conv_hub_messages') || '[]')
+      const nextMessages = [...stored, newMessage]
+      localStorage.setItem('shander_conv_hub_messages', JSON.stringify(nextMessages))
+      setMessages((current) => dedupeMessages(current, newMessage))
+    }
+
     setInputText('')
-
-    // Save user message to localStorage
-    try {
-      const stored = localStorage.getItem('shander_conv_hub_messages')
-      const parsedStored = stored ? JSON.parse(stored) : []
-      localStorage.setItem(
-        'shander_conv_hub_messages',
-        JSON.stringify([...parsedStored, newMessage])
-      )
-    } catch {}
-
     playCardSlideSound()
   }
 
-  // Close on Escape
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && chatModal.open) {
@@ -131,11 +298,19 @@ export default function ConversationHubModal() {
             transition={{ duration: 0.22, ease: 'easeOut' }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Top Bar matching media_1789901767050.png */}
             <div className="conv-hub-header">
-              <div className="conv-hub-header__count">
-                <FiMessageSquare className="conv-hub-header__icon" aria-hidden="true" />
-                <span>{messages.length} {messages.length === 1 ? 'message' : 'messages'}</span>
+              <div className="conv-hub-header__meta">
+                <div className="conv-hub-header__count">
+                  <FiMessageSquare className="conv-hub-header__icon" aria-hidden="true" />
+                  <span>
+                    {messages.length} {messages.length === 1 ? 'message' : 'messages'}
+                  </span>
+                </div>
+
+                <div className="conv-hub-header__live">
+                  <span className="conv-hub-header__dot" aria-hidden="true" />
+                  <span>{visitorCount} visitors</span>
+                </div>
               </div>
 
               <button
@@ -149,7 +324,6 @@ export default function ConversationHubModal() {
               </button>
             </div>
 
-            {/* Scrollable Messages Stream */}
             <div className="conv-hub-messages">
               {messages.length === 0 ? (
                 <div className="conv-hub-empty">
@@ -182,9 +356,7 @@ export default function ConversationHubModal() {
                       <div className="conv-hub-meta">
                         <span className="conv-hub-meta__author">{msg.name}</span>
                         <span className="conv-hub-meta__sep">·</span>
-                        <span className="conv-hub-meta__location">
-                          {msg.location}
-                        </span>
+                        <span className="conv-hub-meta__location">{msg.location}</span>
                         <span className="conv-hub-meta__device" aria-hidden="true">
                           💻
                         </span>
@@ -192,9 +364,7 @@ export default function ConversationHubModal() {
                         <span className="conv-hub-meta__time">{msg.time}</span>
                       </div>
 
-                      <div className="conv-hub-bubble">
-                        {msg.text}
-                      </div>
+                      <div className="conv-hub-bubble">{msg.text}</div>
                     </div>
                   </div>
                 ))
@@ -202,7 +372,6 @@ export default function ConversationHubModal() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Bottom Input Area matching media_1789901767050.png */}
             <div className="conv-hub-bottom">
               <div className="conv-hub-identity">
                 <span className="conv-hub-identity__label">chatting as</span>
