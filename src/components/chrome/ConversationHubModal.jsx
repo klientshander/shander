@@ -6,9 +6,16 @@ import { useUI } from '../../context/UIContext'
 import { playClickSound, playCardSlideSound } from '../../utils/sound'
 import './ConversationHubModal.css'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const rawSupabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
+const supabaseUrl = rawSupabaseUrl.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '')
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
-const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null
+const supabase =
+  supabaseUrl &&
+  supabaseAnonKey &&
+  !supabaseAnonKey.includes('YOUR_') &&
+  !supabaseUrl.includes('YOUR_')
+    ? createClient(supabaseUrl, supabaseAnonKey)
+    : null
 
 const formatTime = (value) => {
   const date = value ? new Date(value) : new Date()
