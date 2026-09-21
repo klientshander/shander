@@ -1,4 +1,5 @@
-import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { supabase } from '../utils/supabase'
 
 const UIContext = createContext(null)
 
@@ -11,7 +12,87 @@ export function UIProvider({ children }) {
   const [cmdOpen, setCmdOpen] = useState(false)
   const [snippetModal, setSnippetModal] = useState({ open: false })
   const [toast, setToast] = useState({ show: false, message: '' })
+  const [visitorCount, setVisitorCount] = useState(1)
   const toastTimer = useRef(null)
+
+  useEffect(() => {
+    if (!supabase) return
+
+    const fetchCount = async () => {
+      const { count, error } = await supabase
+        .from('site_visits')
+        .select('*', { count: 'exact' })
+      if (!error && typeof count === 'number') {
+        setVisitorCount(count)
+      }
+    }
+
+    fetchCount()
+
+    const registerUniqueVisitor = async () => {
+      const isLocalhost =
+        typeof window !== 'undefined' &&
+        (window.location.hostname === 'localhost' ||
+          window.location.hostname === '127.0.0.1' ||
+          window.location.hostname.startsWith('192.168.'))
+
+      const isBot =
+        typeof navigator !== 'undefined' &&
+        (navigator.webdriver || /HeadlessChrome|bot|crawl|spider/i.test(navigator.userAgent))
+
+      if (isLocalhost || isBot) return
+
+      const visitorKey = 'shander_unique_visitor_id'
+      let visitorId = null
+
+      try {
+        visitorId = localStorage.getItem(visitorKey)
+      } catch {}
+
+      if (visitorId) return
+
+      const nextVisitorId =
+        globalThis.crypto?.randomUUID?.() || `vis-${Date.now()}-${Math.random()}`
+
+      try {
+        localStorage.setItem(visitorKey, nextVisitorId)
+      } catch {}
+
+      const { error } = await supabase.from('site_visits').insert([
+        {
+          session_id: nextVisitorId,
+          user_agent: navigator.userAgent,
+          referrer: document.referrer || 'direct',
+        },
+      ])
+
+      if (!error) {
+        fetchCount()
+      }
+    }
+
+    registerUniqueVisitor()
+
+    const visitorChannel = supabase
+      .channel('public:site_visits')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'site_visits' },
+        async () => {
+          const { count } = await supabase
+            .from('site_visits')
+            .select('*', { count: 'exact' })
+          if (typeof count === 'number') {
+            setVisitorCount(count)
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(visitorChannel)
+    }
+  }, [])
 
   const openLightbox = useCallback((src, alt, caption) => {
     setLightbox({ open: true, src, alt: alt || '', caption: caption || '' })
@@ -81,6 +162,7 @@ export function UIProvider({ children }) {
       closeCmd,
       toast,
       showToast,
+      visitorCount,
       closeAllOverlays,
     }),
     [
@@ -92,6 +174,7 @@ export function UIProvider({ children }) {
       chatModal,
       cmdOpen,
       toast,
+      visitorCount,
       openLightbox,
       closeLightbox,
       openCertModal,

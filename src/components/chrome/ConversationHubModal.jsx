@@ -1,21 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
-import { createClient } from '@supabase/supabase-js'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FiX, FiMessageSquare, FiTrash2 } from 'react-icons/fi'
 import { useUI } from '../../context/UIContext'
+import { supabase } from '../../utils/supabase'
 import { playClickSound, playCardSlideSound } from '../../utils/sound'
 import './ConversationHubModal.css'
-
-const rawSupabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
-const supabaseUrl = rawSupabaseUrl.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '')
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
-const supabase =
-  supabaseUrl &&
-  supabaseAnonKey &&
-  !supabaseAnonKey.includes('YOUR_') &&
-  !supabaseUrl.includes('YOUR_')
-    ? createClient(supabaseUrl, supabaseAnonKey)
-    : null
 
 const formatTime = (value) => {
   const date = value ? new Date(value) : new Date()
@@ -60,25 +49,9 @@ const dedupeMessages = (messages, incoming) => {
   return Array.from(map.values())
 }
 
-const getSessionId = () => {
-  const key = 'shander_visitor_session'
-
-  try {
-    const current = sessionStorage.getItem(key)
-    if (current) return current
-
-    const nextId = globalThis.crypto?.randomUUID?.() || `session-${Date.now()}-${Math.random()}`
-    sessionStorage.setItem(key, nextId)
-    return nextId
-  } catch {
-    return `session-${Date.now()}-${Math.random()}`
-  }
-}
-
 export default function ConversationHubModal() {
-  const { chatModal, closeChatModal } = useUI()
+  const { chatModal, closeChatModal, visitorCount } = useUI()
   const [messages, setMessages] = useState([])
-  const [visitorCount, setVisitorCount] = useState(0)
 
   const [userName, setUserName] = useState(() => {
     try {
@@ -153,48 +126,7 @@ export default function ConversationHubModal() {
       }
     }
 
-    const loadVisitorCount = async () => {
-      if (!supabase) {
-        setVisitorCount(1)
-        return
-      }
-
-      const { count, error } = await supabase.from('site_visits').select('*', { count: 'exact' })
-
-      if (!error && typeof count === 'number') {
-        setVisitorCount(count)
-      }
-    }
-
-    const registerVisitor = async () => {
-      if (!supabase) return
-
-      const sessionId = getSessionId()
-      const seenKey = 'shander_visitor_registered'
-
-      if (sessionStorage.getItem(seenKey) === 'true') return
-
-      const { error } = await supabase.from('site_visits').insert([
-        {
-          session_id: sessionId,
-          user_agent: navigator.userAgent,
-          referrer: document.referrer || 'direct',
-        },
-      ])
-
-      if (!error) {
-        sessionStorage.setItem(seenKey, 'true')
-      }
-
-      const { count: totalCount } = await supabase.from('site_visits').select('*', { count: 'exact' })
-      if (typeof totalCount === 'number') {
-        setVisitorCount(totalCount)
-      }
-    }
-
     loadMessages()
-    loadVisitorCount()
-    registerVisitor()
 
     if (!supabase) return
 
@@ -253,26 +185,11 @@ export default function ConversationHubModal() {
 
     channelRef.current = messagesChannel
 
-    const visitorChannel = supabase
-      .channel('public:site_visits')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'site_visits' },
-        async () => {
-          const { count } = await supabase.from('site_visits').select('*', { count: 'exact' })
-          if (typeof count === 'number') {
-            setVisitorCount(count)
-          }
-        }
-      )
-      .subscribe()
-
     return () => {
       channelRef.current = null
       typingExpiriesRef.current.forEach((timer) => clearTimeout(timer))
       typingExpiriesRef.current.clear()
       supabase.removeChannel(messagesChannel)
-      supabase.removeChannel(visitorChannel)
     }
   }, [userName])
 

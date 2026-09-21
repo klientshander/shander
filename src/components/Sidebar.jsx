@@ -40,19 +40,8 @@ export default function Sidebar({
   soundProfile = 'tactile',
   onCycleSoundProfile,
 }) {
-  const { openChessModal, openCmd, openChatModal, openSnippetModal } = useUI()
-  const [viewersCount, setViewersCount] = useState(2)
+  const { openChessModal, openCmd, openChatModal, openSnippetModal, visitorCount } = useUI()
   const [platformsOpen, setPlatformsOpen] = useState(false)
-
-  useEffect(() => {
-    // Dynamic slight variance for live visitors
-    const interval = setInterval(() => {
-      setViewersCount((prev) =>
-        Math.random() > 0.5 ? Math.min(4, Math.max(1, prev + (Math.random() > 0.5 ? 1 : -1))) : prev
-      )
-    }, 14000)
-    return () => clearInterval(interval)
-  }, [])
 
   // Primary navigation group
   const primaryNav = [
@@ -307,7 +296,7 @@ export default function Sidebar({
         </div>
 
         <div className="sidebar__presence-label">
-          <strong>{viewersCount}</strong> {viewersCount === 1 ? 'person' : 'people'} viewing now
+          <strong>{visitorCount}</strong> {visitorCount === 1 ? 'visitor' : 'visitors'}
         </div>
 
         <button
