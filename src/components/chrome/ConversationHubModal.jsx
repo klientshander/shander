@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiX, FiMessageSquare } from 'react-icons/fi'
+import { FiX, FiMessageSquare, FiTrash2 } from 'react-icons/fi'
 import { useUI } from '../../context/UIContext'
 import { playClickSound, playCardSlideSound } from '../../utils/sound'
 import './ConversationHubModal.css'
@@ -103,8 +103,22 @@ export default function ConversationHubModal() {
   const [isEditingName, setIsEditingName] = useState(false)
   const [nameInput, setNameInput] = useState(userName)
   const [inputText, setInputText] = useState('')
+  const [myMessageIds, setMyMessageIds] = useState(() => {
+    try {
+      const saved = localStorage.getItem('shander_my_message_ids')
+      return saved ? JSON.parse(saved) : []
+    } catch {
+      return []
+    }
+  })
+  const [typingUsers, setTypingUsers] = useState([])
+
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
+  const channelRef = useRef(null)
+  const typingTimeoutRef = useRef(null)
+  const isTypingRef = useRef(false)
+  const typingExpiriesRef = useRef(new Map())
 
   const scrollToBottom = (behavior = 'smooth') => {
     messagesEndRef.current?.scrollIntoView({ behavior })
@@ -185,20 +199,59 @@ export default function ConversationHubModal() {
     if (!supabase) return
 
     const messagesChannel = supabase
-      .channel('public:conversation_messages')
+      .channel('public:conversation_messages', {
+        config: { broadcast: { self: false } },
+      })
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'conversation_messages' },
         (payload) => {
-          const nextMessage = normalizeMessage({
-            ...payload.new,
-            isSelf: false,
-          })
-
+          const nextMessage = normalizeMessage(payload.new)
           setMessages((current) => dedupeMessages(current, nextMessage))
         }
       )
+      .on(
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'conversation_messages' },
+        (payload) => {
+          if (payload.old?.id) {
+            setMessages((current) => current.filter((m) => m.id !== payload.old.id))
+          }
+        }
+      )
+      .on('broadcast', { event: 'unsend' }, ({ payload }) => {
+        if (payload?.messageId) {
+          setMessages((current) => current.filter((m) => m.id !== payload.messageId))
+        }
+      })
+      .on('broadcast', { event: 'typing' }, ({ payload }) => {
+        const { user, isTyping } = payload || {}
+        if (!user || user === userName) return
+
+        setTypingUsers((current) => {
+          if (isTyping) {
+            if (typingExpiriesRef.current.has(user)) {
+              clearTimeout(typingExpiriesRef.current.get(user))
+            }
+            const timer = setTimeout(() => {
+              setTypingUsers((prev) => prev.filter((u) => u !== user))
+              typingExpiriesRef.current.delete(user)
+            }, 3500)
+            typingExpiriesRef.current.set(user, timer)
+
+            return current.includes(user) ? current : [...current, user]
+          } else {
+            if (typingExpiriesRef.current.has(user)) {
+              clearTimeout(typingExpiriesRef.current.get(user))
+              typingExpiriesRef.current.delete(user)
+            }
+            return current.filter((u) => u !== user)
+          }
+        })
+      })
       .subscribe()
+
+    channelRef.current = messagesChannel
 
     const visitorChannel = supabase
       .channel('public:site_visits')
@@ -215,10 +268,13 @@ export default function ConversationHubModal() {
       .subscribe()
 
     return () => {
+      channelRef.current = null
+      typingExpiriesRef.current.forEach((timer) => clearTimeout(timer))
+      typingExpiriesRef.current.clear()
       supabase.removeChannel(messagesChannel)
       supabase.removeChannel(visitorChannel)
     }
-  }, [])
+  }, [userName])
 
   useEffect(() => {
     if (chatModal.open) {
@@ -253,12 +309,118 @@ export default function ConversationHubModal() {
     } catch {}
   }
 
+  const saveMyMessageId = (id) => {
+    setMyMessageIds((prev) => {
+      const next = Array.from(new Set([...prev, id]))
+      try {
+        localStorage.setItem('shander_my_message_ids', JSON.stringify(next))
+      } catch {}
+      return next
+    })
+  }
+
+  const handleUnsendMessage = async (messageId) => {
+    playClickSound(0.16)
+
+    // Remove immediately from messages state
+    setMessages((current) => current.filter((m) => m.id !== messageId))
+
+    // Remove from myMessageIds
+    setMyMessageIds((prev) => {
+      const next = prev.filter((id) => id !== messageId)
+      try {
+        localStorage.setItem('shander_my_message_ids', JSON.stringify(next))
+      } catch {}
+      return next
+    })
+
+    // Update localStorage fallback messages
+    try {
+      const stored = JSON.parse(localStorage.getItem('shander_conv_hub_messages') || '[]')
+      const updated = stored.filter((m) => m.id !== messageId)
+      localStorage.setItem('shander_conv_hub_messages', JSON.stringify(updated))
+    } catch {}
+
+    // Broadcast unsend to other connected clients
+    if (channelRef.current) {
+      channelRef.current
+        .send({
+          type: 'broadcast',
+          event: 'unsend',
+          payload: { messageId },
+        })
+        .catch(() => {})
+    }
+
+    // Delete from Supabase
+    if (supabase) {
+      await supabase.from('conversation_messages').delete().eq('id', messageId)
+    }
+  }
+
+  const handleInputChange = (e) => {
+    const value = e.target.value
+    setInputText(value)
+
+    if (channelRef.current && supabase) {
+      if (value.trim().length > 0) {
+        if (!isTypingRef.current) {
+          isTypingRef.current = true
+          channelRef.current
+            .send({
+              type: 'broadcast',
+              event: 'typing',
+              payload: { user: userName || 'Visitor', isTyping: true },
+            })
+            .catch(() => {})
+        }
+
+        clearTimeout(typingTimeoutRef.current)
+        typingTimeoutRef.current = setTimeout(() => {
+          if (isTypingRef.current) {
+            isTypingRef.current = false
+            channelRef.current
+              ?.send({
+                type: 'broadcast',
+                event: 'typing',
+                payload: { user: userName || 'Visitor', isTyping: false },
+              })
+              .catch(() => {})
+          }
+        }, 1800)
+      } else if (isTypingRef.current) {
+        isTypingRef.current = false
+        clearTimeout(typingTimeoutRef.current)
+        channelRef.current
+          .send({
+            type: 'broadcast',
+            event: 'typing',
+            payload: { user: userName || 'Visitor', isTyping: false },
+          })
+          .catch(() => {})
+      }
+    }
+  }
+
   const handleSendMessage = async (e) => {
     e.preventDefault()
     const trimmed = inputText.trim()
     if (!trimmed) return
 
     playClickSound()
+
+    // Stop typing broadcast
+    clearTimeout(typingTimeoutRef.current)
+    if (isTypingRef.current) {
+      isTypingRef.current = false
+      channelRef.current
+        ?.send({
+          type: 'broadcast',
+          event: 'typing',
+          payload: { user: userName || 'Visitor', isTyping: false },
+        })
+        .catch(() => {})
+    }
 
     const safeName = userName || 'Visitor'
     const newMessage = {
@@ -286,14 +448,17 @@ export default function ConversationHubModal() {
 
       if (!error && data && data[0]) {
         const savedMessage = normalizeMessage({ ...data[0], isSelf: true })
+        saveMyMessageId(savedMessage.id)
         setMessages((current) => dedupeMessages(current, savedMessage))
       } else {
+        saveMyMessageId(newMessage.id)
         const stored = JSON.parse(localStorage.getItem('shander_conv_hub_messages') || '[]')
         const nextMessages = [...stored, newMessage]
         localStorage.setItem('shander_conv_hub_messages', JSON.stringify(nextMessages))
         setMessages((current) => dedupeMessages(current, newMessage))
       }
     } else {
+      saveMyMessageId(newMessage.id)
       const stored = JSON.parse(localStorage.getItem('shander_conv_hub_messages') || '[]')
       const nextMessages = [...stored, newMessage]
       localStorage.setItem('shander_conv_hub_messages', JSON.stringify(nextMessages))
@@ -374,43 +539,73 @@ export default function ConversationHubModal() {
                   </p>
                 </div>
               ) : (
-                messages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className={`conv-hub-row ${msg.isSelf ? 'is-self' : ''}`}
-                  >
-                    <div className="conv-hub-avatar-wrap">
-                      <img
-                        src={msg.avatar || '/gallery/shander.png'}
-                        alt={msg.name}
-                        className="conv-hub-avatar"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none'
-                        }}
-                      />
-                    </div>
-
-                    <div className="conv-hub-msg-wrap">
-                      <div className="conv-hub-meta">
-                        <span className="conv-hub-meta__author">{msg.name}</span>
-                        <span className="conv-hub-meta__sep">·</span>
-                        <span className="conv-hub-meta__location">{msg.location}</span>
-                        <span className="conv-hub-meta__device" aria-hidden="true">
-                          💻
-                        </span>
-                        <span className="conv-hub-meta__sep">·</span>
-                        <span className="conv-hub-meta__time">{msg.time}</span>
+                messages.map((msg) => {
+                  const isOwn = Boolean(msg.isSelf || myMessageIds.includes(msg.id))
+                  return (
+                    <div
+                      key={msg.id}
+                      className={`conv-hub-row ${isOwn ? 'is-self' : ''}`}
+                    >
+                      <div className="conv-hub-avatar-wrap">
+                        <img
+                          src={msg.avatar || '/avatars/boy.svg'}
+                          alt={msg.name}
+                          className="conv-hub-avatar"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none'
+                          }}
+                        />
                       </div>
 
-                      <div className="conv-hub-bubble">{msg.text}</div>
+                      <div className="conv-hub-msg-wrap">
+                        <div className="conv-hub-meta">
+                          <span className="conv-hub-meta__author">{msg.name}</span>
+                          <span className="conv-hub-meta__sep">·</span>
+                          <span className="conv-hub-meta__location">{msg.location}</span>
+                          <span className="conv-hub-meta__device" aria-hidden="true">
+                            💻
+                          </span>
+                          <span className="conv-hub-meta__sep">·</span>
+                          <span className="conv-hub-meta__time">{msg.time}</span>
+                          {isOwn && (
+                            <button
+                              type="button"
+                              className="conv-hub-unsend-btn"
+                              onClick={() => handleUnsendMessage(msg.id)}
+                              title="Unsend this message"
+                              aria-label="Unsend message"
+                            >
+                              <FiTrash2 aria-hidden="true" />
+                              <span>unsend</span>
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="conv-hub-bubble">{msg.text}</div>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  )
+                })
               )}
               <div ref={messagesEndRef} />
             </div>
 
             <div className="conv-hub-bottom">
+              {typingUsers.length > 0 && (
+                <div className="conv-hub-typing" aria-live="polite">
+                  <div className="conv-hub-typing__dots" aria-hidden="true">
+                    <span className="conv-hub-typing__dot" />
+                    <span className="conv-hub-typing__dot" />
+                    <span className="conv-hub-typing__dot" />
+                  </div>
+                  <span className="conv-hub-typing__text">
+                    {typingUsers.length === 1
+                      ? `${typingUsers[0]} is typing...`
+                      : `${typingUsers.length} people are typing...`}
+                  </span>
+                </div>
+              )}
+
               <div className="conv-hub-identity">
                 <div className="conv-hub-avatar-picker" role="radiogroup" aria-label="Choose visitor avatar">
                   {VISITOR_AVATARS.map((av) => (
@@ -472,7 +667,7 @@ export default function ConversationHubModal() {
                   className="conv-hub-input"
                   placeholder="say something..."
                   value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
+                  onChange={handleInputChange}
                 />
                 <button
                   type="submit"
