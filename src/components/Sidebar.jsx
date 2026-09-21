@@ -292,22 +292,16 @@ export default function Sidebar({
         <div className="sidebar__avatars-row">
           <div className="sidebar__avatar-wrap">
             <img
-              src="/gallery/shander.png"
-              alt="Avatar 1"
+              src="/avatars/boy.svg"
+              alt="Visitor Boy"
               className="sidebar__avatar"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none'
-              }}
             />
           </div>
           <div className="sidebar__avatar-wrap sidebar__avatar-wrap--overlap">
             <img
-              src="/gallery/batman.jpg"
-              alt="Avatar 2"
+              src="/avatars/girl.svg"
+              alt="Visitor Girl"
               className="sidebar__avatar"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none'
-              }}
             />
           </div>
         </div>

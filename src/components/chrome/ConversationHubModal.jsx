@@ -30,13 +30,20 @@ const formatTime = (value) => {
   }).format(date)
 }
 
+export const VISITOR_AVATARS = [
+  { id: 'boy', label: 'Boy', src: '/avatars/boy.svg' },
+  { id: 'girl', label: 'Girl', src: '/avatars/girl.svg' },
+  { id: 'boy-2', label: 'Boy 2', src: '/avatars/boy-2.svg' },
+  { id: 'girl-2', label: 'Girl 2', src: '/avatars/girl-2.svg' },
+]
+
 const normalizeMessage = (message) => ({
   id: message.id ?? `local-${Date.now()}-${Math.random()}`,
   name: message.name || 'Visitor',
   location: message.location || 'Website visitor',
   time: formatTime(message.created_at || message.time),
   text: message.text || '',
-  avatar: message.avatar || '/gallery/shander.png',
+  avatar: message.avatar || '/avatars/boy.svg',
   isSelf: Boolean(message.isSelf),
 })
 
@@ -44,7 +51,11 @@ const dedupeMessages = (messages, incoming) => {
   const map = new Map()
 
   messages.forEach((message) => map.set(message.id, message))
-  map.set(incoming.id, incoming)
+  const existing = map.get(incoming.id)
+  map.set(incoming.id, {
+    ...incoming,
+    isSelf: incoming.isSelf || existing?.isSelf || false,
+  })
 
   return Array.from(map.values())
 }
@@ -74,6 +85,18 @@ export default function ConversationHubModal() {
       return localStorage.getItem('shander_conv_hub_user') || 'Visitor'
     } catch {
       return 'Visitor'
+    }
+  })
+
+  const [userAvatar, setUserAvatar] = useState(() => {
+    try {
+      const saved = localStorage.getItem('shander_conv_hub_avatar')
+      if (saved) return saved
+      const randomAvatar = VISITOR_AVATARS[Math.floor(Math.random() * 2)].src
+      localStorage.setItem('shander_conv_hub_avatar', randomAvatar)
+      return randomAvatar
+    } catch {
+      return '/avatars/boy.svg'
     }
   })
 
@@ -212,6 +235,14 @@ export default function ConversationHubModal() {
     }
   }, [messages.length, chatModal.open])
 
+  const handleSelectAvatar = (avatarSrc) => {
+    playClickSound(0.14)
+    setUserAvatar(avatarSrc)
+    try {
+      localStorage.setItem('shander_conv_hub_avatar', avatarSrc)
+    } catch {}
+  }
+
   const handleSaveName = () => {
     const trimmed = nameInput.trim() || 'Visitor'
     setUserName(trimmed)
@@ -236,7 +267,7 @@ export default function ConversationHubModal() {
       location: 'Website visitor',
       time: 'just now',
       text: trimmed,
-      avatar: '/gallery/shander.png',
+      avatar: userAvatar,
       isSelf: true,
     }
 
@@ -248,7 +279,7 @@ export default function ConversationHubModal() {
             name: safeName,
             location: 'Website visitor',
             text: trimmed,
-            avatar: '/gallery/shander.png',
+            avatar: userAvatar,
           },
         ])
         .select()
@@ -381,6 +412,23 @@ export default function ConversationHubModal() {
 
             <div className="conv-hub-bottom">
               <div className="conv-hub-identity">
+                <div className="conv-hub-avatar-picker" role="radiogroup" aria-label="Choose visitor avatar">
+                  {VISITOR_AVATARS.map((av) => (
+                    <button
+                      key={av.id}
+                      type="button"
+                      className={`conv-hub-avatar-opt ${userAvatar === av.src ? 'is-active' : ''}`}
+                      onClick={() => handleSelectAvatar(av.src)}
+                      title={`Select ${av.label}`}
+                      aria-label={`Select ${av.label}`}
+                    >
+                      <img src={av.src} alt={av.label} />
+                    </button>
+                  ))}
+                </div>
+
+                <span className="conv-hub-identity__sep">·</span>
+
                 <span className="conv-hub-identity__label">chatting as</span>
                 {isEditingName ? (
                   <span className="conv-hub-identity__edit-wrap">

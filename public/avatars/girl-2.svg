@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bgGirl2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#6d28d9"/>
+    </linearGradient>
+    <linearGradient id="hairGirl2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="48" fill="url(#bgGirl2)"/>
+  <!-- Hair Bun / High Ponytail -->
+  <circle cx="50" cy="16" r="10" fill="url(#hairGirl2)"/>
+  <circle cx="50" cy="22" r="3" fill="#c084fc"/>
+  <!-- Body/Shoulders -->
+  <path d="M22 88 C22 72 34 66 50 66 C66 66 78 72 78 88 Z" fill="#3b0764"/>
+  <!-- Collar/Neck -->
+  <path d="M43 64 L50 71 L57 64 Z" fill="#e9d5ff"/>
+  <rect x="44" y="52" width="12" height="14" rx="3" fill="#fde68a"/>
+  <!-- Head -->
+  <ellipse cx="50" cy="42" rx="18" ry="20" fill="#fde68a"/>
+  <!-- Hair Base -->
+  <path d="M29 38 C28 23 37 19 50 19 C63 19 72 23 71 38 C69 28 62 25 50 25 C38 25 31 28 29 38 Z" fill="url(#hairGirl2)"/>
+  <!-- Side strands -->
+  <path d="M28 36 C29 46 31 52 30 55 C29 52 28 46 27 38 Z" fill="url(#hairGirl2)"/>
+  <path d="M72 36 C71 46 69 52 70 55 C71 52 72 46 73 38 Z" fill="url(#hairGirl2)"/>
+  <!-- Ears -->
+  <circle cx="32" cy="43" r="3.5" fill="#fde68a"/>
+  <circle cx="68" cy="43" r="3.5" fill="#fde68a"/>
+  <!-- Earrings -->
+  <circle cx="32" cy="46.5" r="1.5" fill="#fde047"/>
+  <circle cx="68" cy="46.5" r="1.5" fill="#fde047"/>
+  <!-- Eyes -->
+  <ellipse cx="43" cy="42" rx="2.5" ry="3" fill="#1e293b"/>
+  <ellipse cx="57" cy="42" rx="2.5" ry="3" fill="#1e293b"/>
+  <circle cx="44" cy="41" r="0.9" fill="#ffffff"/>
+  <circle cx="58" cy="41" r="0.9" fill="#ffffff"/>
+  <!-- Eyelashes -->
+  <path d="M40 38 Q43 36 46 38" stroke="#1e293b" stroke-width="1.2" fill="none"/>
+  <path d="M54 38 Q57 36 60 38" stroke="#1e293b" stroke-width="1.2" fill="none"/>
+  <!-- Blush -->
+  <ellipse cx="38" cy="46" rx="3" ry="1.8" fill="#ec4899" opacity="0.5"/>
+  <ellipse cx="62" cy="46" rx="3" ry="1.8" fill="#ec4899" opacity="0.5"/>
+  <!-- Smile -->
+  <path d="M46 49 Q50 53 54 49" stroke="#b45309" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+</svg>
+
