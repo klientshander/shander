@@ -1442,6 +1442,46 @@
   padding: 20px 0;
 }
 
+.techstacks-more-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 14px;
+}
+
+.techstacks-more-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: var(--shadow-card);
+  transition: all 0.18s ease;
+}
+
+.techstacks-more-btn:hover {
+  color: var(--text);
+  border-color: var(--accent);
+  background: var(--surface-raised);
+  transform: translateY(-1.5px);
+  box-shadow: var(--shadow-lift);
+}
+
+.techstacks-more-btn:active {
+  transform: translateY(0);
+}
+
+.techstacks-more-btn svg {
+  font-size: 0.88rem;
+  transition: transform 0.2s ease;
+}
+
 /* ==========================================================================
    Contact
    ========================================================================== */

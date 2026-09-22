@@ -15,7 +15,7 @@ import {
 export const navItems = [
   { id: 'home', label: 'Home', icon: FiHome, color: 'var(--hue-home)' },
   { id: 'projects', label: 'Projects', icon: FiFolder, color: 'var(--hue-projects)' },
-  { id: 'techstacks', label: 'Techstacks', icon: FiCode, color: 'var(--hue-stack)' },
+  { id: 'techstacks', label: 'Tech Stacks', icon: FiCode, color: 'var(--hue-stack)' },
   { id: 'certification', label: 'Certification', icon: FiAward, color: 'var(--hue-cert)' },
   { id: 'education', label: 'Education', icon: FiBookOpen, color: 'var(--hue-education)' },
   { id: 'resources', label: 'Resources', icon: FiBookOpen, color: 'var(--hue-education)', standalone: true },

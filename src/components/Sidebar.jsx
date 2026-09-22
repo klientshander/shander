@@ -15,6 +15,8 @@ import {
   FiVolume2,
   FiVolumeX,
   FiMail,
+  FiCode,
+  FiAward,
 } from 'react-icons/fi'
 import {
   FaGithub,
@@ -24,7 +26,7 @@ import {
   FaBehance,
   FaCodepen,
 } from 'react-icons/fa6'
-import { LuMonitor } from 'react-icons/lu'
+import { LuMonitor, LuGraduationCap } from 'react-icons/lu'
 import { profile, socials } from '../data/profile'
 import { useUI } from '../context/UIContext'
 import { playClickSound, playHoverSound } from '../utils/sound'
@@ -45,10 +47,13 @@ export default function Sidebar({
 
   // Primary navigation group
   const primaryNav = [
-    { id: 'shop', label: 'Shop', icon: FiShoppingBag },
+    { id: 'cv', label: 'My CV', icon: FiFileText },
     { id: 'platform', label: 'Platform', icon: FiGlobe, isExpandable: true },
     { id: 'freelance', label: 'Freelance', icon: FiBriefcase },
     { id: 'resources', label: 'Resources', icon: FiBookOpen },
+    { id: 'techstacks', label: 'Tech Stacks', icon: FiCode },
+    { id: 'education', label: 'Education', icon: LuGraduationCap },
+    { id: 'certification', label: 'Certification', icon: FiAward },
   ]
 
   const platformList = [
@@ -63,8 +68,9 @@ export default function Sidebar({
   // Secondary navigation group (Services, Gallery & CV)
   const secondaryNav = [
     { id: 'contact', label: 'Collabs', icon: FiUsers },
+    { id: 'shop', label: 'Shop', icon: FiShoppingBag },
+    
     { id: 'gallery', label: 'Gallery', icon: FiImage },
-    { id: 'cv', label: 'my CV', icon: FiFileText },
   ]
 
   return (
@@ -282,21 +288,33 @@ export default function Sidebar({
           <div className="sidebar__avatar-wrap">
             <img
               src="/avatars/boy.svg"
-              alt="Visitor Boy"
+              alt="Visitor 1"
               className="sidebar__avatar"
             />
           </div>
           <div className="sidebar__avatar-wrap sidebar__avatar-wrap--overlap">
             <img
               src="/avatars/girl.svg"
-              alt="Visitor Girl"
+              alt="Visitor 2"
               className="sidebar__avatar"
             />
           </div>
+          <div className="sidebar__avatar-wrap sidebar__avatar-wrap--overlap">
+            <img
+              src="/avatars/boy-2.svg"
+              alt="Visitor 3"
+              className="sidebar__avatar"
+            />
+          </div>
+          {visitorCount > 3 && (
+            <div className="sidebar__avatar-wrap sidebar__avatar-wrap--overlap sidebar__avatar-more">
+              <span>+{visitorCount - 3}</span>
+            </div>
+          )}
         </div>
 
         <div className="sidebar__presence-label">
-          <strong>{visitorCount}</strong> {visitorCount === 1 ? 'visitor' : 'visitors'}
+          <strong>{visitorCount}</strong> {visitorCount === 1 ? 'person viewing now' : 'people viewing now'}
         </div>
 
         <button
@@ -306,7 +324,7 @@ export default function Sidebar({
           title="Open Conversation Hub"
         >
           <FiMessageSquare className="sidebar__chat-icon" aria-hidden="true" />
-          <span>Conversation Hub</span>
+          <span>community chat</span>
         </button>
       </div>
 
@@ -358,42 +376,15 @@ export default function Sidebar({
             </button>
           </div>
 
-          <div className="sidebar__sound-group">
-            <button
-              type="button"
-              className={`sidebar__sound-btn ${soundEnabled ? 'is-active' : ''}`}
-              onClick={onToggleSound}
-              title={soundEnabled ? 'Mute sound effects' : 'Enable sound effects'}
-              aria-label="Toggle sound"
-            >
-              {soundEnabled ? <FiVolume2 aria-hidden="true" /> : <FiVolumeX aria-hidden="true" />}
-            </button>
-
-            {soundEnabled && onCycleSoundProfile && (
-              <button
-                type="button"
-                className="sidebar__sound-mode-pill"
-                onClick={onCycleSoundProfile}
-                title={`Sound Effect: ${
-                  soundProfile === 'tactile'
-                    ? 'Tactile Switch'
-                    : soundProfile === 'pop'
-                    ? 'Haptic Pop'
-                    : 'Minimal Thud'
-                }. Click to switch sound effect!`}
-                aria-label="Change sound effect"
-              >
-                <span className="sidebar__sound-mode-dot" />
-                <span>
-                  {soundProfile === 'tactile'
-                    ? 'Tactile'
-                    : soundProfile === 'pop'
-                    ? 'Pop'
-                    : 'Thud'}
-                </span>
-              </button>
-            )}
-          </div>
+          <button
+            type="button"
+            className={`sidebar__sound-btn ${soundEnabled ? 'is-active' : ''}`}
+            onClick={onToggleSound}
+            title={soundEnabled ? `Sound: ON (${soundProfile})` : 'Sound: Muted'}
+            aria-label="Toggle sound"
+          >
+            {soundEnabled ? <FiVolume2 aria-hidden="true" /> : <FiVolumeX aria-hidden="true" />}
+          </button>
         </div>
 
         <div className="sidebar__contact">
