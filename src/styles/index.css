@@ -320,3 +320,34 @@ ul {
     transform: translate3d(4%, 6%, 0) scale(1.08);
   }
 }
+
+/* ==========================================================================
+   Theme Transition Animations (View Transitions API + Fallback)
+   ========================================================================== */
+
+/* Disable default cross-fade animations so circular clip-path expansion takes over */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 99999;
+}
+
+/* Fallback for browsers without View Transitions or when reduced motion is requested */
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition-delay: 0s !important;
+}

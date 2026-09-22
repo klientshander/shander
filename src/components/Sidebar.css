@@ -175,14 +175,14 @@
   align-items: center;
   background: transparent;
   border: none;
-  padding: 2px 0;
+  padding: 3px 0;
   margin: 0;
   cursor: pointer;
   text-align: left;
   width: 100%;
   color: #6b7280;
   font-family: var(--sidebar-mono);
-  font-size: 0.95rem;
+  font-size: 0.98rem;
   font-weight: 400;
   letter-spacing: -0.01em;
   transition: color 0.15s ease, transform 0.15s ease;
@@ -503,11 +503,16 @@
   color: var(--text-muted);
   cursor: pointer;
   font-size: 0.8rem;
-  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
 }
 
 .sidebar__pill-btn:hover {
   color: var(--text);
+  transform: scale(1.12);
+}
+
+.sidebar__pill-btn:active {
+  transform: scale(0.92);
 }
 
 .sidebar__pill-btn.is-active {

@@ -66,9 +66,9 @@ export default function HeaderNav({
           <button
             type="button"
             className={`theme-toggle ${isLight ? 'theme-toggle--light' : 'theme-toggle--dark'}`}
-            onClick={() => {
+            onClick={(e) => {
               playClickSound()
-              onToggleTheme()
+              onToggleTheme(e)
             }}
             aria-label={`Switch to ${isLight ? 'dark' : 'light'} mode`}
             title={`Switch to ${isLight ? 'dark' : 'light'} mode`}

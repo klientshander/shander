@@ -19,6 +19,7 @@ import CodeSnippetModal from './components/chrome/CodeSnippetModal'
 import { UIProvider, useUI } from './context/UIContext'
 import { useTheme } from './hooks/useTheme'
 import { useSoundEffects } from './hooks/useSoundEffects'
+import { playClickSound } from './utils/sound'
 import { navItems, mainScrollSections, standaloneSections } from './data/nav'
 
 import Home from './components/sections/Home'
@@ -281,7 +282,8 @@ function AppShell() {
       }
 
       if (e.key.toLowerCase() === 'd') {
-        toggleTheme()
+        playClickSound()
+        toggleTheme(e)
       } else if (e.key.toLowerCase() === 'm') {
         toggleSound()
       }

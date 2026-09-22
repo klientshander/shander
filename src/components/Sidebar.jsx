@@ -319,7 +319,10 @@ export default function Sidebar({
             <button
               type="button"
               className="sidebar__pill-btn"
-              onClick={onToggleTheme}
+              onClick={(e) => {
+                playClickSound()
+                onToggleTheme(e, 'system')
+              }}
               title="System Theme"
               aria-label="System theme"
             >
@@ -328,7 +331,12 @@ export default function Sidebar({
             <button
               type="button"
               className={`sidebar__pill-btn ${theme === 'light' ? 'is-active' : ''}`}
-              onClick={onToggleTheme}
+              onClick={(e) => {
+                if (theme !== 'light') {
+                  playClickSound()
+                  onToggleTheme(e, 'light')
+                }
+              }}
               title="Light theme"
               aria-label="Light theme"
             >
@@ -337,7 +345,12 @@ export default function Sidebar({
             <button
               type="button"
               className={`sidebar__pill-btn ${theme === 'dark' ? 'is-active' : ''}`}
-              onClick={onToggleTheme}
+              onClick={(e) => {
+                if (theme !== 'dark') {
+                  playClickSound()
+                  onToggleTheme(e, 'dark')
+                }
+              }}
               title="Dark theme"
               aria-label="Dark theme"
             >
