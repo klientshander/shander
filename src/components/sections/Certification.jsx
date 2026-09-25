@@ -1,6 +1,7 @@
-import { FiAward, FiStar, FiFileText, FiClock, FiZoomIn } from 'react-icons/fi'
+import { FiAward, FiStar, FiFileText, FiClock, FiImage, FiArrowUpRight } from 'react-icons/fi'
 import { certifications } from '../../data/certifications'
 import { useUI } from '../../context/UIContext'
+import { playClickSound } from '../../utils/sound'
 import Reveal from '../ui/Reveal'
 
 const iconMap = {
@@ -13,6 +14,12 @@ const iconMap = {
 export default function Certification() {
   const { openCertModal } = useUI()
 
+  const handleCertClick = (cert) => {
+    if (!cert.image) return
+    playClickSound()
+    openCertModal(cert.title, `${cert.issuer} · ${cert.year}`, cert.image)
+  }
+
   return (
     <section aria-label="Certifications" className="panel">
       <div className="cert-grid">
@@ -24,40 +31,38 @@ export default function Certification() {
             <Reveal
               as="div"
               key={cert.id}
-              delay={index * 0.07}
-              className={`cert-card ${hasImage ? '' : 'cert-card--pending'}`}
-              onClick={() => hasImage && openCertModal(cert.title, `${cert.issuer} · ${cert.year}`, cert.image)}
+              delay={index * 0.06}
+              className={`cert-card ${hasImage ? 'is-clickable' : 'cert-card--pending'}`}
+              onClick={() => handleCertClick(cert)}
               role={hasImage ? 'button' : undefined}
               tabIndex={hasImage ? 0 : undefined}
               onKeyDown={(e) => {
                 if (hasImage && (e.key === 'Enter' || e.key === ' ')) {
                   e.preventDefault()
-                  openCertModal(cert.title, `${cert.issuer} · ${cert.year}`, cert.image)
+                  handleCertClick(cert)
                 }
               }}
+              title={hasImage ? `Click to view ${cert.title} picture` : `${cert.title} (In progress)`}
             >
-              <div className="cert-card__thumb">
-                {hasImage ? (
-                  <>
-                    <img src={cert.image} alt={cert.title} loading="lazy" />
-                    <span className="cert-card__overlay">
-                      <FiZoomIn aria-hidden="true" />
-                      View certificate
-                    </span>
-                  </>
-                ) : (
-                  <span className="cert-card__placeholder">
-                    <Icon aria-hidden="true" />
-                    <span>In progress</span>
-                  </span>
-                )}
-              </div>
-
-              <div className="cert-card__body">
+              <div className="cert-card__header">
                 <span className="cert-card__year">
                   <Icon aria-hidden="true" />
                   {cert.year}
                 </span>
+                <span className="cert-card__action">
+                  {hasImage ? (
+                    <>
+                      <FiImage aria-hidden="true" />
+                      <span>View picture</span>
+                      <FiArrowUpRight className="cert-card__action-icon" aria-hidden="true" />
+                    </>
+                  ) : (
+                    <span className="cert-card__pending-tag">In progress</span>
+                  )}
+                </span>
+              </div>
+
+              <div className="cert-card__body">
                 <h3 className="cert-card__title">{cert.title}</h3>
                 <p className="cert-card__issuer">{cert.issuer}</p>
               </div>
