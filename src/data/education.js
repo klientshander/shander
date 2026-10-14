@@ -21,11 +21,11 @@ export const education = [
   {
     id: 'edu-2',
     school: 'Escalante National High School',
-    degree: 'Senior High School — HUMSS Strand',
+    degree: 'Senior High School HUMSS Strand',
     period: '2020 2024',
     url: '',
     description:
-      'Graduated with honors. Taught myself PHP and Laravel during this time — that self-driven curiosity for web development led me to pursue Information Systems.',
+      'Graduated with honors. Taught myself PHP and Laravel during this time that self-driven curiosity for web development led me to pursue Information Systems.',
     icon: 'school',
     badge: 'With Honors',
   },

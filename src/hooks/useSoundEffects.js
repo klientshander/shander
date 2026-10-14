@@ -85,6 +85,14 @@ export function useSoundEffects() {
       '.projects-grid-card',
       '.tag',
       '.interactive',
+      '.rd-card',
+      '.rd-resource-card',
+      '.rd-blog-card',
+      '.rd-tags li',
+      '.rd-certs__item',
+      '.rd-gallery__item',
+      '.rd-service',
+      '.rd-timeline li',
     ].join(', ')
 
     const handleMouseOver = (e) => {

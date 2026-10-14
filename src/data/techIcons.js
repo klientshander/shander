@@ -1,23 +1,28 @@
-// Shared icon lookup for tech-stack entries — used by both the Sidebar's
-// "top skills" grid and the full Techstacks section, keyed by the `icon`
-// string in src/data/techstacks.js.
 import {
   SiHtml5,
   SiCss,
   SiJavascript,
   SiTypescript,
   SiReact,
+  SiAngular,
   SiPhp,
   SiLaravel,
+  SiNodedotjs,
+  SiExpress,
+  SiApache,
   SiPython,
   SiMysql,
+  SiPostgresql,
+  SiMongodb,
   SiTensorflow,
   SiScikitlearn,
   SiPandas,
   SiFigma,
   SiGit,
+  SiAnthropic,
+  SiGooglegemini,
 } from 'react-icons/si'
-import { FiVideo, FiCode, FiEdit3 } from 'react-icons/fi'
+import { FiVideo, FiCode, FiEdit3, FiTerminal, FiCpu } from 'react-icons/fi'
 
 export const techIconMap = {
   html5: SiHtml5,
@@ -25,13 +30,23 @@ export const techIconMap = {
   javascript: SiJavascript,
   typescript: SiTypescript,
   react: SiReact,
+  angular: SiAngular,
   php: SiPhp,
   laravel: SiLaravel,
+  nodejs: SiNodedotjs,
+  express: SiExpress,
+  apache: SiApache,
   python: SiPython,
   mysql: SiMysql,
+  postgresql: SiPostgresql,
+  mongodb: SiMongodb,
   tensorflow: SiTensorflow,
   scikitlearn: SiScikitlearn,
   pandas: SiPandas,
+  codex: FiTerminal,
+  claude: SiAnthropic,
+  antigravity: SiGooglegemini,
+  harness: FiCpu,
   figma: SiFigma,
   canva: FiEdit3,
   git: SiGit,

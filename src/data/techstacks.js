@@ -11,6 +11,7 @@ export const techGroups = [
       { name: 'JavaScript', icon: 'javascript', level: 88 },
       { name: 'TypeScript', icon: 'typescript', level: 70 },
       { name: 'React', icon: 'react', level: 78 },
+      { name: 'Angular', icon: 'angular', level: 75 },
     ],
   },
   {
@@ -19,13 +20,20 @@ export const techGroups = [
     items: [
       { name: 'PHP', icon: 'php', level: 90 },
       { name: 'Laravel', icon: 'laravel', level: 72 },
+      { name: 'Node.js', icon: 'nodejs', level: 80 },
+      { name: 'Express.js', icon: 'express', level: 78 },
+      { name: 'Apache', icon: 'apache', level: 75 },
       { name: 'Python', icon: 'python', level: 55 },
     ],
   },
   {
     id: 'database',
     label: 'Database',
-    items: [{ name: 'MySQL', icon: 'mysql', level: 90 }],
+    items: [
+      { name: 'MySQL', icon: 'mysql', level: 90 },
+      { name: 'PostgreSQL', icon: 'postgresql', level: 82 },
+      { name: 'MongoDB', icon: 'mongodb', level: 80 },
+    ],
   },
   {
     id: 'ml',
@@ -34,6 +42,10 @@ export const techGroups = [
       { name: 'TensorFlow', icon: 'tensorflow', level: 40 },
       { name: 'scikit-learn', icon: 'scikitlearn', level: 60 },
       { name: 'Pandas', icon: 'pandas', level: 65 },
+      { name: 'Codex', icon: 'codex', level: 85 },
+      { name: 'Claude Code', icon: 'claude', level: 90 },
+      { name: 'Antigravity', icon: 'antigravity', level: 95 },
+      { name: 'Harness', icon: 'harness', level: 80 },
     ],
   },
   {
