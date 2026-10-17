@@ -48,9 +48,130 @@ import BackgroundMesh from '../components/ui/BackgroundMesh'
 import SidebarChess from '../components/chess/SidebarChess'
 import PaperCrumple from '../components/ui/PaperCrumple'
 import BounceCards from '../components/ui/BounceCards'
+import Stack from '../components/ui/Stack'
+import StarBorder from '../components/ui/StarBorder'
+import Folder from '../components/ui/Folder'
 import { useSoundEffects } from '../hooks/useSoundEffects'
 import { playClickSound } from '../utils/sound'
 import './portfolio.css'
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'model-embed': React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement>,
+        HTMLElement
+      > & {
+        project?: string
+        src?: string
+        config?: string
+        restrict?: string
+        alt?: string
+      }
+    }
+  }
+}
+
+const HERO_MODEL_CONFIG = JSON.stringify({
+  post: {
+    bloom: { flare: 0, radius: 28, streak: 50, enabled: false, intensity: 16, threshold: 80 },
+  },
+  frame: {
+    x: 0.2768,
+    y: 0.17825,
+    width: 0.4464,
+    height: 0.6435,
+    stageWidth: 1062,
+    stageHeight: 584,
+  },
+  model: {
+    url: '/models/happy_ghast_minecraft_fanart.glb',
+    name: 'happy_ghast_minecraft_fanart.glb',
+    scale: 0.49,
+    locked: false,
+    screen: null,
+    rotation: { x: 0, y: 0, z: 0 },
+    keepColour: true,
+  },
+  camera: { fov: 45, height: 9, distance: 100 },
+  preset: {
+    seed: 24301,
+    type: 'tesserae',
+    params: {
+      sun: 41,
+      boil: 25,
+      tilt: 35,
+      gloss: 75,
+      grout: 70,
+      relief: 45,
+      sizeMix: 45,
+      boilRate: 8,
+      colorMix: 50,
+      tileSize: 0,
+      elevation: 45,
+    },
+  },
+  version: 3,
+  lighting: { fill: 100, rotation: 0, rotationX: 110, rotationZ: 0, brightness: 100 },
+  material: { type: 'original', params: {} },
+  animation: {
+    enabled: true,
+    entries: [
+      {
+        id: 'clip',
+        loop: false,
+        type: 'clip',
+        params: { to: 75, from: 0, take: 'Ghast|Ghast Action', duration: 3.2 },
+        enabled: true,
+        trigger: 'appear',
+        threshold: 0.2,
+      },
+      {
+        id: 'float',
+        loop: true,
+        type: 'float',
+        params: { tilt: 12, turn: 0, drift: 0, style: 'bob', height: 18, duration: 4 },
+        enabled: true,
+        trigger: 'appear',
+        threshold: 0.1,
+      },
+      {
+        id: 'mouseMove',
+        loop: true,
+        type: 'mouseMove',
+        params: { nod: 28, turn: 42, shift: 12, smoothing: 35 },
+        enabled: true,
+        trigger: 'appear',
+        threshold: 0.1,
+      },
+    ],
+  },
+  background: {
+    fit: 'cover',
+    kind: 'solid',
+    angle: 180,
+    color: '#000000',
+    image: '',
+    stops: ['#000000', '#000000'],
+    images: [],
+    enabled: false,
+    opacities: [1, 1],
+    positions: [0, 1],
+  },
+  environment: null,
+  interactions: {
+    zoom: false,
+    hover: true,
+    press: true,
+    momentum: 50,
+    snapBack: true,
+    draggable: true,
+    zoomRange: 50,
+    maxRotation: 30,
+    sensitivity: 50,
+    cursorFollow: true,
+  },
+})
 
 /* ---------------------------------------------------------------------------
    Content that is specific to the redesign. Everything else is pulled from
@@ -63,6 +184,7 @@ const BIO =
 const THUMB_OVERRIDES = {
   'proj-1': '/gallery/background/personalhub.png',
   'proj-3': '/gallery/background/Grahams.png',
+  'proj-5': '/gallery/background/zenitsu.png',
 }
 
 const SERVICE_ICONS = {
@@ -530,17 +652,32 @@ function Nav({
               {theme === 'dark' ? 'Dark' : 'Light'}
             </span>
           </button>
-          <button
+          <StarBorder
+            as="button"
             type="button"
-            className="rd-btn rd-btn--small rd-nav__chess-btn"
+            className="rd-btn-star rd-btn-star--small rd-nav__chess-btn"
+            color={theme === 'light' ? '#18181b' : '#ffffff'}
+            trailColor={theme === 'light' ? '#18181b' : '#ffffff'}
+            duration={4}
+            direction="clockwise"
+            stars={1}
+            trailLength={0.3}
+            thickness={1}
+            radius={999}
+            glow={0.6}
+            hover="lap"
+            sparkle={false}
+            clickPulse
+            theme={theme}
             onClick={() => {
+              playClickSound()
               setOpen(false)
               onOpenChess()
             }}
             aria-label="Play chess"
           >
             Play chess?
-          </button>
+          </StarBorder>
           <button
             type="button"
             className="rd-icon-btn rd-nav__menu"
@@ -559,7 +696,27 @@ function Nav({
 }
 
 /* -------------------------------- sections ------------------------------ */
-function Hero() {
+function Hero({ theme }: { theme?: 'dark' | 'light' }) {
+  const [ghastBg, setGhastBg] = useState<'black' | 'white'>(
+    theme === 'light' ? 'white' : 'black'
+  )
+
+  useEffect(() => {
+    if (theme) {
+      setGhastBg(theme === 'light' ? 'white' : 'black')
+    }
+  }, [theme])
+
+  useEffect(() => {
+    const src = 'https://thrine.app/embed/v1.js'
+    if (!document.querySelector(`script[src="${src}"]`)) {
+      const script = document.createElement('script')
+      script.type = 'module'
+      script.src = src
+      document.head.appendChild(script)
+    }
+  }, [])
+
   const stats = [
     { n: projects.length, label: 'Projects shipped' },
     { n: allSkills.length, label: 'Tools & languages' },
@@ -587,9 +744,27 @@ function Hero() {
             {BIO}
           </p>
           <div className="rd-hero__cta" data-reveal>
-            <a href="#work" className="rd-btn">
+            <StarBorder
+              as="a"
+              href="#work"
+              className="rd-btn-star"
+              color={theme === 'light' ? '#18181b' : '#ffffff'}
+              trailColor={theme === 'light' ? '#18181b' : '#ffffff'}
+              duration={4}
+              direction="clockwise"
+              stars={1}
+              trailLength={0.3}
+              thickness={1}
+              radius={999}
+              glow={0.6}
+              hover="lap"
+              sparkle={false}
+              clickPulse
+              theme={theme || 'dark'}
+              onClick={() => playClickSound()}
+            >
               View my work <FiArrowUpRight />
-            </a>
+            </StarBorder>
             <a href={profile.resumeUrl} className="rd-btn rd-btn--ghost" download>
               <FiDownload /> Download résumé
             </a>
@@ -610,44 +785,34 @@ function Hero() {
             <span className="rd-corner rd-corner--tr" aria-hidden="true" />
             <span className="rd-corner rd-corner--bl" aria-hidden="true" />
             <span className="rd-corner rd-corner--br" aria-hidden="true" />
-            <PaperCrumple
-              src={profile.avatar}
-              alt={`Portrait of ${profile.name}`}
-              width={340}
-              height={425}
-              sceneHeight="100%"
-              releaseBehavior="restore"
-              crumpleAmount={0.85}
-              crumpleDuration={0.55}
-              releaseDuration={0.4}
-              foldCount={6}
-              foldSharpness={0.6}
-              wrinkleDepth={0.65}
-              creaseStrength={0.18}
-              paperColor="#f4f0e8"
-              paperTexture={0.08}
-              draggable
-              returnToOrigin
-              imageFit="cover"
-              fitPadding={0}
-              roughness={0.92}
-              lightIntensity={1.8}
-              lightAngle={-35}
-              shadow
-              shadowOpacity={0.16}
-              dragRotation={10}
-              dragRadius={180}
-              rotation={0}
-              seed={7}
-              detail={64}
-              disabled={false}
-            />
+            <model-embed
+              src="/models/happy_ghast_minecraft_fanart.glb"
+              config={HERO_MODEL_CONFIG}
+              style={{
+                display: 'block',
+                width: '100%',
+                aspectRatio: '474/376',
+                background: ghastBg === 'white' ? '#ffffff' : '#000000',
+                transition: 'background-color 0.25s ease',
+              }}
+            ></model-embed>
           </div>
           <figcaption>
             <span>
               <FiMapPin /> {profile.location.split(',')[0]}
             </span>
-            <span>Hold to crumple</span>
+            <button
+              type="button"
+              className="rd-ghast-bg-toggle"
+              onClick={() => {
+                playClickSound()
+                setGhastBg((b) => (b === 'black' ? 'white' : 'black'))
+              }}
+              aria-label={`Switch 3D background to ${ghastBg === 'black' ? 'white' : 'black'}`}
+            >
+              {ghastBg === 'black' ? <FiSun /> : <FiMoon />}
+              <span>BG: {ghastBg === 'black' ? 'Black' : 'White'}</span>
+            </button>
           </figcaption>
         </figure>
       </div>
@@ -677,23 +842,106 @@ function ProjectMedia({ project }) {
   )
 }
 
-function Work() {
+function Work({ theme }: { theme?: 'dark' | 'light' }) {
   const categories = ['All', ...new Set(projects.map((p) => p.category))]
   const [filter, setFilter] = useState('All')
   const [showAll, setShowAll] = useState(false)
   const shown = filter === 'All' ? projects : projects.filter((p) => p.category === filter)
   const displayed = showAll ? shown : shown.slice(0, 2)
 
-  const handleFilterChange = (c) => {
+  const handleFilterChange = (c: string) => {
     setFilter(c)
     setShowAll(false)
   }
+
+  const folderProjectItems = [
+    {
+      image: '/gallery/background/personalhub.png',
+      title: 'Personalspace — Vault',
+      description: 'Privacy-first personal workspace & authentication vault',
+    },
+    {
+      image: '/gallery/background/Grahams.png',
+      title: 'Grahams Store',
+      description: 'Online bakery & Graham dessert shop storefront',
+    },
+    {
+      image: '/gallery/background/Clinic.png',
+      title: 'ClinicCare Hospital ERP',
+      description: 'Patient records, appointment queues & clinical management',
+    },
+    {
+      image: '/gallery/background/brandnew.png',
+      title: 'Brand New Day Spider-Man',
+      description: 'Visual identity system & brand landing showcase',
+    },
+    {
+      image: '/gallery/background/students.png',
+      title: 'Carmel Student Portal',
+      description: 'Centralized school database & student management system',
+    },
+    {
+      image: '/gallery/background/zenitsu.png',
+      title: 'Zenitsu AMV Motion Cut',
+      description: 'Creative video editing, cinematic pacing & transitions',
+    },
+    {
+      image: '/gallery/my-gallery/lj-libunao.jpg',
+      title: 'WCOPA Graphic Poster',
+      description: 'Graphic design poster & promotional social assets',
+    },
+    {
+      image: '/gallery/batman.jpg',
+      title: 'Batman Graphic Suite',
+      description: 'Character artwork, typography & visual concept render',
+    },
+  ]
 
   return (
     <section className="rd-section rd-container" id="work">
       <SectionHead index="01" label="Selected work" title="Projects" count={projects.length}>
         A few things I've designed and built, from school systems to brand sites.
       </SectionHead>
+
+      <div className="rd-work__folder-showcase" data-reveal>
+        <div className="rd-work__folder-wrap">
+          <Folder
+            label="Projects"
+            mode="flap"
+            variant="solid"
+            color="#3d8bff"
+            paperColor="#ffffff"
+            tabPosition="right"
+            layout="spread"
+            openOn="click"
+            size={1.15}
+            frost={0.25}
+            tilt={0.5}
+            speed={1}
+            bounce={0.4}
+            peek
+            intro
+            draggable
+            zoomOnClick
+            theme={theme || 'dark'}
+            items={folderProjectItems}
+            onItemClick={() => playClickSound()}
+            onItemDrop={() => playClickSound()}
+          />
+        </div>
+        <div className="rd-work__folder-info">
+          <span className="rd-pill">
+            <span className="rd-pill__dot" /> Interactive Dossier
+          </span>
+          <h3 className="rd-work__folder-title">Projects Archive</h3>
+          <p className="rd-work__folder-desc">
+            An interactive 3D folder showcasing pictures of all projects—from full-stack web systems and e-commerce stores to motion video edits and graphic design posters. Click to open and spread the cards, click any card to zoom in, or drag cards freely across your screen.
+          </p>
+          <span className="rd-work__folder-hint">
+            Click folder tab to open • Click cards to zoom • Drag freely
+          </span>
+        </div>
+      </div>
 
       <div className="rd-filters" role="group" aria-label="Filter projects" data-reveal>
         {categories.map((c) => (
@@ -794,15 +1042,14 @@ function Work() {
   )
 }
 
-function About() {
-  const facts = [
-    { k: 'Based in', v: profile.location },
-    { k: 'Studying', v: 'BS Information Systems, 2nd year' },
-    { k: 'Building', v: profile.currentlyBuilding?.[0]?.replace(/^Currently building:\s*/i, '') },
-    { k: 'Learning', v: profile.currentlyBuilding?.[1]?.replace(/^Learning:\s*/i, '') },
-    { k: 'Editor', v: profile.currentlyBuilding?.[3]?.replace(/^Tool:\s*/i, '') },
-  ].filter((f) => f.v)
+const ABOUT_STACK_IMAGES = [
+  '/gallery/stack-about/371370707_953740433086095_3000394088154740303_n.jpg',
+  '/gallery/stack-about/387501030_700967001927090_8869638376835267872_n.jpg',
+  '/gallery/stack-about/448225129_751109937214666_3346676322944271018_n.jpg',
+  '/gallery/stack-about/367949082_188282470815708_6616340306164672621_n.jpg',
+]
 
+function About({ onMore }: { onMore?: () => void }) {
   return (
     <section className="rd-section rd-container" id="about">
       <SectionHead index="02" label="About" title="A little about me" />
@@ -814,21 +1061,52 @@ function About() {
             clear interfaces and shipping things that actually work. Outside of code I also do
             graphic design and video editing.
           </p>
-        </div>
-        <dl className="rd-facts" data-reveal>
-          {facts.map((f) => (
-            <div key={f.k}>
-              <dt>{f.k}</dt>
-              <dd>{f.v}</dd>
+          {onMore && (
+            <div className="rd-about__cta">
+              <button
+                type="button"
+                className="rd-btn rd-btn--ghost rd-btn--small"
+                onClick={onMore}
+              >
+                More about me <FiArrowRight />
+              </button>
             </div>
-          ))}
-        </dl>
+          )}
+        </div>
+        <div className="rd-about__stack-col" data-reveal>
+          <div className="rd-about__stack-wrap" style={{ width: 230, height: 230 }}>
+            <Stack
+              layout="fan"
+              sendToBackOnClick={true}
+              cards={ABOUT_STACK_IMAGES.map((src, i) => (
+                <img key={src} src={src} alt={`About photo ${i + 1}`} />
+              ))}
+              visible={4}
+              spread={0.5}
+              depth={0.5}
+              radius={16}
+              frame={0}
+              frameColor="#ffffff"
+              shadow
+              tilt={30}
+              threshold={90}
+              speed={1}
+              autoplay={false}
+              autoplayDelay={3000}
+              pauseOnHover={false}
+              onChange={() => playClickSound()}
+            />
+          </div>
+          <span className="rd-about__stack-hint">
+            <span aria-hidden="true" /> Click, drag or fling cards
+          </span>
+        </div>
       </div>
     </section>
   )
 }
 
-function Skills() {
+function Skills({ theme }: { theme?: 'dark' | 'light' }) {
   const [showAllSkills, setShowAllSkills] = useState(false)
   const displayedGroups = showAllSkills ? techGroups : techGroups.slice(0, 3)
 
@@ -1026,7 +1304,7 @@ function Gallery({ onOpen }) {
   )
 }
 
-function Resume() {
+function Resume({ theme }: { theme?: 'dark' | 'light' }) {
   return (
     <section className="rd-section rd-container" id="resume">
       <div className="rd-resume" data-reveal>
@@ -1036,9 +1314,28 @@ function Resume() {
           <h2 className="rd-h2">Want the full picture?</h2>
           <p>Download my résumé for details on my projects, skills and education.</p>
         </div>
-        <a href={profile.resumeUrl} className="rd-btn" download>
+        <StarBorder
+          as="a"
+          href={profile.resumeUrl}
+          className="rd-btn-star"
+          color={theme === 'light' ? '#18181b' : '#ffffff'}
+          trailColor={theme === 'light' ? '#18181b' : '#ffffff'}
+          duration={4}
+          direction="clockwise"
+          stars={1}
+          trailLength={0.3}
+          thickness={1}
+          radius={999}
+          glow={0.6}
+          hover="lap"
+          sparkle={false}
+          clickPulse
+          theme={theme || 'dark'}
+          download
+          onClick={() => playClickSound()}
+        >
           <FiDownload /> Download résumé
-        </a>
+        </StarBorder>
       </div>
     </section>
   )
@@ -1083,6 +1380,239 @@ function Contact() {
 }
 
 /* ---------------------- Standalone View Components ----------------------- */
+function AboutView({ onBack }: { onBack: () => void }) {
+  return (
+    <section className="rd-section rd-container rd-standalone-section rd-about-page" id="about-me">
+      <div className="rd-standalone__top">
+        <button type="button" className="rd-btn rd-btn--ghost rd-btn--small" onClick={onBack}>
+          <FiArrowLeft /> Back to Portfolio
+        </button>
+        <span className="rd-eyebrow">STANDALONE VIEW / ABOUT ME</span>
+      </div>
+
+      <SectionHead
+        index="02"
+        label="Full Story"
+        title="Who I am, what drives me & how I build"
+      >
+        A deeper look into my journey, engineering philosophy, and creative pursuits.
+      </SectionHead>
+
+      <div className="rd-about-page__hero">
+        <div className="rd-about-page__story is-in">
+          <div className="rd-about-page__lead">
+            <p className="rd-about-page__highlight">
+              Hello! I'm <strong>Klient Shander Santillan</strong>, a web developer and Information Systems student based in Negros Occidental, Philippines.
+            </p>
+            <p>
+              My journey into programming didn't begin in a lecture hall—it started back in Senior High School (HUMSS strand at Escalante National High School). Driven by pure curiosity to see how web applications actually work under the hood, I taught myself PHP and MySQL late at night, building small dynamic utilities and interactive scripts.
+            </p>
+            <p>
+              That self-directed experimentation solidified my passion for technology. Graduating with honors, I enrolled in the Bachelor of Science in Information Systems program at Mount Carmel College of Escalante City Inc. (MCCEI), where I was honored as a Dean's Lister in my first year.
+            </p>
+          </div>
+
+          <div className="rd-about-page__chapter">
+            <h3 className="rd-about-page__chapter-title">
+              <span className="rd-badge-dot" /> How I Approach Engineering
+            </h3>
+            <p>
+              I believe great software lives at the intersection of dependable architecture and intentional user experience. When writing code, I value:
+            </p>
+            <ul className="rd-about-page__points">
+              <li>
+                <strong>Purposeful Architecture:</strong> Whether designing relational schemas in MySQL or architecting Laravel MVC controllers, I keep code organized, modular, and maintainable.
+              </li>
+              <li>
+                <strong>Frictionless Interfaces:</strong> Fast load times, responsive fluid layouts, smooth micro-interactions, and accessible keyboard navigation are non-negotiable.
+              </li>
+              <li>
+                <strong>Practical Pragmatism:</strong> Technology is a tool to solve real human problems—from hospital queue workflows to e-commerce point-of-sale systems.
+              </li>
+            </ul>
+          </div>
+
+          <div className="rd-about-page__chapter">
+            <h3 className="rd-about-page__chapter-title">
+              <span className="rd-badge-dot" /> Multimedia & Creative Synergy
+            </h3>
+            <p>
+              Software development is only half my creative toolkit. I regularly work with video editing and graphic design, crafting brand identities, mockups, and promotional videos. This visual sensibility directly translates to the web apps I build—giving them a polished aesthetic that balances technical utility with modern art direction.
+            </p>
+          </div>
+        </div>
+
+        {/* Profile & Visual Snapshot Sidebar */}
+        <aside className="rd-about-page__side is-in">
+          <div className="rd-about-page__card rd-about-profile-card">
+            <div className="rd-about-profile-card__header">
+              <div className="rd-about-profile-card__avatar">
+                <img src="/gallery/shander.png" alt="Shander Santillan" />
+                <span className="rd-status-indicator" title="Available for projects" />
+              </div>
+              <div>
+                <h4 className="rd-about-profile-card__name">Klient Shander Santillan</h4>
+                <p className="rd-about-profile-card__role">Web Developer & UI Designer</p>
+                <span className="rd-about-profile-card__loc">
+                  <FiMapPin /> Negros Occidental, PH
+                </span>
+              </div>
+            </div>
+
+            <div className="rd-about-profile-card__chips">
+              <span className="rd-chip">Dean's Lister (1st Year)</span>
+              <span className="rd-chip">BS Information Systems</span>
+              <span className="rd-chip">PHP & Laravel</span>
+              <span className="rd-chip">React & Tailwind</span>
+              <span className="rd-chip">Video Editor</span>
+            </div>
+
+            <div className="rd-about-profile-card__meta">
+              <div className="rd-about-meta-row">
+                <span className="rd-label-micro">Institution</span>
+                <strong>MCCEI</strong>
+              </div>
+              <div className="rd-about-meta-row">
+                <span className="rd-label-micro">Degree</span>
+                <strong>BS Information Systems</strong>
+              </div>
+              <div className="rd-about-meta-row">
+                <span className="rd-label-micro">Status</span>
+                <strong className="rd-text-accent">Open to Opportunities</strong>
+              </div>
+            </div>
+
+            <a
+              href={`mailto:${socials.email}?subject=Let's Connect`}
+              className="rd-btn rd-btn--primary rd-btn--full"
+            >
+              <FiMail /> Get in Touch
+            </a>
+          </div>
+
+          <div className="rd-about-page__card rd-about-interactive-stack">
+            <h4 className="rd-eyebrow">PHOTO SNAPSHOTS</h4>
+            <div className="rd-about-page__stack-container">
+              <Stack
+                layout="fan"
+                sendToBackOnClick={true}
+                cards={ABOUT_STACK_IMAGES.map((src, i) => (
+                  <img key={src} src={src} alt={`About photo ${i + 1}`} />
+                ))}
+                visible={4}
+                spread={0.5}
+                depth={0.5}
+                radius={16}
+                frame={0}
+                frameColor="#ffffff"
+                shadow
+                tilt={25}
+                threshold={90}
+                speed={1}
+                autoplay={false}
+                pauseOnHover={false}
+                onChange={() => playClickSound()}
+              />
+            </div>
+            <span className="rd-about__stack-hint">
+              <span aria-hidden="true" /> Click, drag or fling cards
+            </span>
+          </div>
+        </aside>
+      </div>
+
+      {/* Pillars Grid */}
+      <div className="rd-about-pillars is-in">
+        <div className="rd-about-pillars__head">
+          <span className="rd-eyebrow">WHAT I STAND FOR</span>
+          <h3 className="rd-heading-sub">Core Pillars & Working Style</h3>
+        </div>
+        <div className="rd-about-pillars-grid">
+          <div className="rd-about-pillar-card">
+            <div className="rd-about-pillar-card__index">01</div>
+            <h4>Clean, Functional Code</h4>
+            <p>
+              I prioritize readable, self-documenting code over clever hacks. Maintainability and reliability come first in every project.
+            </p>
+          </div>
+          <div className="rd-about-pillar-card">
+            <div className="rd-about-pillar-card__index">02</div>
+            <h4>Design Meets Logic</h4>
+            <p>
+              Bringing frontend finesse together with solid database schemas and robust backend controllers for a coherent experience.
+            </p>
+          </div>
+          <div className="rd-about-pillar-card">
+            <div className="rd-about-pillar-card__index">03</div>
+            <h4>Continuous Upskilling</h4>
+            <p>
+              From learning Machine Learning to exploring 3D interactive web experiences, I actively seek out challenges that expand my technical boundaries.
+            </p>
+          </div>
+          <div className="rd-about-pillar-card">
+            <div className="rd-about-pillar-card__index">04</div>
+            <h4>Communication & Reliability</h4>
+            <p>
+              Clear updates, transparent timelines, and collaborative problem-solving whether working on individual freelance or team environments.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Hobbies / Beyond the Screen */}
+      <div className="rd-about-hobbies is-in">
+        <div className="rd-about-pillars__head">
+          <span className="rd-eyebrow">OFF THE CLOCK</span>
+          <h3 className="rd-heading-sub">Beyond the Code</h3>
+        </div>
+        <div className="rd-about-hobbies-grid">
+          <div className="rd-about-hobby-item">
+            <span className="rd-about-hobby-icon">♟️</span>
+            <div>
+              <h4>Chess & Strategy</h4>
+              <p>I enjoy playing chess to train pattern recognition, patient decision-making, and tactical thinking.</p>
+            </div>
+          </div>
+          <div className="rd-about-hobby-item">
+            <span className="rd-about-hobby-icon">🎬</span>
+            <div>
+              <h4>Video Editing & Storytelling</h4>
+              <p>Cutting footage, timing audio, and color grading short cinematic clips and video content.</p>
+            </div>
+          </div>
+          <div className="rd-about-hobby-item">
+            <span className="rd-about-hobby-icon">🎨</span>
+            <div>
+              <h4>Graphic & UI Experimentation</h4>
+              <p>Testing new typography pairings, 3D character renders, and minimal poster layouts.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom CTA Banner */}
+      <div className="rd-about-cta-banner is-in">
+        <div className="rd-about-cta-banner__content">
+          <span className="rd-eyebrow">NEXT STEPS</span>
+          <h3>Let's build something remarkable together</h3>
+          <p>Whether you need a web application, portfolio redesign, or technical collaboration, my inbox is always open.</p>
+        </div>
+        <div className="rd-about-cta-banner__actions">
+          <a
+            href={`mailto:${socials.email}?subject=Project Collaboration Inquiry`}
+            className="rd-btn rd-btn--primary"
+          >
+            Start a Conversation <FiArrowRight />
+          </a>
+          <button type="button" className="rd-btn rd-btn--ghost" onClick={onBack}>
+            <FiArrowLeft /> Return to Portfolio
+          </button>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function FreelancingView({ onBack }) {
   return (
     <section className="rd-section rd-container rd-standalone-section" id="freelance">
@@ -1677,10 +2207,10 @@ export default function Portfolio() {
   const [lightbox, setLightbox] = useState(null)
   const [chessOpen, setChessOpen] = useState(false)
 
-  // Standalone section state: 'freelance' | 'resources' | 'shop' | 'blog' | 'community' | null
+  // Standalone section state: 'about-me' | 'freelance' | 'resources' | 'shop' | 'blog' | 'community' | null
   const [standalone, setStandalone] = useState(() => {
     const hash = window.location.hash.replace('#', '')
-    return ['freelance', 'resources', 'shop', 'blog', 'community'].includes(hash) ? hash : null
+    return ['about-me', 'freelance', 'resources', 'shop', 'blog', 'community'].includes(hash) ? hash : null
   })
 
   useReveal(standalone)
@@ -1689,7 +2219,7 @@ export default function Portfolio() {
   useEffect(() => {
     const onHashChange = () => {
       const hash = window.location.hash.replace('#', '')
-      if (['freelance', 'resources', 'shop', 'blog', 'community'].includes(hash)) {
+      if (['about-me', 'freelance', 'resources', 'shop', 'blog', 'community'].includes(hash)) {
         setStandalone(hash)
         window.scrollTo({ top: 0, behavior: 'smooth' })
       } else {
@@ -1749,6 +2279,9 @@ export default function Portfolio() {
         onOpenChess={() => setChessOpen(true)}
       />
       <main>
+        {standalone === 'about-me' && (
+          <AboutView onBack={() => handleNavigateMain('about')} />
+        )}
         {standalone === 'freelance' && (
           <FreelancingView onBack={() => handleNavigateMain('top')} />
         )}
@@ -1766,15 +2299,15 @@ export default function Portfolio() {
         )}
 
         <div className={`rd-main-sections ${standalone ? 'is-hidden-view' : ''}`}>
-          <Hero />
+          <Hero theme={theme} />
           <Marquee items={allSkills} />
-          <Work />
-          <About />
-          <Skills />
+          <Work theme={theme} />
+          <About onMore={() => handleNavigateStandalone('about-me')} />
+          <Skills theme={theme} />
           <Education />
           <Certifications onOpen={setLightbox} />
           <Gallery onOpen={setLightbox} />
-          <Resume />
+          <Resume theme={theme} />
           <Contact />
         </div>
       </main>
