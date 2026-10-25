@@ -801,16 +801,6 @@ function Nav({
 
 /* -------------------------------- sections ------------------------------ */
 function Hero({ theme }: { theme?: 'dark' | 'light' }) {
-  const [ghastBg, setGhastBg] = useState<'black' | 'white'>(
-    theme === 'light' ? 'white' : 'black'
-  )
-
-  useEffect(() => {
-    if (theme) {
-      setGhastBg(theme === 'light' ? 'white' : 'black')
-    }
-  }, [theme])
-
   useEffect(() => {
     const src = 'https://thrine.app/embed/v1.js'
     if (!document.querySelector(`script[src="${src}"]`)) {
@@ -885,10 +875,6 @@ function Hero({ theme }: { theme?: 'dark' | 'light' }) {
 
         <figure className="rd-hero__photo" data-reveal>
           <div className="rd-hero__frame">
-            <span className="rd-corner rd-corner--tl" aria-hidden="true" />
-            <span className="rd-corner rd-corner--tr" aria-hidden="true" />
-            <span className="rd-corner rd-corner--bl" aria-hidden="true" />
-            <span className="rd-corner rd-corner--br" aria-hidden="true" />
             <model-embed
               src="/models/happy_ghast_minecraft_fanart.glb"
               config={HERO_MODEL_CONFIG}
@@ -896,9 +882,9 @@ function Hero({ theme }: { theme?: 'dark' | 'light' }) {
                 display: 'block',
                 width: '100%',
                 aspectRatio: '474/376',
-                background: ghastBg === 'white' ? '#ffffff' : '#000000',
-                transition: 'background-color 0.85s cubic-bezier(0.16, 1, 0.3, 1)',
-                transitionDelay: '0.08s',
+                border: 'none',
+                background: 'var(--bg)',
+                transition: 'background-color 0.4s ease',
               }}
             ></model-embed>
           </div>
@@ -906,18 +892,7 @@ function Hero({ theme }: { theme?: 'dark' | 'light' }) {
             <span>
               <FiMapPin /> {profile.location.split(',')[0]}
             </span>
-            <button
-              type="button"
-              className="rd-ghast-bg-toggle"
-              onClick={() => {
-                playClickSound()
-                setGhastBg((b) => (b === 'black' ? 'white' : 'black'))
-              }}
-              aria-label={`Switch 3D background to ${ghastBg === 'black' ? 'white' : 'black'}`}
-            >
-              {ghastBg === 'black' ? <FiSun /> : <FiMoon />}
-              <span>BG: {ghastBg === 'black' ? 'Black' : 'White'}</span>
-            </button>
+            <span className="rd-badge rd-badge--mono">3D Interactive</span>
           </figcaption>
         </figure>
       </div>

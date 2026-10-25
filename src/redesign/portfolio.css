@@ -562,11 +562,17 @@ p {
 }
 .rd-hero__frame:has(model-embed) {
   aspect-ratio: auto;
+  padding: 0;
+}
+.rd-hero__frame:has(model-embed) .rd-corner {
+  display: none;
 }
 .rd-hero__frame model-embed {
   border-radius: 10px;
   overflow: hidden;
-  border: 1px solid var(--line);
+  border: none !important;
+  background: var(--bg);
+  transition: background-color 0.4s ease;
 }
 .rd-hero__frame img {
   width: 100%;
