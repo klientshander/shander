@@ -638,16 +638,16 @@ function Nav({
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false)
-    const onClickOutside = (e: MouseEvent) => {
+    const onPointerDownOutside = (e: PointerEvent) => {
       if (!(e.target as HTMLElement).closest('.rd-nav')) {
         setOpen(false)
       }
     }
     document.addEventListener('keydown', onKey)
-    document.addEventListener('click', onClickOutside)
+    document.addEventListener('pointerdown', onPointerDownOutside)
     return () => {
       document.removeEventListener('keydown', onKey)
-      document.removeEventListener('click', onClickOutside)
+      document.removeEventListener('pointerdown', onPointerDownOutside)
     }
   }, [open])
 
