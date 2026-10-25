@@ -1,4 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal, flushSync } from 'react-dom'
+import Lenis from 'lenis'
+import 'lenis/dist/lenis.css'
 import {
   FiArrowUpRight,
   FiArrowRight,
@@ -44,13 +47,10 @@ import {
   communityGuidelines,
 } from '../data/community'
 import { supabase } from '../utils/supabase'
-import BackgroundMesh from '../components/ui/BackgroundMesh'
 import SidebarChess from '../components/chess/SidebarChess'
-import PaperCrumple from '../components/ui/PaperCrumple'
 import BounceCards from '../components/ui/BounceCards'
 import Stack from '../components/ui/Stack'
 import StarBorder from '../components/ui/StarBorder'
-import Folder from '../components/ui/Folder'
 import { useSoundEffects } from '../hooks/useSoundEffects'
 import { playClickSound } from '../utils/sound'
 import './portfolio.css'
@@ -181,10 +181,19 @@ const BIO =
   "I'm a dedicated 2nd-year BS Information Systems student who loves building things for the web. I enjoy turning rough ideas into functional, user-friendly projects while learning new technologies and improving my skills along the way."
 
 // Static thumbnails for projects whose `cover` is a video (lighter to load).
-const THUMB_OVERRIDES = {
-  'proj-1': '/gallery/background/personalhub.png',
+const THUMB_OVERRIDES: Record<string, string | string[]> = {
+  'proj-1': [
+    '/gallery/background/personalhub/personalhub-dashboard-white.png',
+    '/gallery/background/personalhub/personalhub-website.png',
+    '/gallery/background/personalhub/personalhub-login-page.png',
+    '/gallery/background/personalhub/personal-hub-dashboard.png',
+    '/gallery/background/personalhub/personal-hub-register.png',
+  ],
   'proj-3': '/gallery/background/Grahams.png',
   'proj-5': '/gallery/background/zenitsu.png',
+  'proj-8': '/gallery/background/pixel-adventure-time.png',
+  'proj-9': '/gallery/background/website.png',
+  'proj-10': '/gallery/background/lj-libunao-website.png',
 }
 
 const SERVICE_ICONS = {
@@ -257,10 +266,10 @@ const isVideo = (src = '') => /\.(mp4|webm|mov)$/i.test(src)
 const isRealLink = (url) => url && url !== '#'
 
 function useTheme() {
-  const [theme, setTheme] = useState(() => {
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     try {
       const saved = localStorage.getItem('rd-theme')
-      if (saved) return saved
+      if (saved === 'dark' || saved === 'light') return saved
       return 'dark'
     } catch {
       return 'dark'
@@ -274,35 +283,41 @@ function useTheme() {
     } catch {}
   }, [theme])
 
-  const toggleTheme = (e) => {
-    const nextTheme = theme === 'dark' ? 'light' : 'dark'
+  const toggleTheme = (e?: React.MouseEvent) => {
+    const nextTheme: 'dark' | 'light' = theme === 'dark' ? 'light' : 'dark'
     playClickSound(0.22)
 
     const prefersReducedMotion =
       typeof window !== 'undefined' &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-    if (typeof document === 'undefined' || !document.startViewTransition || prefersReducedMotion) {
+    if (
+      typeof document === 'undefined' ||
+      !(document as any).startViewTransition ||
+      prefersReducedMotion
+    ) {
       document.documentElement.classList.add('theme-transitioning')
       setTimeout(() => {
         document.documentElement.classList.remove('theme-transitioning')
       }, 450)
       setTheme(nextTheme)
+      document.documentElement.setAttribute('data-theme', nextTheme)
+      try {
+        localStorage.setItem('rd-theme', nextTheme)
+      } catch {}
       return
     }
 
     let x = window.innerWidth / 2
     let y = window.innerHeight / 2
 
-    if (e) {
-      if (typeof e.clientX === 'number' && typeof e.clientY === 'number' && (e.clientX !== 0 || e.clientY !== 0)) {
-        x = e.clientX
-        y = e.clientY
-      } else if (e.currentTarget && typeof e.currentTarget.getBoundingClientRect === 'function') {
-        const rect = e.currentTarget.getBoundingClientRect()
-        x = rect.left + rect.width / 2
-        y = rect.top + rect.height / 2
-      }
+    if (e && typeof e.clientX === 'number' && typeof e.clientY === 'number' && (e.clientX !== 0 || e.clientY !== 0)) {
+      x = e.clientX
+      y = e.clientY
+    } else if (e?.currentTarget && typeof (e.currentTarget as HTMLElement).getBoundingClientRect === 'function') {
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+      x = rect.left + rect.width / 2
+      y = rect.top + rect.height / 2
     }
 
     const endRadius = Math.hypot(
@@ -310,12 +325,14 @@ function useTheme() {
       Math.max(y, window.innerHeight - y)
     )
 
-    const transition = document.startViewTransition(() => {
-      setTheme(nextTheme)
-      document.documentElement.setAttribute('data-theme', nextTheme)
-      try {
-        localStorage.setItem('rd-theme', nextTheme)
-      } catch {}
+    const transition = (document as any).startViewTransition(() => {
+      flushSync(() => {
+        setTheme(nextTheme)
+        document.documentElement.setAttribute('data-theme', nextTheme)
+        try {
+          localStorage.setItem('rd-theme', nextTheme)
+        } catch {}
+      })
     })
 
     transition.ready
@@ -331,7 +348,7 @@ function useTheme() {
             },
             {
               duration: 520,
-              easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+              easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
               pseudoElement: '::view-transition-new(root)',
             }
           )
@@ -340,7 +357,40 @@ function useTheme() {
       .catch(() => {})
   }
 
-  return [theme, toggleTheme]
+  return [theme, toggleTheme] as const
+}
+
+function useSmoothScroll() {
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
+
+    const lenis = new Lenis({
+      duration: 1.15,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+      wheelMultiplier: 1.0,
+      touchMultiplier: 1.0,
+      syncTouch: true,
+      infinite: false,
+      autoRaf: false,
+    })
+
+    let frameId = 0
+    const animate = (time: number) => {
+      lenis.raf(time)
+      frameId = requestAnimationFrame(animate)
+    }
+
+    frameId = requestAnimationFrame(animate)
+    ;(window as any).__lenis = lenis
+    return () => {
+      cancelAnimationFrame(frameId)
+      lenis.destroy()
+      delete (window as any).__lenis
+    }
+  }, [])
 }
 
 // Adds `is-in` to every [data-reveal] element as it scrolls into view.
@@ -481,7 +531,7 @@ function Lightbox({ item, onClose }) {
   }, [item, onClose])
 
   if (!item) return null
-  return (
+  return createPortal(
     <div className="rd-modal" role="dialog" aria-modal="true" aria-label={item.caption} onClick={onClose}>
       <figure onClick={(e) => e.stopPropagation()}>
         <button type="button" className="rd-icon-btn rd-modal__close" onClick={onClose} aria-label="Close">
@@ -490,7 +540,8 @@ function Lightbox({ item, onClose }) {
         <img src={item.src} alt={item.caption} />
         <figcaption>{item.caption}</figcaption>
       </figure>
-    </div>
+    </div>,
+    document.body
   )
 }
 
@@ -507,7 +558,7 @@ function ChessModal({ open, onClose }) {
   }, [open, onClose])
 
   if (!open) return null
-  return (
+  return createPortal(
     <div
       className="rd-modal"
       role="dialog"
@@ -517,8 +568,11 @@ function ChessModal({ open, onClose }) {
     >
       <div className="rd-chess-modal" onClick={(e) => e.stopPropagation()}>
         <div className="rd-chess-modal__top">
-          <div>
-            <span className="rd-eyebrow">CHESS // AI BOT</span>
+          <div className="rd-chess-modal__title-group">
+            <span className="rd-eyebrow">
+              <span className="rd-chess-live-dot" />
+              CHESS // AI BOT
+            </span>
             <h3 className="rd-chess-modal__heading">Play with Shander</h3>
           </div>
           <button
@@ -534,7 +588,8 @@ function ChessModal({ open, onClose }) {
           <SidebarChess isModal={true} />
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 
@@ -579,6 +634,22 @@ function Nav({
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false)
+    const onClickOutside = (e: MouseEvent) => {
+      if (!(e.target as HTMLElement).closest('.rd-nav')) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    document.addEventListener('click', onClickOutside)
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.removeEventListener('click', onClickOutside)
+    }
+  }, [open])
 
   return (
     <nav className={`rd-nav ${scrolled ? 'is-scrolled' : ''} ${open ? 'is-open' : ''}`} aria-label="Main">
@@ -640,16 +711,49 @@ function Nav({
           </button>
           <button
             type="button"
-            className={`rd-theme-toggle ${theme === 'dark' ? 'is-dark' : 'is-light'}`}
-            onClick={onToggleTheme}
+            className={`rd-liquid-toggle ${theme === 'dark' ? 'is-dark' : 'is-light'}`}
+            onClick={(e) => onToggleTheme?.(e)}
             aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
             title={`Switch to ${theme === 'dark' ? 'White' : 'Black'} mode`}
           >
-            <span className="rd-theme-toggle__icon" aria-hidden="true">
-              {theme === 'dark' ? <FiSun /> : <FiMoon />}
-            </span>
-            <span className="rd-theme-toggle__label">
-              {theme === 'dark' ? 'Dark' : 'Light'}
+            <span className="rd-liquid-toggle__track">
+              <span className="rd-liquid-toggle__thumb">
+                <svg
+                  className="rd-liquid-toggle__svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <mask id="moon-mask">
+                    <rect x="0" y="0" width="100%" height="100%" fill="white" />
+                    <circle className="rd-mask-circle" cx="12" cy="4" r="9" fill="black" />
+                  </mask>
+                  <circle
+                    className="rd-sun-core"
+                    cx="12"
+                    cy="12"
+                    r="9"
+                    fill="currentColor"
+                    mask="url(#moon-mask)"
+                  />
+                  <g className="rd-sun-beams" stroke="currentColor">
+                    <line x1="12" y1="1" x2="12" y2="3" />
+                    <line x1="12" y1="21" x2="12" y2="23" />
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                    <line x1="1" y1="12" x2="3" y2="12" />
+                    <line x1="21" y1="12" x2="23" y2="12" />
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                  </g>
+                </svg>
+              </span>
+              <span className="rd-liquid-toggle__text">
+                {theme === 'dark' ? 'Dark' : 'Light'}
+              </span>
             </span>
           </button>
           <StarBorder
@@ -766,7 +870,7 @@ function Hero({ theme }: { theme?: 'dark' | 'light' }) {
               View my work <FiArrowUpRight />
             </StarBorder>
             <a href={profile.resumeUrl} className="rd-btn rd-btn--ghost" download>
-              <FiDownload /> Download résumé
+              <FiDownload /> Download resume
             </a>
           </div>
           <dl className="rd-stats" data-reveal>
@@ -793,7 +897,8 @@ function Hero({ theme }: { theme?: 'dark' | 'light' }) {
                 width: '100%',
                 aspectRatio: '474/376',
                 background: ghastBg === 'white' ? '#ffffff' : '#000000',
-                transition: 'background-color 0.25s ease',
+                transition: 'background-color 0.85s cubic-bezier(0.16, 1, 0.3, 1)',
+                transitionDelay: '0.08s',
               }}
             ></model-embed>
           </div>
@@ -820,12 +925,49 @@ function Hero({ theme }: { theme?: 'dark' | 'light' }) {
   )
 }
 
-function ProjectMedia({ project }) {
-  const videoRef = useRef(null)
+function ProjectMedia({ project }: { project: any }) {
+  const videoRef = useRef<HTMLVideoElement | null>(null)
   const thumb = THUMB_OVERRIDES[project.id] || (!isVideo(project.cover) && project.cover)
-  const video = !thumb && (isVideo(project.cover) ? project.cover : project.videoUrl)
+  const isImageArray = Array.isArray(thumb)
+  const [activeIdx, setActiveIdx] = useState(0)
 
-  if (thumb) return <img src={thumb} alt="" loading="lazy" />
+  useEffect(() => {
+    if (!isImageArray || (thumb as string[]).length <= 1) return
+    const interval = setInterval(() => {
+      setActiveIdx((prev) => (prev + 1) % (thumb as string[]).length)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [isImageArray, thumb])
+
+  if (isImageArray) {
+    const list = thumb as string[]
+    return (
+      <div className="rd-card__slideshow">
+        {list.map((imgSrc, idx) => (
+          <img
+            key={imgSrc}
+            src={imgSrc}
+            alt={`${project.title} preview ${idx + 1}`}
+            loading={idx === 0 ? 'eager' : 'lazy'}
+            className={`rd-card__slideshow-img ${idx === activeIdx ? 'is-active' : ''}`}
+          />
+        ))}
+        {list.length > 1 && (
+          <div className="rd-card__slideshow-dots" aria-hidden="true">
+            {list.map((_, idx) => (
+              <span
+                key={idx}
+                className={`rd-card__slideshow-dot ${idx === activeIdx ? 'is-active' : ''}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  if (thumb && typeof thumb === 'string') return <img src={thumb} alt="" loading="lazy" />
+  const video = isVideo(project.cover) ? project.cover : project.videoUrl
   if (!video) return <div className="rd-card__placeholder">{project.title[0]}</div>
 
   return (
@@ -842,106 +984,48 @@ function ProjectMedia({ project }) {
   )
 }
 
-function Work({ theme }: { theme?: 'dark' | 'light' }) {
+function Work({
+  theme,
+  onSelectProject,
+  targetProjectId,
+}: {
+  theme?: 'dark' | 'light'
+  onSelectProject?: (project: any) => void
+  targetProjectId?: string | null
+}) {
   const categories = ['All', ...new Set(projects.map((p) => p.category))]
   const [filter, setFilter] = useState('All')
-  const [showAll, setShowAll] = useState(false)
+  const [showAll, setShowAll] = useState(() => {
+    if (targetProjectId) {
+      const idx = projects.findIndex((p) => p.id === targetProjectId)
+      return idx >= 4
+    }
+    return false
+  })
+
+  useEffect(() => {
+    if (targetProjectId) {
+      const idx = projects.findIndex((p) => p.id === targetProjectId)
+      if (idx >= 4) {
+        setShowAll(true)
+      }
+    }
+  }, [targetProjectId])
+
   const shown = filter === 'All' ? projects : projects.filter((p) => p.category === filter)
-  const displayed = showAll ? shown : shown.slice(0, 2)
+  const featuredProjects = shown.slice(0, 2)
+  const listProjects = showAll ? shown.slice(2) : shown.slice(2, 4)
 
   const handleFilterChange = (c: string) => {
     setFilter(c)
     setShowAll(false)
   }
 
-  const folderProjectItems = [
-    {
-      image: '/gallery/background/personalhub.png',
-      title: 'Personalspace — Vault',
-      description: 'Privacy-first personal workspace & authentication vault',
-    },
-    {
-      image: '/gallery/background/Grahams.png',
-      title: 'Grahams Store',
-      description: 'Online bakery & Graham dessert shop storefront',
-    },
-    {
-      image: '/gallery/background/Clinic.png',
-      title: 'ClinicCare Hospital ERP',
-      description: 'Patient records, appointment queues & clinical management',
-    },
-    {
-      image: '/gallery/background/brandnew.png',
-      title: 'Brand New Day Spider-Man',
-      description: 'Visual identity system & brand landing showcase',
-    },
-    {
-      image: '/gallery/background/students.png',
-      title: 'Carmel Student Portal',
-      description: 'Centralized school database & student management system',
-    },
-    {
-      image: '/gallery/background/zenitsu.png',
-      title: 'Zenitsu AMV Motion Cut',
-      description: 'Creative video editing, cinematic pacing & transitions',
-    },
-    {
-      image: '/gallery/my-gallery/lj-libunao.jpg',
-      title: 'WCOPA Graphic Poster',
-      description: 'Graphic design poster & promotional social assets',
-    },
-    {
-      image: '/gallery/batman.jpg',
-      title: 'Batman Graphic Suite',
-      description: 'Character artwork, typography & visual concept render',
-    },
-  ]
-
   return (
     <section className="rd-section rd-container" id="work">
       <SectionHead index="01" label="Selected work" title="Projects" count={projects.length}>
         A few things I've designed and built, from school systems to brand sites.
       </SectionHead>
-
-      <div className="rd-work__folder-showcase" data-reveal>
-        <div className="rd-work__folder-wrap">
-          <Folder
-            label="Projects"
-            mode="flap"
-            variant="solid"
-            color="#3d8bff"
-            paperColor="#ffffff"
-            tabPosition="right"
-            layout="spread"
-            openOn="click"
-            size={1.15}
-            frost={0.25}
-            tilt={0.5}
-            speed={1}
-            bounce={0.4}
-            peek
-            intro
-            draggable
-            zoomOnClick
-            theme={theme || 'dark'}
-            items={folderProjectItems}
-            onItemClick={() => playClickSound()}
-            onItemDrop={() => playClickSound()}
-          />
-        </div>
-        <div className="rd-work__folder-info">
-          <span className="rd-pill">
-            <span className="rd-pill__dot" /> Interactive Dossier
-          </span>
-          <h3 className="rd-work__folder-title">Projects Archive</h3>
-          <p className="rd-work__folder-desc">
-            An interactive 3D folder showcasing pictures of all projects—from full-stack web systems and e-commerce stores to motion video edits and graphic design posters. Click to open and spread the cards, click any card to zoom in, or drag cards freely across your screen.
-          </p>
-          <span className="rd-work__folder-hint">
-            Click folder tab to open • Click cards to zoom • Drag freely
-          </span>
-        </div>
-      </div>
 
       <div className="rd-filters" role="group" aria-label="Filter projects" data-reveal>
         {categories.map((c) => (
@@ -957,28 +1041,24 @@ function Work({ theme }: { theme?: 'dark' | 'light' }) {
         ))}
       </div>
 
-      <div className="rd-grid">
-        {displayed.map((p, i) => {
-          const href = isRealLink(p.liveUrl) ? p.liveUrl : isRealLink(p.codeUrl) ? p.codeUrl : null
+      {/* Featured Showcase Cards */}
+      <div className="rd-project-list">
+        {featuredProjects.map((p, i) => {
           return (
-            <article className="rd-card is-in" key={p.id}>
+            <article className="rd-card is-in" key={p.id} id={`project-item-${p.id}`}>
               <div className="rd-card__media">
                 <ProjectMedia project={p} />
                 <span className="rd-card__num">{String(i + 1).padStart(2, '0')}</span>
-                {href && (
-                  <a
-                    className="rd-card__overlay"
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    tabIndex={-1}
-                    aria-hidden="true"
-                  >
-                    <span>
-                      Open project <FiArrowUpRight />
-                    </span>
-                  </a>
-                )}
+                <button
+                  type="button"
+                  className="rd-card__overlay"
+                  onClick={() => onSelectProject?.(p)}
+                  aria-label={`View details of ${p.title}`}
+                >
+                  <span>
+                    View project details <FiArrowUpRight />
+                  </span>
+                </button>
               </div>
               <div className="rd-card__body">
                 <div className="rd-card__top">
@@ -986,13 +1066,13 @@ function Work({ theme }: { theme?: 'dark' | 'light' }) {
                   {p.progress < 100 && <span className="rd-card__status">In progress</span>}
                 </div>
                 <h3 className="rd-card__title">
-                  {href ? (
-                    <a href={href} target="_blank" rel="noopener noreferrer">
-                      {p.title} <FiArrowUpRight />
-                    </a>
-                  ) : (
-                    p.title
-                  )}
+                  <button
+                    type="button"
+                    className="rd-card__title-btn"
+                    onClick={() => onSelectProject?.(p)}
+                  >
+                    {p.title} <FiArrowUpRight />
+                  </button>
                 </h3>
                 <p className="rd-card__desc">{p.description}</p>
                 <ul className="rd-tags">
@@ -1006,11 +1086,13 @@ function Work({ theme }: { theme?: 'dark' | 'light' }) {
                       Live site <FiArrowUpRight />
                     </a>
                   )}
-                  {isRealLink(p.codeUrl) && (
-                    <a href={p.codeUrl} target="_blank" rel="noopener noreferrer">
-                      Source <FiGithub />
-                    </a>
-                  )}
+                  <button
+                    type="button"
+                    className="rd-card__link-btn"
+                    onClick={() => onSelectProject?.(p)}
+                  >
+                    View details <FiArrowRight />
+                  </button>
                 </div>
               </div>
             </article>
@@ -1018,7 +1100,38 @@ function Work({ theme }: { theme?: 'dark' | 'light' }) {
         })}
       </div>
 
-      {shown.length > 2 && (
+      {/* Minimalist Row List (Shown for projects after the top 2 cards) */}
+      {listProjects.length > 0 && (
+        <div className="rd-project-archive">
+          <div className="rd-project-archive__list">
+            {listProjects.map((p) => (
+              <div
+                key={p.id}
+                id={`project-item-${p.id}`}
+                className="rd-project-row"
+                onClick={() => onSelectProject?.(p)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && onSelectProject?.(p)}
+                aria-label={`View details of ${p.title}`}
+              >
+                <div className="rd-project-row__title">
+                  <h4>{p.title}</h4>
+                </div>
+                <div className="rd-project-row__meta">
+                  <span className="rd-project-row__cat">{p.category}</span>
+                  <p className="rd-project-row__desc">{p.description}</p>
+                </div>
+                <div className="rd-project-row__arrow">
+                  <FiArrowUpRight />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {shown.length > 4 && (
         <div className="rd-projects__more">
           <button
             type="button"
@@ -1375,6 +1488,243 @@ function Contact() {
           </li>
         ))}
       </ul>
+    </section>
+  )
+}
+
+/* ---------------------- Project Details View Component ----------------------- */
+function ProjectDetailsView({
+  project,
+  onBack,
+  onOpenLightbox,
+}: {
+  project: any
+  onBack: () => void
+  onOpenLightbox?: (item: any) => void
+}) {
+  const [activeMediaIndex, setActiveMediaIndex] = useState(0)
+
+  useEffect(() => {
+    if (!project) return
+    const el = document.getElementById(`project-${project.id}`)
+    if (el) {
+      el.querySelectorAll('[data-reveal]').forEach((r) => r.classList.add('is-in'))
+    }
+  }, [project])
+
+  if (!project) {
+    return (
+      <section className="rd-section rd-container rd-standalone-section rd-project-details-page">
+        <div className="rd-standalone__top">
+          <button type="button" className="rd-btn rd-btn--ghost rd-btn--small" onClick={onBack}>
+            <FiArrowLeft /> Back to Projects
+          </button>
+        </div>
+        <div className="rd-project-details__card">
+          <h2 className="rd-h2">Project Not Found</h2>
+          <p className="rd-project-details__desc">The requested project details could not be found.</p>
+        </div>
+      </section>
+    )
+  }
+
+  // Determine media assets for this project
+  const mediaList: string[] = []
+  if (Array.isArray(project.images) && project.images.length > 0) {
+    mediaList.push(...project.images)
+  } else if (THUMB_OVERRIDES[project.id]) {
+    const ov = THUMB_OVERRIDES[project.id]
+    if (Array.isArray(ov)) mediaList.push(...ov)
+    else mediaList.push(ov)
+  } else if (project.cover && !isVideo(project.cover)) {
+    mediaList.push(project.cover)
+  }
+
+  const hasVideo = Boolean(project.videoUrl && isVideo(project.videoUrl))
+  const hasMultipleMedia = hasVideo && mediaList.length > 0
+  const [mediaTab, setMediaTab] = useState<'preview' | 'video'>(
+    mediaList.length > 0 ? 'preview' : 'video'
+  )
+  const currentImage = mediaList[activeMediaIndex] || mediaList[0] || project.cover
+
+  return (
+    <section className="rd-section rd-container rd-standalone-section rd-project-details-page" id={`project-${project.id}`}>
+      {/* Top Bar with Back Button & Breadcrumbs */}
+      <div className="rd-standalone__top">
+        <button type="button" className="rd-btn rd-btn--ghost rd-btn--small" onClick={onBack}>
+          <FiArrowLeft /> Back to Projects
+        </button>
+        <span className="rd-eyebrow">
+          STANDALONE VIEW / {project.category?.toUpperCase() || 'PROJECT'} // {project.appType || 'DETAILS'}
+        </span>
+      </div>
+
+      {/* Hero Header */}
+      <div className="rd-project-details__header" data-reveal>
+        <div className="rd-project-details__badge-row">
+          <span className="rd-card__cat">{project.category}</span>
+          {project.featuredBadge && (
+            <span className="rd-project-details__featured-pill">{project.featuredBadge}</span>
+          )}
+          {project.subBadge && (
+            <span className="rd-project-details__sub-pill">{project.subBadge}</span>
+          )}
+          <span className="rd-project-details__status-pill">
+            <span className="rd-project-details__live-dot" />
+            {project.progress === 100 ? 'Completed' : `${project.progress}% In Progress`}
+          </span>
+        </div>
+
+        <h1 className="rd-project-details__title">{project.title}</h1>
+        {project.appTitle && project.appTitle !== project.title && (
+          <p className="rd-project-details__subtitle">{project.appTitle}</p>
+        )}
+
+        {/* System Version & Deployment Notice Callout */}
+        {project.versionNotice && (
+          <div className="rd-project-details__notice-box">
+            <div className="rd-project-details__notice-title">
+              <span className="rd-pulse-dot" /> SYSTEM REDESIGN & DEPLOYMENT NOTICE
+            </div>
+            <p className="rd-project-details__notice-text">{project.versionNotice}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Main Grid: Media Showcase & Information Column */}
+      <div className="rd-project-details__grid">
+        {/* Left Column: Media Player / Gallery Showcase */}
+        <div className="rd-project-details__media-col" data-reveal>
+          {hasMultipleMedia && (
+            <div className="rd-project-details__media-tabs">
+              <button
+                type="button"
+                className={`rd-project-details__tab-btn ${mediaTab === 'preview' ? 'is-active' : ''}`}
+                onClick={() => setMediaTab('preview')}
+              >
+                <span>🖼️ New System Redesign (v2 Preview)</span>
+              </button>
+              <button
+                type="button"
+                className={`rd-project-details__tab-btn ${mediaTab === 'video' ? 'is-active' : ''}`}
+                onClick={() => setMediaTab('video')}
+              >
+                <span>🎥 Previous Version (Legacy Demo)</span>
+              </button>
+            </div>
+          )}
+
+          <div className="rd-project-details__screen-wrap">
+            {mediaTab === 'video' && hasVideo ? (
+              <div className="rd-project-details__video-wrap">
+                <video
+                  src={project.videoUrl}
+                  controls
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="rd-project-details__video"
+                />
+                <span className="rd-project-details__video-tag">Legacy Video Demo (Old Design)</span>
+              </div>
+            ) : currentImage ? (
+              <img
+                src={currentImage}
+                alt={project.title}
+                className="rd-project-details__main-img"
+                onClick={() => onOpenLightbox && onOpenLightbox({ src: currentImage, caption: project.title })}
+                title="Click to view full image in lightbox"
+              />
+            ) : (
+              <div className="rd-card__placeholder">{project.title[0]}</div>
+            )}
+          </div>
+
+          {/* Screenshot Thumbnails (when viewing screenshots) */}
+          {mediaTab === 'preview' && mediaList.length > 1 && (
+            <div className="rd-project-details__thumbs">
+              {mediaList.map((src, idx) => (
+                <button
+                  key={src}
+                  type="button"
+                  className={`rd-project-details__thumb ${idx === activeMediaIndex ? 'is-active' : ''}`}
+                  onClick={() => setActiveMediaIndex(idx)}
+                  aria-label={`Show screenshot ${idx + 1}`}
+                >
+                  <img src={src} alt={`Thumbnail ${idx + 1}`} />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Right Column: Metadata, Tech Stack & Quick Actions */}
+        <div className="rd-project-details__info-col" data-reveal>
+          {/* Action Launch Bar */}
+          <div className="rd-project-details__actions">
+            {isRealLink(project.liveUrl) && (
+              <a
+                href={project.liveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rd-btn rd-btn--primary rd-project-details__launch-btn"
+              >
+                <span>Launch Live Project</span> <FiArrowUpRight />
+              </a>
+            )}
+            {isRealLink(project.codeUrl) && (
+              <a
+                href={project.codeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rd-btn rd-btn--ghost"
+              >
+                <FiGithub /> <span>View Repository</span>
+              </a>
+            )}
+          </div>
+
+          {/* Description Section */}
+          <div className="rd-project-details__card">
+            <h3 className="rd-project-details__card-title">Overview</h3>
+            <p className="rd-project-details__desc">{project.description}</p>
+          </div>
+
+          {/* Key Metrics / Specs */}
+          {Array.isArray(project.metrics) && project.metrics.length > 0 && (
+            <div className="rd-project-details__card">
+              <h3 className="rd-project-details__card-title">Specifications & Architecture</h3>
+              <div className="rd-project-details__metrics-grid">
+                {project.metrics.map((m: any, idx: number) => (
+                  <div key={idx} className="rd-project-details__metric-item">
+                    <span className="rd-project-details__metric-label">{m.label}</span>
+                    <span className="rd-project-details__metric-val">{m.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Tech Stack & Tags */}
+          {Array.isArray(project.tags) && project.tags.length > 0 && (
+            <div className="rd-project-details__card">
+              <h3 className="rd-project-details__card-title">Technologies & Tools</h3>
+              <ul className="rd-tags rd-project-details__tags">
+                {project.tags.map((t: string) => (
+                  <li key={t}>{t}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div style={{ marginTop: '24px', display: 'flex', gap: '12px' }}>
+            <button type="button" className="rd-btn rd-btn--ghost" onClick={onBack}>
+              <FiArrowLeft /> Back to Projects
+            </button>
+          </div>
+        </div>
+      </div>
     </section>
   )
 }
@@ -2203,15 +2553,28 @@ function CommunityView({ onBack }: { onBack: () => void }) {
 /* ---------------------------------- page -------------------------------- */
 export default function Portfolio() {
   const [theme, toggleTheme] = useTheme()
+  useSmoothScroll()
   const { soundEnabled, toggleSound } = useSoundEffects()
   const [lightbox, setLightbox] = useState(null)
   const [chessOpen, setChessOpen] = useState(false)
 
-  // Standalone section state: 'about-me' | 'freelance' | 'resources' | 'shop' | 'blog' | 'community' | null
+  // Standalone section state: 'about-me' | 'freelance' | 'resources' | 'shop' | 'blog' | 'community' | `project-${id}` | null
   const [standalone, setStandalone] = useState(() => {
     const hash = window.location.hash.replace('#', '')
-    return ['about-me', 'freelance', 'resources', 'shop', 'blog', 'community'].includes(hash) ? hash : null
+    if (['about-me', 'freelance', 'resources', 'shop', 'blog', 'community'].includes(hash) || hash.startsWith('project-')) {
+      return hash
+    }
+    return null
   })
+
+  const activeProjectId = standalone?.startsWith('project-')
+    ? standalone.replace('project-', '')
+    : null
+  const activeProject = activeProjectId ? projects.find((p) => p.id === activeProjectId) : null
+  const isOtherStandalone = Boolean(standalone && !standalone.startsWith('project-'))
+  const wasDirectUrlLoad = useRef<boolean>(Boolean(standalone?.startsWith('project-')))
+
+  const lastSelectedProjectRef = useRef<string | null>(null)
 
   useReveal(standalone)
 
@@ -2222,16 +2585,23 @@ export default function Portfolio() {
       if (['about-me', 'freelance', 'resources', 'shop', 'blog', 'community'].includes(hash)) {
         setStandalone(hash)
         window.scrollTo({ top: 0, behavior: 'smooth' })
+      } else if (hash.startsWith('project-')) {
+        setStandalone(hash)
       } else {
         setStandalone(null)
-        if (hash) {
+        if (wasDirectUrlLoad.current) {
+          wasDirectUrlLoad.current = false
           setTimeout(() => {
-            const el = document.getElementById(hash)
+            const el = document.getElementById('work')
             if (el) {
-              el.querySelectorAll('[data-reveal]').forEach((r) => r.classList.add('is-in'))
-              el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              const lenis = (window as any).__lenis
+              if (lenis && typeof lenis.scrollTo === 'function') {
+                lenis.scrollTo(el, { offset: -90, duration: 0.9 })
+              } else {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              }
             }
-          }, 30)
+          }, 50)
         }
       }
     }
@@ -2243,6 +2613,39 @@ export default function Portfolio() {
     setStandalone(id)
     window.history.pushState(null, '', `#${id}`)
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleSelectProject = (p: any) => {
+    lastSelectedProjectRef.current = p.id
+    setStandalone(`project-${p.id}`)
+    window.history.pushState({ standalone: `project-${p.id}` }, '', `#project-${p.id}`)
+  }
+
+  const handleNavigateBackToProject = () => {
+    const targetId = lastSelectedProjectRef.current || activeProjectId
+    setStandalone(null)
+    window.history.pushState(null, '', '#work')
+
+    if (wasDirectUrlLoad.current) {
+      wasDirectUrlLoad.current = false
+      setTimeout(() => {
+        const el = targetId ? document.getElementById(`project-item-${targetId}`) : document.getElementById('work')
+        if (el) {
+          const lenis = (window as any).__lenis
+          if (lenis && typeof lenis.scrollTo === 'function') {
+            lenis.scrollTo(el, { offset: -90, duration: 0.9 })
+          } else {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          }
+        }
+      }, 50)
+    } else if (targetId) {
+      const el = document.getElementById(`project-item-${targetId}`)
+      if (el) {
+        el.classList.add('rd-project-row--highlight')
+        setTimeout(() => el.classList.remove('rd-project-row--highlight'), 2000)
+      }
+    }
   }
 
   const handleNavigateMain = (id) => {
@@ -2266,7 +2669,6 @@ export default function Portfolio() {
       <a href="#work" className="rd-skip">
         Skip to content
       </a>
-      <BackgroundMesh theme={theme} />
       <Nav
         theme={theme}
         onToggleTheme={toggleTheme}
@@ -2297,11 +2699,29 @@ export default function Portfolio() {
         {standalone === 'community' && (
           <CommunityView onBack={() => handleNavigateMain('top')} />
         )}
+        {activeProject && (
+          <div
+            className="rd-project-details-overlay"
+            data-lenis-prevent
+            role="region"
+            aria-label="Project Details"
+          >
+            <ProjectDetailsView
+              project={activeProject}
+              onBack={handleNavigateBackToProject}
+              onOpenLightbox={setLightbox}
+            />
+          </div>
+        )}
 
-        <div className={`rd-main-sections ${standalone ? 'is-hidden-view' : ''}`}>
+        <div className={`rd-main-sections ${isOtherStandalone ? 'is-hidden-view' : ''}`}>
           <Hero theme={theme} />
           <Marquee items={allSkills} />
-          <Work theme={theme} />
+          <Work
+            theme={theme}
+            onSelectProject={handleSelectProject}
+            targetProjectId={lastSelectedProjectRef.current || activeProjectId}
+          />
           <About onMore={() => handleNavigateStandalone('about-me')} />
           <Skills theme={theme} />
           <Education />

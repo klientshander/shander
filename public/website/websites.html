@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AETHER // Interactive Web Engineering Showcase</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                        },
+                        cyber: {
+                            cyan: '#06b6d4',
+                            emerald: '#10b981',
+                            violet: '#8b5cf6',
+                            rose: '#f43f5e'
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbar & Selection */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.1); }
+        ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.4); border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.7); }
+        ::selection { background: rgba(99, 102, 241, 0.3); color: #fff; }
+
+        /* Ambient Mesh Grid Background */
+        .bg-grid-pattern {
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(148, 163, 184, 0.07) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(148, 163, 184, 0.07) 1px, transparent 1px);
+        }
+
+        /* Glassmorphism Utilities */
+        .glass-panel {
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        /* 3D Perspective Card Hover Effect */
+        .tilt-card {
+            transform-style: preserve-3d;
+            transition: transform 0.15s ease-out, box-shadow 0.3s ease;
+        }
+        .tilt-card-content {
+            transform: translateZ(24px);
+        }
+
+        /* Custom Range Input Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            height: 6px;
+            border-radius: 999px;
+            background: rgba(148, 163, 184, 0.25);
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: #6366f1;
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.8);
+            transition: transform 0.15s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-[#060913] dark:text-slate-100 font-sans antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-500 overflow-x-hidden bg-grid-pattern">
+
+    <!-- Ambient Spotlight Follower -->
+    <div id="cursor-glow" class="pointer-events-none fixed inset-0 z-30 transition-opacity duration-300 opacity-0 md:opacity-100" style="background: radial-gradient(600px circle at 50% 50%, rgba(99, 102, 241, 0.08), transparent 40%);"></div>
+
+    <!-- Notification Toast Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 md:px-0"></div>
+
+    <!-- Command Palette Modal (Cmd/Ctrl + K) -->
+    <div id="cmd-modal" class="fixed inset-0 z-50 hidden items-start justify-center pt-20 sm:pt-32 px-4">
+        <div id="cmd-backdrop" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity"></div>
+        <div class="relative w-full max-w-lg rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden z-10 transform transition-all">
+            <div class="flex items-center px-4 py-3.5 border-b border-slate-200 dark:border-slate-800">
+                <i data-lucide="terminal" class="w-5 h-5 text-indigo-500 mr-3"></i>
+                <input id="cmd-input" type="text" placeholder="Type a command or jump to section..." class="w-full bg-transparent text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none font-mono">
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500">ESC</span>
+            </div>
+            <div id="cmd-list" class="p-2 max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/50 text-sm">
+                <div class="py-1">
+                    <p class="px-3 py-1 text-[11px] font-mono uppercase tracking-wider text-slate-400">Quick Actions</p>
+                    <button data-cmd="theme" class="cmd-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-indigo-500/10 hover:text-indigo-500 transition-colors text-left">
+                        <span class="flex items-center gap-2.5"><i data-lucide="sun-moon" class="w-4 h-4"></i> Toggle Dark / Light Theme</span>
+                        <span class="text-xs font-mono opacity-60">Theme</span>
+                    </button>
+                    <button data-cmd="sound" class="cmd-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-indigo-500/10 hover:text-indigo-500 transition-colors text-left">
+                        <span class="flex items-center gap-2.5"><i data-lucide="volume-2" class="w-4 h-4"></i> Toggle WebAudio UI Synth</span>
+                        <span class="text-xs font-mono opacity-60">Audio</span>
+                    </button>
+                    <button data-cmd="gravity" class="cmd-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-indigo-500/10 hover:text-indigo-500 transition-colors text-left">
+                        <span class="flex items-center gap-2.5"><i data-lucide="orbit" class="w-4 h-4"></i> Trigger Supernova in Physics Lab</span>
+                        <span class="text-xs font-mono opacity-60">Physics</span>
+                    </button>
+                    <button data-cmd="spike" class="cmd-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-indigo-500/10 hover:text-indigo-500 transition-colors text-left">
+                        <span class="flex items-center gap-2.5"><i data-lucide="zap" class="w-4 h-4"></i> Inject Traffic Spike in Telemetry</span>
+                        <span class="text-xs font-mono opacity-60">Metrics</span>
+                    </button>
+                </div>
+                <div class="py-1">
+                    <p class="px-3 py-1 text-[11px] font-mono uppercase tracking-wider text-slate-400">Navigation</p>
+                    <button data-cmd="nav-hero" class="cmd-item w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-indigo-500/10 hover:text-indigo-500 transition-colors text-left">
+                        <span>01 // Neural Particle Core</span>
+                        <i data-lucide="arrow-up-right" class="w-4 h-4 opacity-50"></i>
+                    </button>
+                    <button data-cmd="nav-telemetry" class="cmd-item w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-indigo-500/10 hover:text-indigo-500 transition-colors text-left">
+                        <span>02 // Live Telemetry & Analytics</span>
+                        <i data-lucide="arrow-up-right" class="w-4 h-4 opacity-50"></i>
+                    </button>
+                    <button data-cmd="nav-sandbox" class="cmd-item w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-indigo-500/10 hover:text-indigo-500 transition-colors text-left">
+                        <span>03 // 2D Gravity & Physics Engine</span>
+                        <i data-lucide="arrow-up-right" class="w-4 h-4 opacity-50"></i>
+                    </button>
+                    <button data-cmd="nav-architecture" class="cmd-item w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-indigo-500/10 hover:text-indigo-500 transition-colors text-left">
+                        <span>04 // Micro-Interaction Lab</span>
+                        <i data-lucide="arrow-up-right" class="w-4 h-4 opacity-50"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sticky Glass Navigation Header -->
+    <header class="fixed top-0 inset-x-0 z-40 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/75 dark:bg-[#060913]/75 glass-panel transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <!-- Brand Logo -->
+            <a href="#hero" class="flex items-center gap-3 group focus:outline-none">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform">
+                    <i data-lucide="cpu" class="w-5 h-5 text-white"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold tracking-tight text-base">AETHER</span>
+                        <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 font-semibold">v4.2</span>
+                    </div>
+                    <p class="text-[10px] font-mono text-slate-500 dark:text-slate-400 hidden sm:block">INTERACTIVE ENGINE SHOWCASE</p>
+                </div>
+            </a>
+
+            <!-- Navigation Links -->
+            <nav class="hidden md:flex items-center gap-1 bg-slate-100/80 dark:bg-slate-900/90 p-1 rounded-full border border-slate-200/70 dark:border-slate-800">
+                <a href="#hero" class="nav-link px-3.5 py-1.5 rounded-full text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-500 dark:hover:text-white transition-colors">Neural Core</a>
+                <a href="#telemetry" class="nav-link px-3.5 py-1.5 rounded-full text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-500 dark:hover:text-white transition-colors">Live Telemetry</a>
+                <a href="#sandbox" class="nav-link px-3.5 py-1.5 rounded-full text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-500 dark:hover:text-white transition-colors">Physics Lab</a>
+                <a href="#architecture" class="nav-link px-3.5 py-1.5 rounded-full text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-500 dark:hover:text-white transition-colors">Tactile UI</a>
+            </nav>
+
+            <!-- Action Controls -->
+            <div class="flex items-center gap-2">
+                <!-- Live FPS Counter -->
+                <div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono text-xs">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                    <span id="fps-counter">60</span>
+                    <span class="text-[10px] opacity-75">FPS</span>
+                </div>
+
+                <!-- Command Palette Button -->
+                <button id="open-cmd-btn" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200/70 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300 transition-all" title="Command Palette">
+                    <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400"></i>
+                    <span class="hidden lg:inline">Command</span>
+                    <kbd class="hidden sm:inline-block text-[10px] font-mono bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">⌘K</kbd>
+                </button>
+
+                <!-- WebAudio Synthesizer Toggle -->
+                <button id="sound-toggle" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200/70 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 transition-all relative" aria-label="Toggle Sound Effects" title="Toggle WebAudio UI Sound">
+                    <i id="sound-icon" data-lucide="volume-2" class="w-4 h-4 text-indigo-500"></i>
+                </button>
+
+                <!-- Dark/Light Theme Toggle -->
+                <button id="theme-toggle" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200/70 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 transition-all" aria-label="Toggle Dark/Light Mode" title="Switch Theme">
+                    <i id="theme-icon-dark" data-lucide="moon" class="w-4 h-4 hidden dark:block text-indigo-400"></i>
+                    <i id="theme-icon-light" data-lucide="sun" class="w-4 h-4 block dark:hidden text-amber-500"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ========================================== -->
+    <!-- SECTION 1: INTERACTIVE PARTICLE HERO       -->
+    <!-- ========================================== -->
+    <section id="hero" class="relative min-h-screen pt-24 pb-16 flex items-center overflow-hidden border-b border-slate-200/70 dark:border-slate-800/80">
+        <!-- Interactive HTML5 Particle Network Canvas -->
+        <canvas id="hero-canvas" class="absolute inset-0 w-full h-full pointer-events-auto cursor-crosshair"></canvas>
+
+        <!-- Ambient Gradient Blobs -->
+        <div class="pointer-events-none absolute -top-40 -left-40 w-96 h-96 bg-indigo-500/20 dark:bg-indigo-500/15 rounded-full blur-3xl"></div>
+        <div class="pointer-events-none absolute bottom-10 right-10 w-96 h-96 bg-cyan-500/20 dark:bg-cyan-500/15 rounded-full blur-3xl"></div>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pointer-events-none">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+                <!-- Left Column: Hero Copy & Interactive Triggers -->
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-mono pointer-events-auto">
+                        <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                        <span>NEXT-GEN WEB CAPABILITIES // ZERO EXTERNAL ASSETS</span>
+                    </div>
+
+                    <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.08]">
+                        Engineering <br />
+                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-cyan-400 to-emerald-400">Living Interfaces.</span>
+                    </h1>
+
+                    <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed font-normal">
+                        Move your cursor or tap across the canvas to bend the neural particle field. Explore real-time SVG telemetry streams, a custom 2D Verlet & orbital gravity engine, and procedural WebAudio micro-interactions—all executing natively at 60 FPS.
+                    </p>
+
+                    <!-- CTA Buttons -->
+                    <div class="flex flex-wrap items-center gap-3 pt-2 pointer-events-auto">
+                        <a href="#telemetry" class="sfx-btn group inline-flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-xl shadow-indigo-500/25 transition-all hover:-translate-y-0.5">
+                            <span>Explore Live Telemetry</span>
+                            <i data-lucide="activity" class="w-4 h-4 group-hover:rotate-12 transition-transform"></i>
+                        </a>
+                        <a href="#sandbox" class="sfx-btn inline-flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-white/90 dark:bg-slate-900/90 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700/80 font-semibold text-sm shadow-sm transition-all hover:-translate-y-0.5">
+                            <i data-lucide="orbit" class="w-4 h-4 text-cyan-500"></i>
+                            <span>Launch Physics Lab</span>
+                        </a>
+                    </div>
+
+                    <!-- Interactive Hero Field Controller Bar -->
+                    <div class="pt-4 pointer-events-auto">
+                        <div class="inline-flex flex-wrap items-center gap-3 p-3 rounded-2xl bg-white/80 dark:bg-slate-900/80 glass-panel border border-slate-200/80 dark:border-slate-800 shadow-lg">
+                            <span class="text-xs font-mono uppercase tracking-wider text-slate-400 px-2 flex items-center gap-1.5">
+                                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-indigo-400"></i> Field Mode:
+                            </span>
+                            <button data-hero-mode="repel" class="hero-mode-btn px-3 py-1.5 rounded-xl text-xs font-mono font-medium bg-indigo-600 text-white shadow-sm transition-all">Repulse</button>
+                            <button data-hero-mode="attract" class="hero-mode-btn px-3 py-1.5 rounded-xl text-xs font-mono font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-indigo-400 transition-all">Vortex Well</button>
+                            <button data-hero-mode="harmony" class="hero-mode-btn px-3 py-1.5 rounded-xl text-xs font-mono font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-indigo-400 transition-all">Harmonic Wave</button>
+                            <button id="hero-pulse-btn" class="px-3 py-1.5 rounded-xl text-xs font-mono font-medium bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 hover:bg-cyan-500/20 transition-all flex items-center gap-1">
+                                <i data-lucide="zap" class="w-3 h-3"></i> Shockwave
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Live Interactive HUD Card -->
+                <div class="lg:col-span-5 pointer-events-auto">
+                    <div class="tilt-card rounded-3xl bg-white/80 dark:bg-slate-900/80 glass-panel border border-slate-200/90 dark:border-slate-800/90 p-6 shadow-2xl relative overflow-hidden">
+                        <div class="flex items-center justify-between pb-4 mb-5 border-b border-slate-200/70 dark:border-slate-800">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+                                <span class="w-3 h-3 rounded-full bg-amber-400"></span>
+                                <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                                <span class="ml-2 text-xs font-mono text-slate-400">aether_kernel.ts</span>
+                            </div>
+                            <span id="particle-count-badge" class="text-xs font-mono px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-500 font-semibold">95 Nodes Active</span>
+                        </div>
+
+                        <!-- Live Mini Equalizer & Node Telemetry -->
+                        <div class="space-y-5 tilt-card-content">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="p-3.5 rounded-2xl bg-slate-100/80 dark:bg-slate-950/60 border border-slate-200/60 dark:border-slate-800/70">
+                                    <div class="text-[11px] font-mono text-slate-400 uppercase">Cursor Vector</div>
+                                    <div id="hud-cursor-pos" class="text-lg font-mono font-bold text-indigo-500 mt-0.5">X: 0420 Y: 0310</div>
+                                </div>
+                                <div class="p-3.5 rounded-2xl bg-slate-100/80 dark:bg-slate-950/60 border border-slate-200/60 dark:border-slate-800/70">
+                                    <div class="text-[11px] font-mono text-slate-400 uppercase">Synaptic Links</div>
+                                    <div id="hud-links-count" class="text-lg font-mono font-bold text-cyan-500 mt-0.5">342 Edges</div>
+                                </div>
+                            </div>
+
+                            <!-- Interactive Particle Density Slider -->
+                            <div class="p-4 rounded-2xl bg-slate-100/80 dark:bg-slate-950/60 border border-slate-200/60 dark:border-slate-800/70 space-y-2">
+                                <div class="flex justify-between text-xs font-mono">
+                                    <span class="text-slate-500 dark:text-slate-400">PARTICLE DENSITY</span>
+                                    <span id="density-val" class="text-indigo-500 font-bold">95</span>
+                                </div>
+                                <input id="density-slider" type="range" min="30" max="160" value="95" class="w-full">
+                            </div>
+
+                            <!-- Interactive Audio Frequency Visualizer Bars -->
+                            <div class="p-4 rounded-2xl bg-slate-950 text-slate-100 border border-slate-800 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[11px] font-mono text-slate-400 uppercase flex items-center gap-1.5">
+                                        <i data-lucide="radio" class="w-3.5 h-3.5 text-emerald-400"></i> Interactive Harmonic Synth
+                                    </span>
+                                    <span class="text-[10px] font-mono text-emerald-400">CLICK PADS TO PLAY</span>
+                                </div>
+                                <div class="grid grid-cols-4 gap-2 pt-1">
+                                    <button data-note="261.63" class="synth-pad py-3 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/40 active:scale-95 border border-indigo-500/30 text-indigo-300 font-mono text-xs font-bold transition-all">C4</button>
+                                    <button data-note="329.63" class="synth-pad py-3 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/40 active:scale-95 border border-cyan-500/30 text-cyan-300 font-mono text-xs font-bold transition-all">E4</button>
+                                    <button data-note="392.00" class="synth-pad py-3 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/40 active:scale-95 border border-emerald-500/30 text-emerald-300 font-mono text-xs font-bold transition-all">G4</button>
+                                    <button data-note="523.25" class="synth-pad py-3 rounded-xl bg-violet-500/20 hover:bg-violet-500/40 active:scale-95 border border-violet-500/30 text-violet-300 font-mono text-xs font-bold transition-all">C5</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SECTION 2: LIVE TELEMETRY & CHARTING       -->
+    <!-- ========================================== -->
+    <section id="telemetry" class="py-24 relative border-b border-slate-200/70 dark:border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+            <!-- Section Header & Controls -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                    <div class="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-indigo-500 mb-2">
+                        <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                        <span>02 // REAL-TIME TELEMETRY ENGINE</span>
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Live Edge Cluster Metrics</h2>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base mt-2 max-w-2xl">
+                        Streaming high-frequency time-series telemetry rendered via dynamic vector splines. Switch clusters, pause the stream, or inject synthetic load spikes.
+                    </p>
+                </div>
+
+                <!-- Cluster & Simulation Controls -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="inline-flex rounded-xl bg-slate-200/70 dark:bg-slate-900 p-1 border border-slate-300/60 dark:border-slate-800">
+                        <button data-region="global" class="region-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold bg-white dark:bg-indigo-600 text-slate-900 dark:text-white shadow-sm transition-all">GLOBAL-EDGE</button>
+                        <button data-region="us-east" class="region-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all">US-EAST-1</button>
+                        <button data-region="ap-northeast" class="region-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all">AP-TOKYO</button>
+                    </div>
+
+                    <button id="inject-spike-btn" class="sfx-btn inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/20 text-xs font-mono font-semibold transition-all">
+                        <i data-lucide="flame" class="w-3.5 h-3.5"></i>
+                        <span>Inject Load Spike</span>
+                    </button>
+
+                    <button id="toggle-stream-btn" class="sfx-btn inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-200/80 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-xs font-mono font-semibold transition-all">
+                        <i id="stream-icon" data-lucide="pause" class="w-3.5 h-3.5"></i>
+                        <span id="stream-label">Pause</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 4 KPI Live Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <!-- KPI 1 -->
+                <div class="p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden group">
+                    <div class="flex items-center justify-between text-xs font-mono text-slate-400">
+                        <span>THROUGHPUT (REQ/S)</span>
+                        <i data-lucide="zap" class="w-4 h-4 text-indigo-500"></i>
+                    </div>
+                    <div class="mt-3 flex items-baseline justify-between">
+                        <div id="kpi-rps" class="text-3xl font-extrabold font-mono tracking-tight">84,920</div>
+                        <span id="kpi-rps-delta" class="text-xs font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500">+4.2%</span>
+                    </div>
+                    <div class="mt-3 w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                        <div id="kpi-rps-bar" class="bg-indigo-500 h-full rounded-full transition-all duration-500" style="width: 72%"></div>
+                    </div>
+                </div>
+
+                <!-- KPI 2 -->
+                <div class="p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden group">
+                    <div class="flex items-center justify-between text-xs font-mono text-slate-400">
+                        <span>P99 LATENCY</span>
+                        <i data-lucide="clock" class="w-4 h-4 text-cyan-500"></i>
+                    </div>
+                    <div class="mt-3 flex items-baseline justify-between">
+                        <div id="kpi-latency" class="text-3xl font-extrabold font-mono tracking-tight">14.2<span class="text-base font-normal text-slate-400 ml-1">ms</span></div>
+                        <span id="kpi-latency-badge" class="text-xs font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-500">OPTIMAL</span>
+                    </div>
+                    <div class="mt-3 w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                        <div id="kpi-latency-bar" class="bg-cyan-500 h-full rounded-full transition-all duration-500" style="width: 28%"></div>
+                    </div>
+                </div>
+
+                <!-- KPI 3 -->
+                <div class="p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden group">
+                    <div class="flex items-center justify-between text-xs font-mono text-slate-400">
+                        <span>NEURAL COMPUTE LOAD</span>
+                        <i data-lucide="cpu" class="w-4 h-4 text-violet-500"></i>
+                    </div>
+                    <div class="mt-3 flex items-baseline justify-between">
+                        <div id="kpi-cpu" class="text-3xl font-extrabold font-mono tracking-tight">42.8%</div>
+                        <span class="text-xs font-mono text-slate-400">128 CORES</span>
+                    </div>
+                    <div class="mt-3 w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                        <div id="kpi-cpu-bar" class="bg-violet-500 h-full rounded-full transition-all duration-500" style="width: 43%"></div>
+                    </div>
+                </div>
+
+                <!-- KPI 4 -->
+                <div class="p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden group">
+                    <div class="flex items-center justify-between text-xs font-mono text-slate-400">
+                        <span>CACHE HIT RATIO</span>
+                        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500"></i>
+                    </div>
+                    <div class="mt-3 flex items-baseline justify-between">
+                        <div id="kpi-cache" class="text-3xl font-extrabold font-mono tracking-tight">99.42%</div>
+                        <span class="text-xs font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500">TIER-1</span>
+                    </div>
+                    <div class="mt-3 w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                        <div id="kpi-cache-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 99%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Interactive Charts Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Primary Live Area Spline Chart (2 Columns Wide) -->
+                <div class="lg:col-span-2 p-6 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+                    <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                        <div>
+                            <h3 class="font-bold text-base flex items-center gap-2">
+                                <span>Real-Time Network Traffic & Anomaly Stream</span>
+                                <span class="inline-block w-2 h-2 rounded-full bg-indigo-500 animate-ping"></span>
+                            </h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Hover over the graph to inspect point-in-time packet telemetry</p>
+                        </div>
+                        <div class="flex items-center gap-4 text-xs font-mono">
+                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> Ingress</span>
+                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span> Egress</span>
+                        </div>
+                    </div>
+
+                    <!-- Interactive SVG Area Chart -->
+                    <div class="relative h-64 w-full select-none" id="chart-container">
+                        <svg id="telemetry-svg" class="w-full h-full overflow-visible" viewBox="0 0 700 220" preserveAspectRatio="none">
+                            <defs>
+                                <linearGradient id="ingressGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#6366f1" stop-opacity="0.45"/>
+                                    <stop offset="100%" stop-color="#6366f1" stop-opacity="0.0"/>
+                                </linearGradient>
+                                <linearGradient id="egressGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.35"/>
+                                    <stop offset="100%" stop-color="#06b6d4" stop-opacity="0.0"/>
+                                </linearGradient>
+                            </defs>
+                            <!-- Horizontal Grid Lines -->
+                            <g stroke="currentColor" class="text-slate-200 dark:text-slate-800" stroke-dasharray="4 4" stroke-width="1">
+                                <line x1="0" y1="30" x2="700" y2="30"></line>
+                                <line x1="0" y1="90" x2="700" y2="90"></line>
+                                <line x1="0" y1="150" x2="700" y2="150"></line>
+                                <line x1="0" y1="210" x2="700" y2="210"></line>
+                            </g>
+                            <!-- Dynamic Paths -->
+                            <path id="egress-area" fill="url(#egressGrad)" d=""></path>
+                            <path id="egress-line" fill="none" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round" d=""></path>
+                            <path id="ingress-area" fill="url(#ingressGrad)" d=""></path>
+                            <path id="ingress-line" fill="none" stroke="#6366f1" stroke-width="3" stroke-linecap="round" d=""></path>
+                            <!-- Hover Crosshair Line -->
+                            <line id="chart-crosshair" x1="0" y1="0" x2="0" y2="220" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3" class="opacity-0 transition-opacity"></line>
+                            <circle id="chart-dot-ingress" r="5" fill="#6366f1" stroke="#fff" stroke-width="2" class="opacity-0 transition-opacity"></circle>
+                            <circle id="chart-dot-egress" r="5" fill="#06b6d4" stroke="#fff" stroke-width="2" class="opacity-0 transition-opacity"></circle>
+                        </svg>
+
+                        <!-- Floating Tooltip -->
+                        <div id="chart-tooltip" class="pointer-events-none opacity-0 transition-opacity absolute top-2 left-2 px-3 py-2 rounded-xl bg-slate-900/95 text-white text-xs font-mono border border-slate-700 shadow-xl">
+                            <div id="tooltip-time" class="text-[10px] text-slate-400">T-0s</div>
+                            <div class="flex items-center gap-3 mt-0.5">
+                                <span class="text-indigo-400" id="tooltip-in">IN: 84.2k</span>
+                                <span class="text-cyan-400" id="tooltip-out">OUT: 61.8k</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Live Event Ticker -->
+                    <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs font-mono text-slate-500">
+                        <div class="flex items-center gap-2 truncate">
+                            <span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-500 font-semibold">STREAM LOG</span>
+                            <span id="telemetry-log-line" class="truncate">[OK] TLS 1.3 Handshake verified across 48 edge POPs</span>
+                        </div>
+                        <span class="shrink-0 text-[11px] opacity-75">INTERVAL: 800ms</span>
+                    </div>
+                </div>
+
+                <!-- Right Column: Resource Allocation Ring & Node Health Matrix -->
+                <div class="p-6 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-6">
+                    <div>
+                        <h3 class="font-bold text-base">Active Shard Matrix</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Click any compute shard to cycle load state</p>
+                    </div>
+
+                    <!-- Interactive 24-Node Shard Grid -->
+                    <div id="shard-matrix" class="grid grid-cols-6 gap-2.5">
+                        <!-- Dynamically Populated by JS -->
+                    </div>
+
+                    <!-- Storage & Memory Radial Gauges -->
+                    <div class="pt-4 border-t border-slate-100 dark:border-slate-800/80 space-y-4">
+                        <div class="space-y-1.5">
+                            <div class="flex justify-between text-xs font-mono">
+                                <span class="text-slate-500">VRAM BUFFER POOL</span>
+                                <span id="vram-label" class="font-bold text-indigo-500">68.4 GB / 96 GB</span>
+                            </div>
+                            <div class="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                                <div id="vram-bar" class="h-full bg-gradient-to-r from-indigo-500 to-cyan-400 rounded-full transition-all duration-500" style="width: 71%"></div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <div class="flex justify-between text-xs font-mono">
+                                <span class="text-slate-500">WORKER THREAD SATURATION</span>
+                                <span id="threads-label" class="font-bold text-emerald-500">88.2%</span>
+                            </div>
+                            <div class="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                                <div id="threads-bar" class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-500" style="width: 88%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SECTION 3: 2D GRAVITY & PHYSICS SANDBOX    -->
+    <!-- ========================================== -->
+    <section id="sandbox" class="py-24 relative border-b border-slate-200/70 dark:border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+            <!-- Section Header -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                    <div class="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-cyan-500 mb-2">
+                        <i data-lucide="orbit" class="w-4 h-4"></i>
+                        <span>03 // INTERACTIVE KINEMATICS SANDBOX</span>
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">2D Orbital & Elastic Physics Lab</h2>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base mt-2 max-w-2xl">
+                        Click and drag inside the containment chamber to sling matter, place gravitational singularities, or test elastic collisions in real time.
+                    </p>
+                </div>
+
+                <!-- Quick Spawn Action Buttons -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <button id="spawn-burst-btn" class="sfx-btn px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-mono font-semibold shadow-lg shadow-indigo-500/20 transition-all flex items-center gap-1.5">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Spawn Matter (+15)
+                    </button>
+                    <button id="zero-g-btn" class="sfx-btn px-3.5 py-2 rounded-xl bg-slate-200/80 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-xs font-mono font-semibold transition-all flex items-center gap-1.5">
+                        <i data-lucide="feather" class="w-3.5 h-3.5 text-cyan-500"></i> Toggle Zero-G
+                    </button>
+                    <button id="clear-sandbox-btn" class="sfx-btn px-3.5 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/20 text-xs font-mono font-semibold transition-all flex items-center gap-1.5">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Reset Chamber
+                    </button>
+                </div>
+            </div>
+
+            <!-- Physics Lab Container -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                <!-- Left Control Panel (4 Cols) -->
+                <div class="lg:col-span-4 p-6 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-6">
+                    <div class="space-y-5">
+                        <div>
+                            <h3 class="font-bold text-base">Chamber Parameters</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Tune physical constants & cursor tool behavior</p>
+                        </div>
+
+                        <!-- Tool Selector -->
+                        <div class="space-y-2">
+                            <label class="text-xs font-mono uppercase text-slate-400">Cursor Interaction Tool</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button data-tool="spawn" class="sandbox-tool-btn py-2.5 px-2 rounded-xl text-xs font-mono font-semibold bg-indigo-600 text-white shadow-sm transition-all flex flex-col items-center gap-1">
+                                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                                    <span>Emitter</span>
+                                </button>
+                                <button data-tool="well" class="sandbox-tool-btn py-2.5 px-2 rounded-xl text-xs font-mono font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all flex flex-col items-center gap-1">
+                                    <i data-lucide="magnet" class="w-4 h-4"></i>
+                                    <span>Attractor</span>
+                                </button>
+                                <button data-tool="blast" class="sandbox-tool-btn py-2.5 px-2 rounded-xl text-xs font-mono font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all flex flex-col items-center gap-1">
+                                    <i data-lucide="bomb" class="w-4 h-4"></i>
+                                    <span>Repulsor</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Gravity Slider -->
+                        <div class="space-y-1.5">
+                            <div class="flex justify-between text-xs font-mono">
+                                <span class="text-slate-500 dark:text-slate-400">VERTICAL GRAVITY (G)</span>
+                                <span id="grav-val" class="text-indigo-500 font-bold">0.35 m/s²</span>
+                            </div>
+                            <input id="grav-slider" type="range" min="-0.5" max="1.2" step="0.05" value="0.35" class="w-full">
+                        </div>
+
+                        <!-- Elasticity / Restitution Slider -->
+                        <div class="space-y-1.5">
+                            <div class="flex justify-between text-xs font-mono">
+                                <span class="text-slate-500 dark:text-slate-400">ELASTIC RESTITUTION</span>
+                                <span id="bounce-val" class="text-cyan-500 font-bold">0.82</span>
+                            </div>
+                            <input id="bounce-slider" type="range" min="0.3" max="0.99" step="0.01" value="0.82" class="w-full">
+                        </div>
+
+                        <!-- Air Drag / Friction Slider -->
+                        <div class="space-y-1.5">
+                            <div class="flex justify-between text-xs font-mono">
+                                <span class="text-slate-500 dark:text-slate-400">ATMOSPHERIC DRAG</span>
+                                <span id="drag-val" class="text-emerald-500 font-bold">0.995</span>
+                            </div>
+                            <input id="drag-slider" type="range" min="0.960" max="1.000" step="0.002" value="0.995" class="w-full">
+                        </div>
+
+                        <!-- Toggle Motion Trails -->
+                        <div class="flex items-center justify-between pt-2">
+                            <span class="text-xs font-mono text-slate-500 dark:text-slate-400">PHOTON MOTION TRAILS</span>
+                            <button id="trails-toggle" class="w-11 h-6 rounded-full bg-indigo-600 relative transition-colors p-0.5">
+                                <span id="trails-knob" class="block w-5 h-5 rounded-full bg-white shadow transform translate-x-5 transition-transform"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Live Sandbox Telemetry Readout -->
+                    <div class="p-4 rounded-2xl bg-slate-100 dark:bg-slate-950/80 border border-slate-200/70 dark:border-slate-800/80 grid grid-cols-2 gap-3 text-xs font-mono">
+                        <div>
+                            <div class="text-[10px] text-slate-400">BODIES IN CHAMBER</div>
+                            <div id="sandbox-bodies-count" class="text-base font-bold text-indigo-500 mt-0.5">28</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-slate-400">KINETIC ENERGY</div>
+                            <div id="sandbox-energy-readout" class="text-base font-bold text-emerald-500 mt-0.5">1,420 J</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Interactive Physics Canvas (8 Cols) -->
+                <div class="lg:col-span-8 rounded-3xl bg-slate-950 border border-slate-800 shadow-2xl relative overflow-hidden min-h-[420px] sm:min-h-[480px]">
+                    <canvas id="physics-canvas" class="w-full h-full block cursor-crosshair"></canvas>
+                    <!-- Overlay Helper Badge -->
+                    <div class="pointer-events-none absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/80 border border-slate-800 text-[11px] font-mono text-slate-300 backdrop-blur-md">
+                        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+                        <span id="sandbox-hint">CLICK OR DRAG INSIDE CHAMBER TO INTERACT</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SECTION 4: MICRO-INTERACTION & SHADER LAB  -->
+    <!-- ========================================== -->
+    <section id="architecture" class="py-24 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                    <div class="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-emerald-500 mb-2">
+                        <i data-lucide="layers" class="w-4 h-4"></i>
+                        <span>04 // TACTILE DESIGN SYSTEM</span>
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Micro-Interactions & Spatial UI</h2>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base mt-2 max-w-2xl">
+                        Every surface responds to spatial cursor coordinates, magnetic pull, and live CSS token injection.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Bento Grid Showcase -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Card 1: 3D Holographic Tilt Card -->
+                <div class="tilt-card p-7 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-lg flex flex-col justify-between space-y-6 group">
+                    <div class="tilt-card-content space-y-4">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500 group-hover:scale-110 transition-transform">
+                            <i data-lucide="box" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="text-xl font-bold">3D Spatial Perspective</h3>
+                        <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                            Move your pointer across this card to compute real-time <code class="text-xs font-mono text-indigo-500">rotateX</code> and <code class="text-xs font-mono text-indigo-500">rotateY</code> matrices with depth-translated child layers.
+                        </p>
+                    </div>
+                    <div class="tilt-card-content pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-mono text-indigo-500">
+                        <span>60 FPS MATRIX TRANSFORM</span>
+                        <i data-lucide="move-3d" class="w-4 h-4"></i>
+                    </div>
+                </div>
+
+                <!-- Card 2: Interactive Live Theme & Token Customizer -->
+                <div class="p-7 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-lg flex flex-col justify-between space-y-6">
+                    <div class="space-y-4">
+                        <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-500">
+                            <i data-lucide="palette" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="text-xl font-bold">Live Vector Beam Generator</h3>
+                        <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                            Scrub the harmonic frequency slider below to morph the procedural sine-wave interference pattern in real time.
+                        </p>
+                        <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800">
+                            <svg id="wave-svg" class="w-full h-20" viewBox="0 0 300 80">
+                                <path id="wave-path-1" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round" d=""></path>
+                                <path id="wave-path-2" fill="none" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" opacity="0.7" d=""></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between text-xs font-mono">
+                            <span class="text-slate-400">WAVE FREQUENCY</span>
+                            <span id="wave-freq-label" class="text-cyan-500 font-bold">3.2 Hz</span>
+                        </div>
+                        <input id="wave-slider" type="range" min="1" max="8" step="0.1" value="3.2" class="w-full">
+                    </div>
+                </div>
+
+                <!-- Card 3: One-Click Code Snippet & State Exporter -->
+                <div class="p-7 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 shadow-lg flex flex-col justify-between space-y-6">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
+                                <i data-lucide="terminal-square" class="w-6 h-6"></i>
+                            </div>
+                            <button id="copy-config-btn" class="sfx-btn px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-indigo-500 hover:text-white text-xs font-mono font-semibold transition-all flex items-center gap-1.5">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                <span>Copy Config</span>
+                            </button>
+                        </div>
+                        <h3 class="text-xl font-bold">Live State Inspector</h3>
+                        <pre id="state-json-preview" class="p-3.5 rounded-2xl bg-slate-950 text-emerald-400 font-mono text-[11px] overflow-x-auto leading-relaxed border border-slate-800">{
+  "engine": "AETHER_v4.2",
+  "particles": 95,
+  "gravity": 0.35,
+  "cluster": "GLOBAL-EDGE",
+  "audioSynth": "ENABLED"
+}</pre>
+                    </div>
+                    <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-mono text-emerald-500">
+                        <span>ZERO-DEPENDENCY RUNTIME</span>
+                        <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-200/80 dark:border-slate-800/80 py-10 bg-white/50 dark:bg-[#04060d]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400 font-mono">
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                <span>AETHER // INTERACTIVE WEB ARCHITECTURE SHOWCASE</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="#hero" class="hover:text-indigo-500 transition-colors">TOP ↑</a>
+                <span>•</span>
+                <span>PRESS ⌘K FOR COMMAND PALETTE</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========================================== -->
+    <!-- CORE APPLICATION JAVASCRIPT                -->
+    <!-- ========================================== -->
+    <script>
+        window.onload = function () {
+            // Initialize Lucide vector icons
+            lucide.createIcons();
+
+            /* -----------------------------------------------------------
+             * 1. GLOBAL STATE & WEBAUDIO SYNTHESIZER FOR UI FEEDBACK
+             * ----------------------------------------------------------- */
+            const appState = {
+                theme: 'dark',
+                soundEnabled: true,
+                heroMode: 'repel',
+                particleCount: 95,
+                telemetryRegion: 'global',
+                streamActive: true,
+                sandboxTool: 'spawn',
+                gravity: 0.35,
+                restitution: 0.82,
+                drag: 0.995,
+                trails: true
+            };
+
+            let audioCtx = null;
+            function playTone(freq = 440, type = 'sine', duration = 0.08, gainVal = 0.06) {
+                if (!appState.soundEnabled) return;
+                try {
+                    if (!audioCtx) {
+                        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    }
+                    if (audioCtx.state === 'suspended') {
+                        audioCtx.resume();
+                    }
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + duration);
+                } catch (e) {
+                    // Ignore audio context restrictions if not yet interacted
+                }
+            }
+
+            function updateStateInspector() {
+                const el = document.getElementById('state-json-preview');
+                if (!el) return;
+                el.textContent = JSON.stringify({
+                    engine: "AETHER_v4.2",
+                    theme: appState.theme.toUpperCase(),
+                    particles: appState.particleCount,
+                    heroMode: appState.heroMode.toUpperCase(),
+                    gravity: appState.gravity,
+                    cluster: appState.telemetryRegion.toUpperCase(),
+                    audioSynth: appState.soundEnabled ? "ONLINE" : "MUTED"
+                }, null, 2);
+            }
+
+            /* -----------------------------------------------------------
+             * 2. TOAST NOTIFICATION SYSTEM (NO ALERT/CONFIRM)
+             * ----------------------------------------------------------- */
+            function showToast(title, message, accent = 'indigo') {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                const borderColors = {
+                    indigo: 'border-indigo-500/40',
+                    emerald: 'border-emerald-500/40',
+                    rose: 'border-rose-500/40',
+                    cyan: 'border-cyan-500/40'
+                };
+                toast.className = `pointer-events-auto flex items-start gap-3 p-3.5 rounded-2xl bg-slate-900/95 text-white border ${borderColors[accent] || borderColors.indigo} shadow-xl backdrop-blur-md transform transition-all duration-300 translate-y-2 opacity-0`;
+                toast.innerHTML = `
+                    <div class="w-2 h-2 rounded-full bg-${accent}-400 mt-1.5 shrink-0"></div>
+                    <div class="text-xs">
+                        <div class="font-mono font-bold uppercase tracking-wider text-${accent}-400">${title}</div>
+                        <div class="text-slate-300 mt-0.5">${message}</div>
+                    </div>
+                `;
+                container.appendChild(toast);
+                requestAnimationFrame(() => {
+                    toast.classList.remove('translate-y-2', 'opacity-0');
+                });
+                setTimeout(() => {
+                    toast.classList.add('opacity-0', 'translate-x-4');
+                    setTimeout(() => toast.remove(), 300);
+                }, 3200);
+            }
+
+            /* -----------------------------------------------------------
+             * 3. THEME & SOUND CONTROLS + COMMAND PALETTE
+             * ----------------------------------------------------------- */
+            const htmlEl = document.documentElement;
+            const themeBtn = document.getElementById('theme-toggle');
+            const soundBtn = document.getElementById('sound-toggle');
+
+            function toggleTheme() {
+                htmlEl.classList.toggle('dark');
+                appState.theme = htmlEl.classList.contains('dark') ? 'dark' : 'light';
+                playTone(appState.theme === 'dark' ? 320 : 580, 'triangle', 0.1);
+                updateStateInspector();
+                showToast('Theme Switched', `Active visual mode set to ${appState.theme.toUpperCase()}`, 'indigo');
+            }
+
+            themeBtn.addEventListener('click', toggleTheme);
+
+            soundBtn.addEventListener('click', () => {
+                appState.soundEnabled = !appState.soundEnabled;
+                const icon = document.getElementById('sound-icon');
+                icon.setAttribute('data-lucide', appState.soundEnabled ? 'volume-2' : 'volume-x');
+                icon.className = appState.soundEnabled ? 'w-4 h-4 text-indigo-500' : 'w-4 h-4 text-slate-400';
+                lucide.createIcons();
+                if (appState.soundEnabled) playTone(660, 'sine', 0.12);
+                updateStateInspector();
+                showToast('WebAudio Synth', appState.soundEnabled ? 'Tactile UI audio enabled' : 'UI audio muted', 'cyan');
+            });
+
+            // Attach subtle hover/click synth sounds to interactive buttons
+            document.querySelectorAll('.sfx-btn').forEach(btn => {
+                btn.addEventListener('mouseenter', () => playTone(880, 'sine', 0.03, 0.02));
+                btn.addEventListener('click', () => playTone(520, 'triangle', 0.08, 0.06));
+            });
+
+            // Harmonic Synth Pads in Hero HUD
+            document.querySelectorAll('.synth-pad').forEach(pad => {
+                pad.addEventListener('click', () => {
+                    const freq = parseFloat(pad.getAttribute('data-note'));
+                    playTone(freq, 'triangle', 0.35, 0.12);
+                    triggerHeroShockwave();
+                });
+            });
+
+            // Command Palette Modal Logic
+            const cmdModal = document.getElementById('cmd-modal');
+            const cmdInput = document.getElementById('cmd-input');
+            function openCmdModal() {
+                cmdModal.classList.remove('hidden');
+                cmdModal.classList.add('flex');
+                cmdInput.value = '';
+                cmdInput.focus();
+                playTone(600, 'sine', 0.06);
+            }
+            function closeCmdModal() {
+                cmdModal.classList.add('hidden');
+                cmdModal.classList.remove('flex');
+            }
+            document.getElementById('open-cmd-btn').addEventListener('click', openCmdModal);
+            document.getElementById('cmd-backdrop').addEventListener('click', closeCmdModal);
+            window.addEventListener('keydown', (e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+                    e.preventDefault();
+                    cmdModal.classList.contains('hidden') ? openCmdModal() : closeCmdModal();
+                } else if (e.key === 'Escape') {
+                    closeCmdModal();
+                }
+            });
+
+            // Filter Command Items
+            cmdInput.addEventListener('input', (e) => {
+                const q = e.target.value.toLowerCase();
+                document.querySelectorAll('.cmd-item').forEach(item => {
+                    item.style.display = item.textContent.toLowerCase().includes(q) ? 'flex' : 'none';
+                });
+            });
+
+            document.querySelectorAll('.cmd-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const cmd = item.getAttribute('data-cmd');
+                    closeCmdModal();
+                    if (cmd === 'theme') toggleTheme();
+                    if (cmd === 'sound') soundBtn.click();
+                    if (cmd === 'gravity') {
+                        document.getElementById('sandbox').scrollIntoView({ behavior: 'smooth' });
+                        spawnSandboxParticles(20);
+                    }
+                    if (cmd === 'spike') {
+                        document.getElementById('telemetry').scrollIntoView({ behavior: 'smooth' });
+                        injectTrafficSpike();
+                    }
+                    if (cmd.startsWith('nav-')) {
+                        const target = cmd.replace('nav-', '');
+                        document.getElementById(target)?.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+
+            /* -----------------------------------------------------------
+             * 4. AMBIENT CURSOR SPOTLIGHT & LIVE FPS METER
+             * ----------------------------------------------------------- */
+            const cursorGlow = document.getElementById('cursor-glow');
+            window.addEventListener('mousemove', (e) => {
+                cursorGlow.style.background = `radial-gradient(600px circle at ${e.clientX}px ${e.clientY}px, rgba(99, 102, 241, 0.09), transparent 40%)`;
+            });
+
+            let frameCount = 0;
+            let lastFpsTime = performance.now();
+            const fpsEl = document.getElementById('fps-counter');
+
+            /* -----------------------------------------------------------
+             * 5. SECTION 1: INTERACTIVE HERO PARTICLE NETWORK CANVAS
+             * ----------------------------------------------------------- */
+            const heroCanvas = document.getElementById('hero-canvas');
+            const hCtx = heroCanvas.getContext('2d');
+            let heroParticles = [];
+            const heroMouse = { x: -1000, y: -1000, active: false, shockwave: 0 };
+
+            function resizeHeroCanvas() {
+                const rect = heroCanvas.parentElement.getBoundingClientRect();
+                heroCanvas.width = rect.width;
+                heroCanvas.height = rect.height;
+            }
+
+            class NeuralNode {
+                constructor(w, h) {
+                    this.x = Math.random() * w;
+                    this.y = Math.random() * h;
+                    this.vx = (Math.random() - 0.5) * 1.2;
+                    this.vy = (Math.random() - 0.5) * 1.2;
+                    this.radius = Math.random() * 2 + 1.2;
+                    this.baseHue = Math.random() > 0.5 ? 235 : 190; // Indigo or Cyan
+                }
+                update(w, h, time) {
+                    if (appState.heroMode === 'harmony') {
+                        this.vy += Math.sin(this.x * 0.01 + time * 0.003) * 0.015;
+                    }
+
+                    // Cursor interaction
+                    const dx = this.x - heroMouse.x;
+                    const dy = this.y - heroMouse.y;
+                    const dist = Math.hypot(dx, dy);
+                    const maxDist = 170;
+
+                    if (dist < maxDist && dist > 0.1) {
+                        const force = (maxDist - dist) / maxDist;
+                        const angle = Math.atan2(dy, dx);
+                        if (appState.heroMode === 'repel') {
+                            this.vx += Math.cos(angle) * force * 0.65;
+                            this.vy += Math.sin(angle) * force * 0.65;
+                        } else if (appState.heroMode === 'attract') {
+                            // Orbital vortex pull
+                            this.vx -= Math.cos(angle) * force * 0.35 - Math.sin(angle) * 0.25;
+                            this.vy -= Math.sin(angle) * force * 0.35 + Math.cos(angle) * 0.25;
+                        }
+                    }
+
+                    // Damping & speed limit
+                    this.vx *= 0.985;
+                    this.vy *= 0.985;
+                    const speed = Math.hypot(this.vx, this.vy);
+                    if (speed < 0.3) {
+                        this.vx += (Math.random() - 0.5) * 0.15;
+                        this.vy += (Math.random() - 0.5) * 0.15;
+                    }
+
+                    this.x += this.vx;
+                    this.y += this.vy;
+
+                    // Wrap edges smoothly
+                    if (this.x < 0) this.x = w;
+                    if (this.x > w) this.x = 0;
+                    if (this.y < 0) this.y = h;
+                    if (this.y > h) this.y = 0;
+                }
+            }
+
+            function initHeroParticles(count) {
+                resizeHeroCanvas();
+                heroParticles = [];
+                for (let i = 0; i < count; i++) {
+                    heroParticles.push(new NeuralNode(heroCanvas.width, heroCanvas.height));
+                }
+                document.getElementById('particle-count-badge').textContent = `${count} Nodes Active`;
+            }
+
+            function triggerHeroShockwave() {
+                heroMouse.shockwave = 1;
+                heroParticles.forEach(p => {
+                    const angle = Math.random() * Math.PI * 2;
+                    p.vx += Math.cos(angle) * 6;
+                    p.vy += Math.sin(angle) * 6;
+                });
+            }
+
+            heroCanvas.addEventListener('mousemove', (e) => {
+                const rect = heroCanvas.getBoundingClientRect();
+                heroMouse.x = e.clientX - rect.left;
+                heroMouse.y = e.clientY - rect.top;
+                heroMouse.active = true;
+                document.getElementById('hud-cursor-pos').textContent = `X: ${String(Math.round(heroMouse.x)).padStart(4, '0')} Y: ${String(Math.round(heroMouse.y)).padStart(4, '0')}`;
+            });
+
+            heroCanvas.addEventListener('mouseleave', () => {
+                heroMouse.x = -1000;
+                heroMouse.y = -1000;
+            });
+
+            heroCanvas.addEventListener('touchmove', (e) => {
+                if (e.touches.length > 0) {
+                    const rect = heroCanvas.getBoundingClientRect();
+                    heroMouse.x = e.touches[0].clientX - rect.left;
+                    heroMouse.y = e.touches[0].clientY - rect.top;
+                }
+            }, { passive: true });
+
+            heroCanvas.addEventListener('click', () => {
+                triggerHeroShockwave();
+                playTone(280, 'sine', 0.15, 0.08);
+            });
+
+            // Hero Mode Switcher Buttons
+            document.querySelectorAll('.hero-mode-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    appState.heroMode = btn.getAttribute('data-hero-mode');
+                    document.querySelectorAll('.hero-mode-btn').forEach(b => {
+                        b.className = 'hero-mode-btn px-3 py-1.5 rounded-xl text-xs font-mono font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-indigo-400 transition-all';
+                    });
+                    btn.className = 'hero-mode-btn px-3 py-1.5 rounded-xl text-xs font-mono font-medium bg-indigo-600 text-white shadow-sm transition-all';
+                    playTone(540, 'triangle', 0.08);
+                    updateStateInspector();
+                });
+            });
+
+            document.getElementById('hero-pulse-btn').addEventListener('click', () => {
+                triggerHeroShockwave();
+                playTone(190, 'sawtooth', 0.18, 0.08);
+                showToast('Field Shockwave', 'Kinetic impulse dispatched across neural nodes', 'cyan');
+            });
+
+            document.getElementById('density-slider').addEventListener('input', (e) => {
+                const count = parseInt(e.target.value, 10);
+                appState.particleCount = count;
+                document.getElementById('density-val').textContent = count;
+                initHeroParticles(count);
+                updateStateInspector();
+            });
+
+            /* -----------------------------------------------------------
+             * 6. SECTION 2: LIVE TELEMETRY STREAM & SVG CHARTS
+             * ----------------------------------------------------------- */
+            const numPoints = 28;
+            let ingressSeries = Array.from({ length: numPoints }, () => 55 + Math.random() * 30);
+            let egressSeries = Array.from({ length: numPoints }, () => 35 + Math.random() * 25);
+
+            const regionMultipliers = {
+                'global': { rpsBase: 84000, latBase: 14.2, cpuBase: 42 },
+                'us-east': { rpsBase: 52000, latBase: 9.8, cpuBase: 58 },
+                'ap-northeast': { rpsBase: 39000, latBase: 18.6, cpuBase: 36 }
+            };
+
+            const logMessages = [
+                "[OK] Zero-copy packet routing verified on edge node #14",
+                "[SYNC] Distributed KV state replicated in 4.2ms",
+                "[SHARD] Auto-balancing neural worker pool across 6 zones",
+                "[CACHE] 99.4% hit ratio sustained on immutable asset manifest",
+                "[WASM] Edge isolate cold-start completed in 0.8ms"
+            ];
+
+            function buildSmoothSvgPath(data, width, height, closeArea = false) {
+                const stepX = width / (data.length - 1);
+                const points = data.map((val, idx) => ({
+                    x: idx * stepX,
+                    y: height - (Math.min(100, Math.max(5, val)) / 100) * (height - 30) - 10
+                }));
+
+                let d = `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
+                for (let i = 0; i < points.length - 1; i++) {
+                    const xc = (points[i].x + points[i + 1].x) / 2;
+                    const yc = (points[i].y + points[i + 1].y) / 2;
+                    d += ` Q ${points[i].x.toFixed(1)} ${points[i].y.toFixed(1)}, ${xc.toFixed(1)} ${yc.toFixed(1)}`;
+                }
+                const last = points[points.length - 1];
+                d += ` T ${last.x.toFixed(1)} ${last.y.toFixed(1)}`;
+
+                if (closeArea) {
+                    d += ` L ${width} ${height} L 0 ${height} Z`;
+                }
+                return { d, points };
+            }
+
+            let lastChartPoints = { ingress: [], egress: [] };
+
+            function renderTelemetryChart() {
+                const w = 700, h = 220;
+                const inLine = buildSmoothSvgPath(ingressSeries, w, h, false);
+                const inArea = buildSmoothSvgPath(ingressSeries, w, h, true);
+                const outLine = buildSmoothSvgPath(egressSeries, w, h, false);
+                const outArea = buildSmoothSvgPath(egressSeries, w, h, true);
+
+                lastChartPoints.ingress = inLine.points;
+                lastChartPoints.egress = outLine.points;
+
+                document.getElementById('ingress-line').setAttribute('d', inLine.d);
+                document.getElementById('ingress-area').setAttribute('d', inArea.d);
+                document.getElementById('egress-line').setAttribute('d', outLine.d);
+                document.getElementById('egress-area').setAttribute('d', outArea.d);
+            }
+
+            function stepTelemetry() {
+                if (!appState.streamActive) return;
+                const mult = regionMultipliers[appState.telemetryRegion];
+
+                const nextIn = Math.min(96, Math.max(25, ingressSeries[ingressSeries.length - 1] + (Math.random() - 0.48) * 14));
+                const nextOut = Math.min(85, Math.max(18, nextIn * 0.72 + (Math.random() - 0.5) * 10));
+
+                ingressSeries.push(nextIn);
+                ingressSeries.shift();
+                egressSeries.push(nextOut);
+                egressSeries.shift();
+
+                renderTelemetryChart();
+
+                // Update KPI Cards
+                const rps = Math.round(mult.rpsBase * (nextIn / 65));
+                const lat = (mult.latBase * (0.85 + (nextIn / 220))).toFixed(1);
+                const cpu = (mult.cpuBase + (nextIn - 50) * 0.45).toFixed(1);
+
+                document.getElementById('kpi-rps').textContent = rps.toLocaleString();
+                document.getElementById('kpi-rps-bar').style.width = `${Math.min(100, nextIn)}%`;
+
+                document.getElementById('kpi-latency').innerHTML = `${lat}<span class="text-base font-normal text-slate-400 ml-1">ms</span>`;
+                document.getElementById('kpi-latency-bar').style.width = `${Math.min(100, lat * 2.2)}%`;
+
+                document.getElementById('kpi-cpu').textContent = `${cpu}%`;
+                document.getElementById('kpi-cpu-bar').style.width = `${Math.min(100, cpu)}%`;
+
+                if (Math.random() > 0.65) {
+                    const msg = logMessages[Math.floor(Math.random() * logMessages.length)];
+                    document.getElementById('telemetry-log-line').textContent = msg;
+                }
+            }
+
+            function injectTrafficSpike() {
+                ingressSeries[ingressSeries.length - 1] = 96;
+                egressSeries[egressSeries.length - 1] = 84;
+                renderTelemetryChart();
+                document.getElementById('kpi-rps').textContent = "142,890";
+                document.getElementById('kpi-rps-bar').style.width = "98%";
+                document.getElementById('kpi-latency-badge').textContent = "SURGE LOAD";
+                document.getElementById('kpi-latency-badge').className = "text-xs font-mono px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-500";
+                playTone(220, 'sawtooth', 0.2, 0.08);
+                showToast('Traffic Anomaly Injected', 'Simulated +68% ingress packet surge on edge cluster', 'rose');
+                setTimeout(() => {
+                    document.getElementById('kpi-latency-badge').textContent = "OPTIMAL";
+                    document.getElementById('kpi-latency-badge').className = "text-xs font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-500";
+                }, 3000);
+            }
+
+            document.getElementById('inject-spike-btn').addEventListener('click', injectTrafficSpike);
+
+            document.getElementById('toggle-stream-btn').addEventListener('click', () => {
+                appState.streamActive = !appState.streamActive;
+                document.getElementById('stream-label').textContent = appState.streamActive ? 'Pause' : 'Resume';
+                const icon = document.getElementById('stream-icon');
+                icon.setAttribute('data-lucide', appState.streamActive ? 'pause' : 'play');
+                lucide.createIcons();
+            });
+
+            document.querySelectorAll('.region-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    appState.telemetryRegion = btn.getAttribute('data-region');
+                    document.querySelectorAll('.region-btn').forEach(b => {
+                        b.className = 'region-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all';
+                    });
+                    btn.className = 'region-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold bg-white dark:bg-indigo-600 text-slate-900 dark:text-white shadow-sm transition-all';
+                    stepTelemetry();
+                    playTone(620, 'sine', 0.07);
+                    updateStateInspector();
+                });
+            });
+
+            // Interactive Hover Crosshair on SVG Chart
+            const chartContainer = document.getElementById('chart-container');
+            const crosshair = document.getElementById('chart-crosshair');
+            const dotIn = document.getElementById('chart-dot-ingress');
+            const dotOut = document.getElementById('chart-dot-egress');
+            const tooltip = document.getElementById('chart-tooltip');
+
+            chartContainer.addEventListener('mousemove', (e) => {
+                const rect = chartContainer.getBoundingClientRect();
+                const relX = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+                const idx = Math.round(relX * (numPoints - 1));
+                const ptIn = lastChartPoints.ingress[idx];
+                const ptOut = lastChartPoints.egress[idx];
+                if (!ptIn || !ptOut) return;
+
+                crosshair.setAttribute('x1', ptIn.x);
+                crosshair.setAttribute('x2', ptIn.x);
+                crosshair.classList.remove('opacity-0');
+
+                dotIn.setAttribute('cx', ptIn.x);
+                dotIn.setAttribute('cy', ptIn.y);
+                dotIn.classList.remove('opacity-0');
+
+                dotOut.setAttribute('cx', ptOut.x);
+                dotOut.setAttribute('cy', ptOut.y);
+                dotOut.classList.remove('opacity-0');
+
+                tooltip.classList.remove('opacity-0');
+                document.getElementById('tooltip-time').textContent = `SAMPLE T-${(numPoints - 1 - idx)}s`;
+                document.getElementById('tooltip-in').textContent = `IN: ${ingressSeries[idx].toFixed(1)}k`;
+                document.getElementById('tooltip-out').textContent = `OUT: ${egressSeries[idx].toFixed(1)}k`;
+            });
+
+            chartContainer.addEventListener('mouseleave', () => {
+                crosshair.classList.add('opacity-0');
+                dotIn.classList.add('opacity-0');
+                dotOut.classList.add('opacity-0');
+                tooltip.classList.add('opacity-0');
+            });
+
+            // Interactive 24-Shard Matrix
+            const shardMatrix = document.getElementById('shard-matrix');
+            for (let i = 0; i < 24; i++) {
+                const shard = document.createElement('button');
+                const isOptimal = Math.random() > 0.15;
+                shard.dataset.state = isOptimal ? 'optimal' : 'warm';
+                shard.className = `h-9 rounded-xl font-mono text-[10px] font-bold transition-all hover:scale-105 ${
+                    isOptimal
+                        ? 'bg-emerald-500/15 text-emerald-500 border border-emerald-500/30'
+                        : 'bg-amber-500/15 text-amber-500 border border-amber-500/30'
+                }`;
+                shard.textContent = `S${String(i + 1).padStart(2, '0')}`;
+                shard.addEventListener('click', () => {
+                    const nextState = shard.dataset.state === 'optimal' ? 'warm' : 'optimal';
+                    shard.dataset.state = nextState;
+                    shard.className = `h-9 rounded-xl font-mono text-[10px] font-bold transition-all hover:scale-105 ${
+                        nextState === 'optimal'
+                            ? 'bg-emerald-500/15 text-emerald-500 border border-emerald-500/30'
+                            : 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/40'
+                    }`;
+                    playTone(nextState === 'optimal' ? 720 : 440, 'sine', 0.06);
+                });
+                shardMatrix.appendChild(shard);
+            }
+
+            renderTelemetryChart();
+            setInterval(stepTelemetry, 900);
+
+            /* -----------------------------------------------------------
+             * 7. SECTION 3: 2D GRAVITY & ELASTIC PHYSICS SANDBOX
+             * ----------------------------------------------------------- */
+            const physCanvas = document.getElementById('physics-canvas');
+            const pCtx = physCanvas.getContext('2d');
+            let bodies = [];
+            const palette = ['#6366f1', '#06b6d4', '#10b981', '#8b5cf6', '#f43f5e', '#f59e0b'];
+            const sandboxPointer = { x: 0, y: 0, down: false };
+
+            function resizePhysicsCanvas() {
+                const rect = physCanvas.parentElement.getBoundingClientRect();
+                physCanvas.width = rect.width;
+                physCanvas.height = rect.height;
+            }
+
+            class PhysicsBody {
+                constructor(x, y, vx, vy, r) {
+                    this.x = x;
+                    this.y = y;
+                    this.vx = vx;
+                    this.vy = vy;
+                    this.r = r || (8 + Math.random() * 12);
+                    this.mass = this.r * this.r;
+                    this.color = palette[Math.floor(Math.random() * palette.length)];
+                }
+            }
+
+            function spawnSandboxParticles(count = 15, customX, customY) {
+                for (let i = 0; i < count; i++) {
+                    const x = customX !== undefined ? customX + (Math.random() - 0.5) * 20 : Math.random() * (physCanvas.width - 60) + 30;
+                    const y = customY !== undefined ? customY + (Math.random() - 0.5) * 20 : Math.random() * (physCanvas.height * 0.5) + 30;
+                    const vx = (Math.random() - 0.5) * 7;
+                    const vy = (Math.random() - 0.5) * 5;
+                    bodies.push(new PhysicsBody(x, y, vx, vy));
+                }
+                if (bodies.length > 90) {
+                    bodies.splice(0, bodies.length - 90);
+                }
+                document.getElementById('sandbox-bodies-count').textContent = bodies.length;
+            }
+
+            function updatePhysicsStep() {
+                const w = physCanvas.width;
+                const h = physCanvas.height;
+
+                // Trail clearing or full clear
+                if (appState.trails) {
+                    pCtx.fillStyle = 'rgba(2, 6, 23, 0.24)';
+                    pCtx.fillRect(0, 0, w, h);
+                } else {
+                    pCtx.clearRect(0, 0, w, h);
+                }
+
+                // Draw active cursor singularity/repulsor if pointer is pressed
+                if (sandboxPointer.down && (appState.sandboxTool === 'well' || appState.sandboxTool === 'blast')) {
+                    pCtx.beginPath();
+                    pCtx.arc(sandboxPointer.x, sandboxPointer.y, 42, 0, Math.PI * 2);
+                    pCtx.strokeStyle = appState.sandboxTool === 'well' ? 'rgba(6, 182, 212, 0.6)' : 'rgba(244, 63, 94, 0.6)';
+                    pCtx.lineWidth = 2;
+                    pCtx.stroke();
+                }
+
+                let totalEnergy = 0;
+
+                for (let i = 0; i < bodies.length; i++) {
+                    const b = bodies[i];
+
+                    // Apply vertical gravity
+                    b.vy += appState.gravity;
+
+                    // Cursor tool forces
+                    if (sandboxPointer.down && appState.sandboxTool !== 'spawn') {
+                        const dx = sandboxPointer.x - b.x;
+                        const dy = sandboxPointer.y - b.y;
+                        const dist = Math.max(20, Math.hypot(dx, dy));
+                        const dir = appState.sandboxTool === 'well' ? 1 : -1.5;
+                        const force = (dir * 180) / (dist * 0.8);
+                        b.vx += (dx / dist) * force * 0.12;
+                        b.vy += (dy / dist) * force * 0.12;
+                    }
+
+                    // Apply atmospheric drag
+                    b.vx *= appState.drag;
+                    b.vy *= appState.drag;
+
+                    b.x += b.vx;
+                    b.y += b.vy;
+
+                    // Boundary restitution collisions
+                    if (b.x - b.r < 0) {
+                        b.x = b.r;
+                        b.vx = -b.vx * appState.restitution;
+                    } else if (b.x + b.r > w) {
+                        b.x = w - b.r;
+                        b.vx = -b.vx * appState.restitution;
+                    }
+
+                    if (b.y - b.r < 0) {
+                        b.y = b.r;
+                        b.vy = -b.vy * appState.restitution;
+                    } else if (b.y + b.r > h) {
+                        b.y = h - b.r;
+                        b.vy = -b.vy * appState.restitution;
+                        b.vx *= 0.98; // Surface friction
+                    }
+
+                    // Elastic body-to-body collisions
+                    for (let j = i + 1; j < bodies.length; j++) {
+                        const b2 = bodies[j];
+                        const dx = b2.x - b.x;
+                        const dy = b2.y - b.y;
+                        const dist = Math.hypot(dx, dy);
+                        const minDist = b.r + b2.r;
+
+                        if (dist < minDist && dist > 0.001) {
+                            const nx = dx / dist;
+                            const ny = dy / dist;
+                            const overlap = minDist - dist;
+
+                            // Separate overlapping bodies
+                            b.x -= nx * overlap * 0.5;
+                            b.y -= ny * overlap * 0.5;
+                            b2.x += nx * overlap * 0.5;
+                            b2.y += ny * overlap * 0.5;
+
+                            // Elastic momentum exchange
+                            const kx = b.vx - b2.vx;
+                            const ky = b.vy - b2.vy;
+                            const p = 2 * (nx * kx + ny * ky) / (b.mass + b2.mass);
+
+                            b.vx -= p * b2.mass * nx * appState.restitution;
+                            b.vy -= p * b2.mass * ny * appState.restitution;
+                            b2.vx += p * b.mass * nx * appState.restitution;
+                            b2.vy += p * b.mass * ny * appState.restitution;
+                        }
+                    }
+
+                    totalEnergy += 0.5 * b.mass * (b.vx * b.vx + b.vy * b.vy);
+
+                    // Render glowing orb
+                    pCtx.beginPath();
+                    pCtx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+                    pCtx.fillStyle = b.color;
+                    pCtx.fill();
+                    pCtx.lineWidth = 1.5;
+                    pCtx.strokeStyle = 'rgba(255,255,255,0.35)';
+                    pCtx.stroke();
+                }
+
+                document.getElementById('sandbox-energy-readout').textContent = `${Math.round(totalEnergy / 100).toLocaleString()} J`;
+            }
+
+            // Sandbox Pointer Events (Mouse + Touch)
+            function handleSandboxPointer(e, isDown) {
+                const rect = physCanvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                sandboxPointer.x = clientX - rect.left;
+                sandboxPointer.y = clientY - rect.top;
+                if (isDown !== undefined) sandboxPointer.down = isDown;
+
+                if (sandboxPointer.down && appState.sandboxTool === 'spawn') {
+                    spawnSandboxParticles(2, sandboxPointer.x, sandboxPointer.y);
+                    playTone(300 + Math.random() * 400, 'sine', 0.05, 0.03);
+                }
+            }
+
+            physCanvas.addEventListener('mousedown', (e) => handleSandboxPointer(e, true));
+            physCanvas.addEventListener('mousemove', (e) => {
+                if (sandboxPointer.down) handleSandboxPointer(e, true);
+            });
+            window.addEventListener('mouseup', () => { sandboxPointer.down = false; });
+
+            physCanvas.addEventListener('touchstart', (e) => {
+                handleSandboxPointer(e, true);
+            }, { passive: true });
+            physCanvas.addEventListener('touchmove', (e) => {
+                if (sandboxPointer.down) handleSandboxPointer(e, true);
+            }, { passive: true });
+            physCanvas.addEventListener('touchend', () => { sandboxPointer.down = false; });
+
+            // Sandbox Controls
+            document.querySelectorAll('.sandbox-tool-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    appState.sandboxTool = btn.getAttribute('data-tool');
+                    document.querySelectorAll('.sandbox-tool-btn').forEach(b => {
+                        b.className = 'sandbox-tool-btn py-2.5 px-2 rounded-xl text-xs font-mono font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all flex flex-col items-center gap-1';
+                    });
+                    btn.className = 'sandbox-tool-btn py-2.5 px-2 rounded-xl text-xs font-mono font-semibold bg-indigo-600 text-white shadow-sm transition-all flex flex-col items-center gap-1';
+                    playTone(500, 'triangle', 0.06);
+                });
+            });
+
+            document.getElementById('grav-slider').addEventListener('input', (e) => {
+                appState.gravity = parseFloat(e.target.value);
+                document.getElementById('grav-val').textContent = `${appState.gravity.toFixed(2)} m/s²`;
+                updateStateInspector();
+            });
+
+            document.getElementById('bounce-slider').addEventListener('input', (e) => {
+                appState.restitution = parseFloat(e.target.value);
+                document.getElementById('bounce-val').textContent = appState.restitution.toFixed(2);
+            });
+
+            document.getElementById('drag-slider').addEventListener('input', (e) => {
+                appState.drag = parseFloat(e.target.value);
+                document.getElementById('drag-val').textContent = appState.drag.toFixed(3);
+            });
+
+            document.getElementById('trails-toggle').addEventListener('click', () => {
+                appState.trails = !appState.trails;
+                const knob = document.getElementById('trails-knob');
+                const btn = document.getElementById('trails-toggle');
+                knob.style.transform = appState.trails ? 'translateX(20px)' : 'translateX(0px)';
+                btn.className = appState.trails
+                    ? 'w-11 h-6 rounded-full bg-indigo-600 relative transition-colors p-0.5'
+                    : 'w-11 h-6 rounded-full bg-slate-400 dark:bg-slate-700 relative transition-colors p-0.5';
+            });
+
+            document.getElementById('spawn-burst-btn').addEventListener('click', () => {
+                spawnSandboxParticles(15);
+            });
+
+            document.getElementById('zero-g-btn').addEventListener('click', () => {
+                appState.gravity = appState.gravity === 0 ? 0.35 : 0;
+                document.getElementById('grav-slider').value = appState.gravity;
+                document.getElementById('grav-val').textContent = `${appState.gravity.toFixed(2)} m/s²`;
+                showToast('Gravity Updated', appState.gravity === 0 ? 'Zero-Gravity chamber mode active' : 'Standard gravity restored', 'cyan');
+                updateStateInspector();
+            });
+
+            document.getElementById('clear-sandbox-btn').addEventListener('click', () => {
+                bodies = [];
+                spawnSandboxParticles(8);
+                showToast('Chamber Reset', 'Cleared and seeded fresh orbital matter', 'indigo');
+            });
+
+            /* -----------------------------------------------------------
+             * 8. SECTION 4: 3D TILT CARDS, WAVE GENERATOR & CLIPBOARD
+             * ----------------------------------------------------------- */
+            document.querySelectorAll('.tilt-card').forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const rotateY = ((x / rect.width) - 0.5) * 14;
+                    const rotateX = ((y / rect.height) - 0.5) * -14;
+                    card.style.transform = `perspective(900px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg)`;
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg)';
+                });
+            });
+
+            // Procedural Sine-Wave Interference Generator
+            let waveFreq = 3.2;
+            const waveSlider = document.getElementById('wave-slider');
+            waveSlider.addEventListener('input', (e) => {
+                waveFreq = parseFloat(e.target.value);
+                document.getElementById('wave-freq-label').textContent = `${waveFreq.toFixed(1)} Hz`;
+            });
+
+            function renderHarmonicWave(time) {
+                let d1 = 'M 0 40';
+                let d2 = 'M 0 40';
+                for (let x = 0; x <= 300; x += 6) {
+                    const y1 = 40 + Math.sin((x * 0.02 * waveFreq) + time * 0.004) * 24;
+                    const y2 = 40 + Math.cos((x * 0.015 * waveFreq) - time * 0.003) * 20;
+                    d1 += ` L ${x} ${y1.toFixed(1)}`;
+                    d2 += ` L ${x} ${y2.toFixed(1)}`;
+                }
+                document.getElementById('wave-path-1').setAttribute('d', d1);
+                document.getElementById('wave-path-2').setAttribute('d', d2);
+            }
+
+            // Clipboard Copy Config (iframe-compatible execCommand fallback)
+            document.getElementById('copy-config-btn').addEventListener('click', () => {
+                const text = document.getElementById('state-json-preview').textContent;
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                textarea.remove();
+                showToast('Configuration Copied', 'Live engine JSON state copied to clipboard', 'emerald');
+            });
+
+            /* -----------------------------------------------------------
+             * 9. MASTER REQUESTANIMATIONFRAME LOOP
+             * ----------------------------------------------------------- */
+            initHeroParticles(appState.particleCount);
+            resizePhysicsCanvas();
+            spawnSandboxParticles(24);
+
+            window.addEventListener('resize', () => {
+                resizeHeroCanvas();
+                resizePhysicsCanvas();
+            });
+
+            function masterLoop(now) {
+                // FPS Counter Update
+                frameCount++;
+                if (now - lastFpsTime >= 1000) {
+                    fpsEl.textContent = Math.min(60, frameCount);
+                    frameCount = 0;
+                    lastFpsTime = now;
+                }
+
+                // 1. Render Hero Particle Constellation
+                const hw = heroCanvas.width;
+                const hh = heroCanvas.height;
+                hCtx.clearRect(0, 0, hw, hh);
+
+                const isDark = htmlEl.classList.contains('dark');
+                let linkCount = 0;
+
+                for (let i = 0; i < heroParticles.length; i++) {
+                    const p = heroParticles[i];
+                    p.update(hw, hh, now);
+
+                    // Draw node
+                    hCtx.beginPath();
+                    hCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    hCtx.fillStyle = isDark ? `hsla(${p.baseHue}, 85%, 68%, 0.85)` : `hsla(${p.baseHue}, 75%, 50%, 0.75)`;
+                    hCtx.fill();
+
+                    // Connect nearby nodes
+                    for (let j = i + 1; j < heroParticles.length; j++) {
+                        const p2 = heroParticles[j];
+                        const dx = p.x - p2.x;
+                        const dy = p.y - p2.y;
+                        const distSq = dx * dx + dy * dy;
+                        if (distSq < 13500) {
+                            linkCount++;
+                            const alpha = (1 - distSq / 13500) * (isDark ? 0.28 : 0.18);
+                            hCtx.beginPath();
+                            hCtx.moveTo(p.x, p.y);
+                            hCtx.lineTo(p2.x, p2.y);
+                            hCtx.strokeStyle = isDark ? `rgba(99, 102, 241, ${alpha})` : `rgba(79, 70, 229, ${alpha})`;
+                            hCtx.lineWidth = 1;
+                            hCtx.stroke();
+                        }
+                    }
+                }
+                document.getElementById('hud-links-count').textContent = `${linkCount} Edges`;
+
+                // 2. Step Physics Sandbox
+                updatePhysicsStep();
+
+                // 3. Step Harmonic Wave SVG
+                renderHarmonicWave(now);
+
+                requestAnimationFrame(masterLoop);
+            }
+
+            requestAnimationFrame(masterLoop);
+        };
+    </script>
+</body>
+</html>

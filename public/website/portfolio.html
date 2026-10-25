@@ -1,0 +1,2044 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="1bit">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHANDER KLIENT G. SANTILLAN // 16-BIT CYBER-ARCADE PORTFOLIO</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Press Start 2P, Silkscreen, VT323, JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Press+Start+2P&family=Silkscreen:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+
+    <!-- GSAP & ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <!-- Lenis Smooth Scroll -->
+    <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        pixel: ['"Press Start 2P"', 'monospace'],
+                        silk: ['"Silkscreen"', 'monospace'],
+                        vt: ['"VT323"', 'monospace'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* =========================================================
+         * 4 PIXEL ART COLOR PALETTES
+         * ========================================================= */
+        :root, [data-theme="1bit"] {
+            --bg-main: #0a0a0c;
+            --bg-panel: #121217;
+            --bg-elevated: #1b1b24;
+            --text-main: #f4f4f6;
+            --text-muted: #8e929f;
+            --accent-primary: #00ff66;
+            --accent-secondary: #ffcc00;
+            --accent-danger: #ff2a54;
+            --border-color: #f4f4f6;
+            --border-dim: #2e303e;
+            --shadow-color: #000000;
+        }
+
+        [data-theme="dmg"] {
+            --bg-main: #0f380f;
+            --bg-panel: #194a19;
+            --bg-elevated: #306230;
+            --text-main: #9bbc0f;
+            --text-muted: #8bac0f;
+            --accent-primary: #9bbc0f;
+            --accent-secondary: #8bac0f;
+            --accent-danger: #9bbc0f;
+            --border-color: #9bbc0f;
+            --border-dim: #306230;
+            --shadow-color: #072207;
+        }
+
+        [data-theme="pico8"] {
+            --bg-main: #1d2b53;
+            --bg-panel: #000000;
+            --bg-elevated: #291834;
+            --text-main: #fff1e8;
+            --text-muted: #c2c3c7;
+            --accent-primary: #ff004d;
+            --accent-secondary: #29adff;
+            --accent-danger: #ffec27;
+            --border-color: #29adff;
+            --border-dim: #7e2553;
+            --shadow-color: #000000;
+        }
+
+        [data-theme="paper8"] {
+            --bg-main: #f4f1ea;
+            --bg-panel: #e6e1d6;
+            --bg-elevated: #d8d2c5;
+            --text-main: #111111;
+            --text-muted: #4a4a4a;
+            --accent-primary: #ff3b00;
+            --accent-secondary: #0051ff;
+            --accent-danger: #d90429;
+            --border-color: #111111;
+            --border-dim: #a8a295;
+            --shadow-color: #111111;
+        }
+
+        /* =========================================================
+         * STRICT PIXEL RENDERING & HARD-EDGE BOX SYSTEM
+         * ========================================================= */
+        * {
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            border-radius: 0px !important;
+        }
+
+        html.lenis, html.lenis body {
+            height: auto;
+        }
+        .lenis.lenis-smooth {
+            scroll-behavior: auto !important;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'VT323', monospace;
+            overflow-x: hidden;
+            background-size: 32px 32px;
+            background-image: 
+                linear-gradient(to right, var(--border-dim) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--border-dim) 1px, transparent 1px);
+        }
+
+        @media (pointer: fine) {
+            body, a, button, [role="button"], input, textarea, select {
+                cursor: none !important;
+            }
+        }
+
+        /* Stepped Pixel Window Borders & Hard Drop Shadows */
+        .pixel-box {
+            background-color: var(--bg-panel);
+            border: 3px solid var(--border-color);
+            box-shadow: 6px 6px 0px var(--shadow-color);
+            position: relative;
+        }
+
+        .pixel-box-sm {
+            background-color: var(--bg-panel);
+            border: 2px solid var(--border-color);
+            box-shadow: 4px 4px 0px var(--shadow-color);
+        }
+
+        .pixel-box-accent {
+            background-color: var(--bg-panel);
+            border: 3px solid var(--accent-primary);
+            box-shadow: 6px 6px 0px var(--shadow-color);
+        }
+
+        /* Interactive Pixel Button */
+        .pixel-btn {
+            background-color: var(--bg-elevated);
+            color: var(--text-main);
+            border: 3px solid var(--border-color);
+            box-shadow: 4px 4px 0px var(--shadow-color);
+            transition: transform 0.05s steps(2), background-color 0.05s steps(2), color 0.05s steps(2);
+            user-select: none;
+        }
+        .pixel-btn:hover {
+            background-color: var(--accent-primary);
+            color: #0a0a0c;
+            border-color: var(--border-color);
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px var(--shadow-color);
+        }
+        .pixel-btn:active, .pixel-btn.pressed {
+            transform: translate(3px, 3px);
+            box-shadow: 1px 1px 0px var(--shadow-color);
+        }
+
+        .pixel-btn-primary {
+            background-color: var(--accent-primary);
+            color: #0a0a0c;
+            border: 3px solid var(--border-color);
+            box-shadow: 4px 4px 0px var(--shadow-color);
+            font-weight: 700;
+        }
+        .pixel-btn-primary:hover {
+            background-color: var(--accent-secondary);
+            color: #0a0a0c;
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px var(--shadow-color);
+        }
+
+        /* 3D Pixel Keycap */
+        .pixel-keycap {
+            background-color: var(--bg-elevated);
+            border: 3px solid var(--border-color);
+            box-shadow: 0px 7px 0px var(--border-color), 0px 10px 0px var(--shadow-color);
+            transition: transform 0.04s steps(1), box-shadow 0.04s steps(1);
+        }
+        .pixel-keycap:active, .pixel-keycap.active-key {
+            transform: translateY(6px);
+            box-shadow: 0px 1px 0px var(--border-color), 0px 3px 0px var(--shadow-color);
+            background-color: var(--accent-primary);
+            color: #0a0a0c;
+        }
+
+        /* CRT Scanline Overlay */
+        .crt-overlay {
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%, 
+                rgba(0, 0, 0, 0.32) 50%
+            );
+            background-size: 100% 4px;
+            z-index: 80;
+            pointer-events: none;
+        }
+
+        /* Stepped Pixel Progress Bar Segments */
+        .pixel-bar-bg {
+            background-color: var(--bg-main);
+            border: 2px solid var(--border-color);
+            padding: 2px;
+        }
+        .pixel-bar-fill {
+            background-color: var(--accent-primary);
+            background-image: linear-gradient(90deg, transparent 75%, rgba(0,0,0,0.35) 75%);
+            background-size: 12px 100%;
+            height: 100%;
+            transition: width 0.2s steps(10);
+        }
+
+        /* Blinking Block Cursor */
+        @keyframes blinkStep {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+        .blink-block {
+            animation: blinkStep 0.9s steps(1) infinite;
+        }
+
+        /* Custom Pixel Scrollbar */
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); border-left: 2px solid var(--border-dim); }
+        ::-webkit-scrollbar-thumb { background: var(--accent-primary); border: 2px solid var(--border-color); }
+    </style>
+</head>
+<body class="selection:bg-[var(--accent-primary)] selection:text-black">
+
+    <!-- ===================================================== -->
+    <!-- CRT SCANLINE OVERLAY (TOGGLEABLE)                     -->
+    <!-- ===================================================== -->
+    <div id="crt-layer" class="crt-overlay fixed inset-0"></div>
+
+    <!-- ===================================================== -->
+    <!-- CUSTOM 8PX-SNAPPED PIXEL CURSOR & DUST CANVAS         -->
+    <!-- ===================================================== -->
+    <canvas id="cursor-dust-canvas" class="pointer-events-none fixed inset-0 z-[95]"></canvas>
+    <div id="pixel-cursor" class="pointer-events-none fixed top-0 left-0 z-[99] hidden md:block" style="transform: translate3d(-100px, -100px, 0);">
+        <!-- 16-Bit Pixel Arrow / Crosshair SVG -->
+        <svg width="28" height="28" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 1H3V2H4V3H5V4H6V5H7V6H8V7H9V8H6V10H7V12H5V10H4V8H2V9H1V1Z" fill="#00FF66" stroke="#000000" stroke-width="1"/>
+        </svg>
+        <div id="cursor-badge" class="hidden mt-1 px-1.5 py-0.5 bg-[var(--accent-primary)] text-black font-pixel text-[8px] border border-black whitespace-nowrap">
+            CLICK
+        </div>
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- PIXEL TOAST NOTIFICATION STACK                        -->
+    <!-- ===================================================== -->
+    <div id="toast-container" class="fixed bottom-16 right-4 z-[90] flex flex-col gap-2 max-w-xs w-full pointer-events-none"></div>
+
+    <!-- ===================================================== -->
+    <!-- 16-BIT BIOS ROM BOOT PRELOADER                        -->
+    <!-- ===================================================== -->
+    <div id="boot-screen" class="fixed inset-0 z-[100] bg-[#0a0a0c] text-[#f4f4f6] p-6 sm:p-12 flex flex-col justify-between font-mono select-none border-8 border-[#00ff66]">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-[#2e303e] pb-4">
+            <div class="flex items-center gap-3">
+                <span class="px-2 py-1 bg-[#00ff66] text-black font-pixel text-[10px]">ROM BIOS v2.6</span>
+                <span class="font-silk text-xs sm:text-sm text-[#00ff66]">SANTILLAN_ARCADE_OS // 64KB VRAM OK</span>
+            </div>
+            <span class="font-vt text-lg text-[#ffcc00]">ESCALANTE CITY, NEGROS OCCIDENTAL [PH]</span>
+        </div>
+
+        <div class="my-auto max-w-3xl space-y-5">
+            <div id="boot-log" class="font-vt text-xl sm:text-2xl space-y-1 text-[#00ff66]">
+                <div>&gt; CHECKING CPU: BS_INFORMATION_SYSTEMS CORE... [OK]</div>
+                <div>&gt; MOUNTING GRAPHICS: 16-BIT PIXEL ENGINE + LENIS SCROLL... [OK]</div>
+                <div>&gt; LOADING SOUND: 8-BIT SQUARE/TRIANGLE WAVE SYNTH... [OK]</div>
+                <div>&gt; INITIALIZING PLAYER 1: SHANDER KLIENT G. SANTILLAN...</div>
+            </div>
+
+            <div class="space-y-2 pt-4">
+                <div class="flex justify-between font-pixel text-xs sm:text-sm">
+                    <span>LOADING CARTRIDGE DATA...</span>
+                    <span id="boot-pct" class="text-[#ffcc00]">00%</span>
+                </div>
+                <div class="w-full h-7 border-4 border-white p-1 bg-black">
+                    <div id="boot-bar" class="h-full bg-[#00ff66] w-0"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between font-pixel text-[9px] sm:text-[10px] text-zinc-400">
+            <span>PRESS ANY KEY OR WAIT FOR AUTO-START</span>
+            <span class="text-[#00ff66] blink-block">INSERT COIN // CREDIT 01</span>
+        </div>
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- 01. TOP ARCADE HUD & OS TASKBAR                       -->
+    <!-- ===================================================== -->
+    <header class="fixed top-0 inset-x-0 z-50 bg-[var(--bg-panel)] border-b-4 border-[var(--border-color)] px-3 sm:px-6 py-2.5">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+
+            <!-- Player 1 Identity + Animated Pixel Hearts -->
+            <div class="flex items-center gap-3 sm:gap-5">
+                <a href="#hero" data-cursor="START" class="pixel-btn px-2.5 py-1.5 flex items-center gap-2">
+                    <span class="w-3 h-3 bg-[var(--accent-primary)] inline-block"></span>
+                    <span class="font-pixel text-[10px] sm:text-xs tracking-tighter">P1:SHANDER</span>
+                </a>
+
+                <!-- 3 Pixel Hearts (HP) -->
+                <div class="hidden sm:flex items-center gap-1.5" title="Stamina / Coffee Level: 100%">
+                    <span class="font-pixel text-[9px] text-[var(--text-muted)] mr-1">HP:</span>
+                    <svg class="w-4 h-4 text-[#ff2a54] animate-bounce" style="animation-duration: 1.2s;" viewBox="0 0 8 8" fill="currentColor">
+                        <path d="M1 1h2v1h2V1h2v1h1v2H7v1H6v1H5v1H3V6H2V5H1V4H0V2h1V1z"/>
+                    </svg>
+                    <svg class="w-4 h-4 text-[#ff2a54] animate-bounce" style="animation-duration: 1.2s; animation-delay: 0.15s;" viewBox="0 0 8 8" fill="currentColor">
+                        <path d="M1 1h2v1h2V1h2v1h1v2H7v1H6v1H5v1H3V6H2V5H1V4H0V2h1V1z"/>
+                    </svg>
+                    <svg class="w-4 h-4 text-[#ff2a54] animate-bounce" style="animation-duration: 1.2s; animation-delay: 0.3s;" viewBox="0 0 8 8" fill="currentColor">
+                        <path d="M1 1h2v1h2V1h2v1h1v2H7v1H6v1H5v1H3V6H2V5H1V4H0V2h1V1z"/>
+                    </svg>
+                </div>
+
+                <!-- Scroll XP Bar -->
+                <div class="hidden lg:flex items-center gap-2">
+                    <span class="font-pixel text-[9px] text-[var(--accent-secondary)]">LVL.24 XP</span>
+                    <div class="w-28 h-4 pixel-bar-bg">
+                        <div id="hud-xp-bar" class="pixel-bar-fill w-0"></div>
+                    </div>
+                    <span id="hud-xp-text" class="font-pixel text-[9px]">00%</span>
+                </div>
+            </div>
+
+            <!-- Center Quick Stage Select -->
+            <nav class="hidden xl:flex items-center gap-2 font-pixel text-[9px]">
+                <a href="#hero" data-cursor="STAGE 1" class="px-2.5 py-1.5 hover:bg-[var(--accent-primary)] hover:text-black transition-none">01.DESK</a>
+                <a href="#roms" data-cursor="STAGE 2" class="px-2.5 py-1.5 hover:bg-[var(--accent-primary)] hover:text-black transition-none">02.ROMS</a>
+                <a href="#bento" data-cursor="STAGE 3" class="px-2.5 py-1.5 hover:bg-[var(--accent-primary)] hover:text-black transition-none">03.STATS</a>
+                <a href="#arcade-contact" data-cursor="BOSS" class="px-2.5 py-1.5 bg-[var(--accent-secondary)] text-black font-bold">04.CONTINUE?</a>
+            </nav>
+
+            <!-- Right Controls: BGM, SFX, CRT, Palette Switcher -->
+            <div class="flex items-center gap-2">
+                <!-- 8-Bit BGM Arpeggiator Loop Toggle -->
+                <button id="bgm-toggle-btn" data-cursor="CHIPTUNE" class="pixel-btn px-2.5 py-1.5 font-pixel text-[9px] flex items-center gap-1.5">
+                    <span id="bgm-led" class="w-2 h-2 bg-zinc-500 inline-block"></span>
+                    <span class="hidden sm:inline">8-BIT BGM</span>
+                </button>
+
+                <!-- SFX Toggle -->
+                <button id="sfx-toggle-btn" data-cursor="SFX" class="pixel-btn px-2.5 py-1.5 font-pixel text-[9px] text-[var(--accent-primary)]">
+                    SFX:ON
+                </button>
+
+                <!-- CRT Scanlines Toggle -->
+                <button id="crt-toggle-btn" data-cursor="CRT" class="pixel-btn px-2.5 py-1.5 font-pixel text-[9px] hidden sm:inline-block">
+                    CRT:ON
+                </button>
+
+                <!-- 4-Palette Selector -->
+                <div class="flex items-center border-2 border-[var(--border-color)] bg-[var(--bg-main)] p-0.5 font-pixel text-[8px]">
+                    <button data-set-theme="1bit" class="theme-chip px-1.5 py-1 bg-[var(--accent-primary)] text-black">1-BIT</button>
+                    <button data-set-theme="dmg" class="theme-chip px-1.5 py-1 hover:text-[var(--accent-primary)]">DMG</button>
+                    <button data-set-theme="pico8" class="theme-chip px-1.5 py-1 hover:text-[var(--accent-primary)]">PICO</button>
+                    <button data-set-theme="paper8" class="theme-chip px-1.5 py-1 hover:text-[var(--accent-primary)]">INK</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===================================================== -->
+    <!-- BOTTOM TELEMETRY TASKBAR                              -->
+    <!-- ===================================================== -->
+    <div class="fixed bottom-0 inset-x-0 z-40 bg-[var(--bg-panel)] border-t-4 border-[var(--border-color)] px-4 py-1.5 flex items-center justify-between font-vt text-base sm:text-lg">
+        <div class="flex items-center gap-4">
+            <span class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 bg-[var(--accent-primary)] inline-block blink-block"></span>
+                <span>LOC: <strong>ESCALANTE CITY, NEGROS OCC. // PH</strong></span>
+            </span>
+            <span class="hidden md:inline text-[var(--text-muted)]">|</span>
+            <span class="hidden md:inline">CLOCK: <strong id="ph-clock" class="text-[var(--accent-secondary)]">--:--:-- PST</strong></span>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <span class="hidden sm:inline">CREDITS: <strong id="coin-counter" class="text-[var(--accent-secondary)]">03</strong></span>
+            <span>SCROLL SPD: <strong id="velocity-readout" class="text-[var(--accent-primary)]">000 PX/S</strong></span>
+        </div>
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- MAIN PORTFOLIO CONTENT                                -->
+    <!-- ===================================================== -->
+    <main class="pt-20 pb-16">
+
+        <!-- ================================================= -->
+        <!-- 02. HERO SECTION — PIXEL WORKSPACE & RPG DIALOG   -->
+        <!-- ================================================= -->
+        <section id="hero" class="max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-16">
+            <!-- Top Class Status Banner -->
+            <div class="pixel-box-sm px-4 py-2 mb-8 flex flex-wrap items-center justify-between gap-2 bg-[var(--bg-elevated)]">
+                <div class="flex items-center gap-2 font-pixel text-[9px] sm:text-[10px]">
+                    <span class="px-2 py-0.5 bg-[var(--accent-primary)] text-black">QUEST ACTIVE</span>
+                    <span>BS IN INFORMATION SYSTEMS // DEVELOPER &amp; DIGITAL MEDIA EDITOR</span>
+                </div>
+                <div class="font-vt text-lg text-[var(--accent-secondary)]">
+                    [STATUS: AVAILABLE FOR FREELANCE &amp; DEV ROLES]
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+                <!-- LEFT COLUMN (7 Cols): Monumental Pixel Title & Interactive RPG Dialogue Box -->
+                <div class="lg:col-span-7 space-y-6">
+                    <!-- Character Class Badges -->
+                    <div class="flex flex-wrap gap-2 font-pixel text-[9px] sm:text-[10px]">
+                        <span class="px-3 py-1.5 border-2 border-[var(--border-color)] bg-[var(--bg-elevated)] text-[var(--accent-primary)]">[CLASS: FULL-STACK DEV]</span>
+                        <span class="px-3 py-1.5 border-2 border-[var(--border-color)] bg-[var(--bg-elevated)] text-[var(--accent-secondary)]">[SPEC: 9:16 MOTION EDITOR]</span>
+                        <span class="px-3 py-1.5 border-2 border-[var(--border-color)] bg-[var(--bg-elevated)]">[GUILD: BSIS SCHOLAR]</span>
+                    </div>
+
+                    <!-- Monumental Pixel Headline -->
+                    <div class="space-y-2">
+                        <p class="font-silk text-sm sm:text-base uppercase tracking-widest text-[var(--accent-secondary)]">
+                            &gt; PLAYER 1 READY // ESCALANTE CITY, PH
+                        </p>
+                        <h1 class="font-pixel text-2xl sm:text-4xl xl:text-5xl leading-[1.25] tracking-tight uppercase">
+                            SHANDER KLIENT<br>
+                            <span class="text-[var(--accent-primary)]">G. SANTILLAN</span>
+                        </h1>
+                    </div>
+
+                    <!-- Interactive RPG Dialogue Box -->
+                    <div class="pixel-box p-5 sm:p-6 space-y-4">
+                        <div class="flex items-center justify-between border-b-2 border-[var(--border-dim)] pb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 bg-[var(--accent-primary)] text-black font-pixel text-[9px]">NPC // SHANDER.EXE</span>
+                                <span id="rpg-mood-tag" class="font-vt text-lg text-[var(--accent-secondary)]">[MOOD: CAFFEINATED ☕]</span>
+                            </div>
+                            <span class="font-pixel text-[9px] text-[var(--text-muted)]">DIALOGUE #01</span>
+                        </div>
+
+                        <!-- Typewriter Output Area -->
+                        <div class="min-h-[105px] font-vt text-2xl sm:text-[26px] leading-snug text-[var(--text-main)]">
+                            <span id="rpg-typewriter"></span><span class="inline-block w-3 h-5 bg-[var(--accent-primary)] ml-1 align-middle blink-block"></span>
+                        </div>
+
+                        <!-- Selectable RPG Dialogue Prompts -->
+                        <div class="pt-3 border-t-2 border-[var(--border-dim)] grid grid-cols-1 sm:grid-cols-2 gap-2.5 font-vt text-xl">
+                            <button data-dialog="bio" data-cursor="ASK" class="rpg-prompt-btn text-left px-3 py-2 border-2 border-[var(--border-dim)] hover:border-[var(--accent-primary)] hover:bg-[var(--bg-elevated)] flex items-center gap-2">
+                                <span class="text-[var(--accent-primary)]">▶</span>
+                                <span>Who is Shander Klient?</span>
+                            </button>
+                            <button data-dialog="stack" data-cursor="ASK" class="rpg-prompt-btn text-left px-3 py-2 border-2 border-[var(--border-dim)] hover:border-[var(--accent-primary)] hover:bg-[var(--bg-elevated)] flex items-center gap-2">
+                                <span class="text-[var(--accent-primary)]">▶</span>
+                                <span>Inspect Weaponry &amp; Tech Stack</span>
+                            </button>
+                            <button data-dialog="video" data-cursor="ASK" class="rpg-prompt-btn text-left px-3 py-2 border-2 border-[var(--border-dim)] hover:border-[var(--accent-primary)] hover:bg-[var(--bg-elevated)] flex items-center gap-2">
+                                <span class="text-[var(--accent-primary)]">▶</span>
+                                <span>Tell me about 9:16 Video Editing</span>
+                            </button>
+                            <button data-dialog="quest" data-cursor="QUEST" class="rpg-prompt-btn text-left px-3 py-2 border-2 border-[var(--border-dim)] hover:border-[var(--accent-primary)] hover:bg-[var(--bg-elevated)] flex items-center gap-2">
+                                <span class="text-[var(--accent-secondary)]">★</span>
+                                <span>Summon Co-Op Contact Portal</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Primary Action Buttons -->
+                    <div class="flex flex-wrap items-center gap-4 pt-2">
+                        <a href="#roms" data-cursor="LOAD ROM" class="pixel-btn-primary px-6 py-4 font-pixel text-xs sm:text-sm uppercase flex items-center gap-3">
+                            <span>▶ START GAME (VIEW PROJECTS)</span>
+                        </a>
+                        <button id="hero-coin-btn" data-cursor="+1 COIN" class="pixel-btn px-5 py-4 font-pixel text-xs uppercase flex items-center gap-2">
+                            <span class="text-[var(--accent-secondary)]">●</span>
+                            <span>INSERT COIN</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- RIGHT COLUMN (5 Cols): Interactive 160x120 Pixel Workspace Diorama -->
+                <div class="lg:col-span-5">
+                    <div class="pixel-box p-3 sm:p-4 space-y-3">
+                        <!-- Window Title Bar -->
+                        <div class="flex items-center justify-between bg-[var(--bg-elevated)] border-2 border-[var(--border-color)] px-3 py-1.5">
+                            <span class="font-pixel text-[9px] sm:text-[10px] text-[var(--accent-primary)]">DEV_ROOM_DIORAMA.EXE [160x120 PX]</span>
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-3 h-3 border border-[var(--border-color)] bg-[var(--accent-secondary)] inline-block"></span>
+                                <span class="w-3 h-3 border border-[var(--border-color)] bg-[var(--accent-danger)] inline-block"></span>
+                            </div>
+                        </div>
+
+                        <!-- Low-Res Pixel Canvas Scaled Up Cleanly -->
+                        <div class="relative border-4 border-[var(--border-color)] bg-[#07070c] overflow-hidden aspect-[4/3]">
+                            <canvas id="diorama-canvas" width="160" height="120" data-cursor="SHOOTING STAR" class="w-full h-full block"></canvas>
+                            <div class="absolute top-2 left-2 px-2 py-0.5 bg-black/80 border border-[var(--accent-primary)] font-pixel text-[8px] text-[var(--accent-primary)]">
+                                CLICK SKY: SPAWN METEOR // TYPE: RGB KEYBOARD
+                            </div>
+                        </div>
+
+                        <!-- Interactive Desk Environment Controls -->
+                        <div class="grid grid-cols-3 gap-2 font-pixel text-[8px] sm:text-[9px]">
+                            <button id="desk-meteor-btn" data-cursor="STAR" class="pixel-btn py-2 px-2 text-center">
+                                ★ SHOOTING STAR
+                            </button>
+                            <button id="desk-coffee-btn" data-cursor="BREW" class="pixel-btn py-2 px-2 text-center">
+                                ☕ REFILL COFFEE
+                            </button>
+                            <button id="desk-overclock-btn" data-cursor="TURBO" class="pixel-btn py-2 px-2 text-center text-[var(--accent-secondary)]">
+                                ⚡ OVERCLOCK PC
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ================================================= -->
+        <!-- PIXEL MARQUEE DIVIDER                             -->
+        <!-- ================================================= -->
+        <section class="border-y-4 border-[var(--border-color)] bg-[var(--bg-elevated)] py-3 overflow-hidden select-none">
+            <div id="pixel-marquee" class="flex whitespace-nowrap items-center gap-8 font-pixel text-xs sm:text-sm uppercase">
+                <div class="flex items-center gap-8 shrink-0">
+                    <span class="text-[var(--accent-primary)]">★ FULL-STACK PHP &amp; MYSQL ARCHITECTURE</span>
+                    <span>[::]</span>
+                    <span class="text-[var(--accent-secondary)]">★ 9:16 HIGH-RETENTION SPEED-RAMP EDITING</span>
+                    <span>[::]</span>
+                    <span>★ BS INFORMATION SYSTEMS</span>
+                    <span>[::]</span>
+                    <span class="text-[var(--accent-primary)]">★ REACT / TAILWIND / GSAP / LENIS</span>
+                    <span>[::]</span>
+                </div>
+                <div class="flex items-center gap-8 shrink-0" aria-hidden="true">
+                    <span class="text-[var(--accent-primary)]">★ FULL-STACK PHP &amp; MYSQL ARCHITECTURE</span>
+                    <span>[::]</span>
+                    <span class="text-[var(--accent-secondary)]">★ 9:16 HIGH-RETENTION SPEED-RAMP EDITING</span>
+                    <span>[::]</span>
+                    <span>★ BS INFORMATION SYSTEMS</span>
+                    <span>[::]</span>
+                    <span class="text-[var(--accent-primary)]">★ REACT / TAILWIND / GSAP / LENIS</span>
+                    <span>[::]</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================= -->
+        <!-- 03. SELECTED WORKS — "GAME CARTRIDGE / ROM DECK"  -->
+        <!-- ================================================= -->
+        <section id="roms" class="max-w-7xl mx-auto px-4 sm:px-6 py-20 space-y-12">
+            <!-- Section Header -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b-4 border-[var(--border-color)] pb-6">
+                <div class="space-y-2">
+                    <div class="inline-block px-3 py-1 bg-[var(--accent-primary)] text-black font-pixel text-[10px]">
+                        STAGE 02 // SELECT ROM CARTRIDGE
+                    </div>
+                    <h2 class="font-pixel text-2xl sm:text-4xl uppercase tracking-tight">
+                        PROJECT CARTRIDGE DECK
+                    </h2>
+                </div>
+                <p class="font-vt text-2xl text-[var(--text-muted)] max-w-md">
+                    Click <strong class="text-[var(--accent-primary)]">[INSERT CARTRIDGE ▶]</strong> on any ROM to boot its interactive simulator inside the Retro Console Monitor.
+                </p>
+            </div>
+
+            <!-- 4 Collectible 16-Bit ROM Cartridges Grid -->
+            <div id="cartridge-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Populated dynamically via JS ROM dataset -->
+            </div>
+        </section>
+
+        <!-- ================================================= -->
+        <!-- 04. INTERACTIVE PIXEL BENTO GRID (STATS & TOOLS)  -->
+        <!-- ================================================= -->
+        <section id="bento" class="max-w-7xl mx-auto px-4 sm:px-6 py-20 space-y-12 border-t-4 border-[var(--border-color)]">
+            <!-- Section Header -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div class="space-y-2">
+                    <div class="inline-block px-3 py-1 bg-[var(--accent-secondary)] text-black font-pixel text-[10px]">
+                        STAGE 03 // CHARACTER SHEET &amp; WORKBENCH
+                    </div>
+                    <h2 class="font-pixel text-2xl sm:text-4xl uppercase">
+                        STATS, SPRITE LAB &amp; KEYDECK
+                    </h2>
+                </div>
+                <div class="font-pixel text-[10px] text-[var(--accent-primary)]">
+                    [ALL MODULES INTERACTIVE // ZERO EXTERNAL ASSETS]
+                </div>
+            </div>
+
+            <!-- Pixel Bento Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+                <!-- BENTO 1 (7 Cols): RPG Character Sheet & Interactive Skill Tree -->
+                <div class="lg:col-span-7 pixel-box p-6 sm:p-8 flex flex-col justify-between space-y-6">
+                    <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-[var(--border-dim)] pb-4">
+                        <div>
+                            <span class="font-pixel text-[10px] text-[var(--accent-primary)]">MODULE 01 // SKILL TREE</span>
+                            <h3 class="font-pixel text-lg sm:text-xl mt-1">RPG ATTRIBUTE MATRIX</h3>
+                        </div>
+
+                        <!-- Skill Tree Category Tabs -->
+                        <div class="flex flex-wrap gap-1.5 font-pixel text-[9px]">
+                            <button data-skill-tab="frontend" class="skill-tab-btn pixel-btn-primary px-3 py-2">FRONTEND</button>
+                            <button data-skill-tab="backend" class="skill-tab-btn pixel-btn px-3 py-2">BACKEND/DB</button>
+                            <button data-skill-tab="media" class="skill-tab-btn pixel-btn px-3 py-2">9:16 MEDIA</button>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Skill Bars Container -->
+                    <div id="skill-bars-container" class="space-y-4 py-2">
+                        <!-- Populated via JS -->
+                    </div>
+
+                    <!-- Character Lore Footer -->
+                    <div class="p-4 bg-[var(--bg-main)] border-2 border-[var(--border-dim)] flex flex-col sm:flex-row sm:items-center justify-between gap-3 font-vt text-xl">
+                        <div>
+                            <span class="text-[var(--accent-secondary)] font-bold">PASSIVE BUFF:</span>
+                            <span> +35% Retention when combining Full-Stack Architecture with 9:16 Speed-Ramp Pacing.</span>
+                        </div>
+                        <button id="level-up-btn" data-cursor="LVL UP!" class="pixel-btn px-3 py-1.5 font-pixel text-[9px] text-[var(--accent-primary)] shrink-0">
+                            ★ BOOST STATS
+                        </button>
+                    </div>
+                </div>
+
+                <!-- BENTO 2 (5 Cols): Interactive 16x16 Pixel Sprite Editor Mini-App -->
+                <div class="lg:col-span-5 pixel-box p-6 sm:p-8 flex flex-col justify-between space-y-5">
+                    <div class="flex items-center justify-between border-b-2 border-[var(--border-dim)] pb-3">
+                        <div>
+                            <span class="font-pixel text-[10px] text-[var(--accent-secondary)]">MODULE 02 // DRAW PIXEL ART</span>
+                            <h3 class="font-pixel text-lg mt-1">16×16 SPRITE STUDIO</h3>
+                        </div>
+                        <button id="sprite-download-btn" data-cursor="SAVE PNG" class="pixel-btn px-2.5 py-1.5 font-pixel text-[8px] text-[var(--accent-primary)]">
+                            ⬇ EXPORT PNG
+                        </button>
+                    </div>
+
+                    <!-- 16x16 Drawing Canvas + Palette -->
+                    <div class="flex flex-col sm:flex-row items-center gap-4">
+                        <div class="border-4 border-[var(--border-color)] bg-[#08080a] p-1 shrink-0">
+                            <canvas id="sprite-editor-canvas" width="224" height="224" data-cursor="PAINT" class="w-48 h-48 sm:w-52 sm:h-52 block touch-none"></canvas>
+                        </div>
+
+                        <!-- Swatches & Presets -->
+                        <div class="flex sm:flex-col flex-wrap gap-2 justify-center w-full">
+                            <div class="font-pixel text-[8px] text-[var(--text-muted)] w-full">COLOR SWATCHES:</div>
+                            <div id="sprite-swatches" class="grid grid-cols-4 sm:grid-cols-2 gap-2">
+                                <button data-color="#00ff66" class="swatch-btn w-8 h-8 border-2 border-white bg-[#00ff66]"></button>
+                                <button data-color="#ffcc00" class="swatch-btn w-8 h-8 border-2 border-zinc-600 bg-[#ffcc00]"></button>
+                                <button data-color="#ff2a54" class="swatch-btn w-8 h-8 border-2 border-zinc-600 bg-[#ff2a54]"></button>
+                                <button data-color="#29adff" class="swatch-btn w-8 h-8 border-2 border-zinc-600 bg-[#29adff]"></button>
+                                <button data-color="#f4f4f6" class="swatch-btn w-8 h-8 border-2 border-zinc-600 bg-[#f4f4f6]"></button>
+                                <button data-color="#a855f7" class="swatch-btn w-8 h-8 border-2 border-zinc-600 bg-[#a855f7]"></button>
+                                <button data-color="#ff7700" class="swatch-btn w-8 h-8 border-2 border-zinc-600 bg-[#ff7700]"></button>
+                                <button data-color="ERASE" class="swatch-btn w-8 h-8 border-2 border-zinc-600 bg-black text-white font-pixel text-[7px] flex items-center justify-center">CLR</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preset Sprite Loaders -->
+                    <div class="grid grid-cols-3 gap-2 font-pixel text-[8px] pt-1">
+                        <button id="preset-sword-btn" class="pixel-btn py-2">⚔ SWORD</button>
+                        <button id="preset-potion-btn" class="pixel-btn py-2">🧪 POTION</button>
+                        <button id="preset-random-btn" class="pixel-btn py-2 text-[var(--accent-secondary)]">🎲 MUTATE</button>
+                    </div>
+                </div>
+
+                <!-- BENTO 3 (12 Cols): Tactile 16-Bit Mechanical Keycap Deck (S-H-A-N-D-E-R) -->
+                <div class="lg:col-span-12 pixel-box p-6 sm:p-8 space-y-6">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <div>
+                            <span class="font-pixel text-[10px] text-[var(--accent-primary)]">MODULE 03 // 8-BIT MECHANICAL KEYBOARD DECK</span>
+                            <h3 class="font-pixel text-lg sm:text-2xl mt-1">CLICK CAPS OR TYPE [S-H-A-N-D-E-R] ON YOUR KEYBOARD</h3>
+                        </div>
+
+                        <!-- Switch Sound Mode Selector -->
+                        <div class="flex items-center gap-2 font-pixel text-[9px]">
+                            <button data-keymode="chip" class="keymode-btn pixel-btn-primary px-3 py-2">8-BIT CHIP</button>
+                            <button data-keymode="thock" class="keymode-btn pixel-btn px-3 py-2">THOCK SWITCH</button>
+                            <button data-keymode="clicky" class="keymode-btn pixel-btn px-3 py-2">BLUE CLICKY</button>
+                        </div>
+                    </div>
+
+                    <!-- 7 Chunky Pixel Keycaps -->
+                    <div class="grid grid-cols-4 sm:grid-cols-7 gap-3 sm:gap-4 py-3 px-4 bg-[var(--bg-main)] border-4 border-[var(--border-color)]">
+                        <button data-keycap="S" class="pixel-keycap h-20 sm:h-24 p-3 flex flex-col justify-between text-left">
+                            <span class="font-pixel text-base sm:text-xl text-[var(--accent-primary)]">S</span>
+                            <span class="font-pixel text-[7px] text-[var(--text-muted)]">SQL/SYS</span>
+                        </button>
+                        <button data-keycap="H" class="pixel-keycap h-20 sm:h-24 p-3 flex flex-col justify-between text-left">
+                            <span class="font-pixel text-base sm:text-xl text-[var(--accent-primary)]">H</span>
+                            <span class="font-pixel text-[7px] text-[var(--text-muted)]">HTML5</span>
+                        </button>
+                        <button data-keycap="A" class="pixel-keycap h-20 sm:h-24 p-3 flex flex-col justify-between text-left">
+                            <span class="font-pixel text-base sm:text-xl text-[var(--accent-primary)]">A</span>
+                            <span class="font-pixel text-[7px] text-[var(--text-muted)]">API/AJAX</span>
+                        </button>
+                        <button data-keycap="N" class="pixel-keycap h-20 sm:h-24 p-3 flex flex-col justify-between text-left">
+                            <span class="font-pixel text-base sm:text-xl text-[var(--accent-primary)]">N</span>
+                            <span class="font-pixel text-[7px] text-[var(--text-muted)]">NODE.JS</span>
+                        </button>
+                        <button data-keycap="D" class="pixel-keycap h-20 sm:h-24 p-3 flex flex-col justify-between text-left">
+                            <span class="font-pixel text-base sm:text-xl text-[var(--accent-primary)]">D</span>
+                            <span class="font-pixel text-[7px] text-[var(--text-muted)]">DOCKER</span>
+                        </button>
+                        <button data-keycap="E" class="pixel-keycap h-20 sm:h-24 p-3 flex flex-col justify-between text-left">
+                            <span class="font-pixel text-base sm:text-xl text-[var(--accent-primary)]">E</span>
+                            <span class="font-pixel text-[7px] text-[var(--text-muted)]">EDIT 9:16</span>
+                        </button>
+                        <button data-keycap="R" class="pixel-keycap h-20 sm:h-24 p-3 flex flex-col justify-between text-left col-span-4 sm:col-span-1">
+                            <span class="font-pixel text-base sm:text-xl text-[var(--accent-secondary)]">R</span>
+                            <span class="font-pixel text-[7px] text-[var(--text-muted)]">REACT ↵</span>
+                        </button>
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-between gap-2 font-vt text-xl text-[var(--text-muted)]">
+                        <span>COMBO STREAK: <strong id="key-combo-readout" class="text-[var(--accent-primary)]">0 HITS</strong></span>
+                        <span>SPELL "SHANDER" TO UNLOCK SECRET PIXEL OVERDRIVE!</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ================================================= -->
+        <!-- 05. FOOTER / "CONTINUE? [9..8..7]" CONTACT PORTAL -->
+        <!-- ================================================= -->
+        <footer id="arcade-contact" class="max-w-7xl mx-auto px-4 sm:px-6 pt-20 pb-24 border-t-4 border-[var(--border-color)]">
+            <div class="pixel-box p-6 sm:p-12 space-y-10 relative overflow-hidden">
+                <!-- Firework Particle Canvas inside Footer -->
+                <canvas id="firework-canvas" class="pointer-events-none absolute inset-0 w-full h-full"></canvas>
+
+                <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+
+                    <!-- Left Column: Arcade Continue Countdown + Coin Slot -->
+                    <div class="lg:col-span-6 space-y-6">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 bg-[var(--accent-danger)] text-white font-pixel text-[10px]">
+                            <span>FINAL STAGE // CO-OP REQUEST</span>
+                        </div>
+
+                        <div class="flex items-center gap-6">
+                            <div class="space-y-1">
+                                <h2 class="font-pixel text-3xl sm:text-5xl uppercase leading-tight">
+                                    CONTINUE?
+                                </h2>
+                                <p class="font-vt text-2xl text-[var(--text-muted)]">
+                                    Ready to build a high-retention web system or visual brand? Insert a coin or transmit a message packet!
+                                </p>
+                            </div>
+                            <div id="continue-timer" class="font-pixel text-5xl sm:text-7xl text-[var(--accent-secondary)] shrink-0">
+                                9
+                            </div>
+                        </div>
+
+                        <!-- Insert Coin & Copy Email Buttons -->
+                        <div class="flex flex-wrap gap-4 pt-2">
+                            <button id="footer-coin-btn" data-cursor="INSERT COIN" class="pixel-btn-primary px-6 py-4 font-pixel text-xs sm:text-sm flex items-center gap-3">
+                                <span>● INSERT COIN (RESET TIMER &amp; FIREWORKS)</span>
+                            </button>
+
+                            <button id="copy-email-btn" data-cursor="COPY EMAIL" class="pixel-btn px-5 py-4 font-pixel text-[10px] sm:text-xs flex items-center gap-2">
+                                <span>📋 COPY: shanderklient.santillan@dev.ph</span>
+                            </button>
+                        </div>
+
+                        <!-- Social ROM Cartridges -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 font-pixel text-[9px]">
+                            <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="pixel-btn p-3 text-center">GITHUB ↗</a>
+                            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" class="pixel-btn p-3 text-center">YOUTUBE ↗</a>
+                            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="pixel-btn p-3 text-center">LINKEDIN ↗</a>
+                            <a href="#hero" class="pixel-btn p-3 text-center text-[var(--accent-primary)]">TOP ↑</a>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Arcade Terminal Transmission Form -->
+                    <div class="lg:col-span-6">
+                        <form id="terminal-contact-form" class="pixel-box-sm p-6 bg-[var(--bg-main)] space-y-4">
+                            <div class="flex items-center justify-between border-b-2 border-[var(--border-dim)] pb-2 font-pixel text-[10px] text-[var(--accent-primary)]">
+                                <span>TRANSMIT_PACKET.SH</span>
+                                <span>PORT: 8080 // ENCRYPTED</span>
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="font-pixel text-[9px] block text-[var(--text-muted)]">PLAYER NAME / ORGANIZATION:</label>
+                                <input type="text" id="sender-name" required placeholder="e.g. STUDIO ARCHIVE" class="w-full px-3 py-2.5 bg-[var(--bg-panel)] border-2 border-[var(--border-color)] font-vt text-xl text-[var(--text-main)] focus:outline-none focus:border-[var(--accent-primary)]">
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="font-pixel text-[9px] block text-[var(--text-muted)]">RETURN COMMS (EMAIL):</label>
+                                <input type="email" id="sender-email" required placeholder="player1@domain.com" class="w-full px-3 py-2.5 bg-[var(--bg-panel)] border-2 border-[var(--border-color)] font-vt text-xl text-[var(--text-main)] focus:outline-none focus:border-[var(--accent-primary)]">
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="font-pixel text-[9px] block text-[var(--text-muted)]">QUEST BRIEFING / MESSAGE:</label>
+                                <textarea id="sender-msg" rows="3" required placeholder="Let's collaborate on a full-stack app or 9:16 edit..." class="w-full px-3 py-2 bg-[var(--bg-panel)] border-2 border-[var(--border-color)] font-vt text-xl text-[var(--text-main)] focus:outline-none focus:border-[var(--accent-primary)]"></textarea>
+                            </div>
+
+                            <button type="submit" data-cursor="SEND" class="pixel-btn-primary w-full py-3.5 font-pixel text-xs uppercase">
+                                ▶ TRANSMIT DATA PACKET
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </footer>
+
+    </main>
+
+    <!-- ===================================================== -->
+    <!-- RETRO CONSOLE MONITOR MODAL (INTERACTIVE ROM DEMOS)   -->
+    <!-- ===================================================== -->
+    <div id="rom-modal" data-lenis-prevent class="fixed inset-0 z-[92] hidden items-center justify-center p-3 sm:p-6 bg-black/85">
+        <div class="pixel-box w-full max-w-4xl max-h-[90vh] overflow-y-auto p-5 sm:p-8 space-y-6">
+            <!-- Modal Header -->
+            <div class="flex items-start justify-between gap-4 border-b-4 border-[var(--border-color)] pb-4">
+                <div>
+                    <span id="rom-modal-code" class="px-2 py-0.5 bg-[var(--accent-primary)] text-black font-pixel text-[9px]">CART #01</span>
+                    <h3 id="rom-modal-title" class="font-pixel text-xl sm:text-3xl mt-2">PHARMACORE // 8-BIT INVENTORY</h3>
+                    <p id="rom-modal-sub" class="font-vt text-2xl text-[var(--accent-secondary)]"></p>
+                </div>
+                <button id="close-rom-modal" data-cursor="EJECT" class="pixel-btn px-3 py-2 font-pixel text-xs bg-[var(--accent-danger)] text-white">
+                    ✖ EJECT ROM
+                </button>
+            </div>
+
+            <!-- Interactive Playable Simulator Screen -->
+            <div class="border-4 border-[var(--border-color)] bg-[#07070c] p-3 space-y-3">
+                <div class="flex flex-wrap items-center justify-between gap-2 font-pixel text-[9px] text-[var(--accent-primary)]">
+                    <span id="rom-sim-instruction">INTERACTIVE SIMULATOR // CLICK BUTTONS BELOW TO TEST</span>
+                    <span class="text-[var(--accent-secondary)]">60 FPS PIXEL ENGINE</span>
+                </div>
+                <canvas id="rom-sim-canvas" width="600" height="250" class="w-full h-56 sm:h-64 block border-2 border-zinc-800"></canvas>
+                <!-- Interactive Simulator Action Buttons -->
+                <div id="rom-sim-controls" class="flex flex-wrap gap-2 pt-1"></div>
+            </div>
+
+            <!-- Architecture & Metrics Breakdown -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="rom-modal-metrics"></div>
+
+            <div class="space-y-3">
+                <h4 class="font-pixel text-xs text-[var(--accent-primary)]">SYSTEM ARCHITECTURE &amp; LORE:</h4>
+                <p id="rom-modal-desc" class="font-vt text-2xl leading-snug text-[var(--text-main)]"></p>
+                <div id="rom-modal-stack" class="flex flex-wrap gap-2 pt-2 font-pixel text-[9px]"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- CORE APPLICATION SCRIPT                               -->
+    <!-- ===================================================== -->
+    <script>
+        window.onload = function () {
+            gsap.registerPlugin(ScrollTrigger);
+
+            /* -----------------------------------------------------------
+             * 1. 8-BIT CHIPTUNE WEBAUDIO SYNTHESIZER & BGM ARPEGGIATOR
+             * ----------------------------------------------------------- */
+            let sfxEnabled = true;
+            let bgmPlaying = false;
+            let bgmInterval = null;
+            let keySoundMode = 'chip'; // 'chip' | 'thock' | 'clicky'
+            let audioCtx = null;
+
+            function getAudioCtx() {
+                if (!audioCtx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    audioCtx = new AudioContext();
+                }
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                return audioCtx;
+            }
+
+            function play8BitSound(type = 'blip') {
+                if (!sfxEnabled) return;
+                try {
+                    const ctx = getAudioCtx();
+                    const now = ctx.currentTime;
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    if (type === 'blip') {
+                        osc.type = 'square';
+                        osc.frequency.setValueAtTime(587.33, now); // D5
+                        osc.frequency.setValueAtTime(880, now + 0.03); // A5
+                        gain.gain.setValueAtTime(0.05, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+                        osc.start(now);
+                        osc.stop(now + 0.075);
+                    } else if (type === 'coin') {
+                        osc.type = 'square';
+                        osc.frequency.setValueAtTime(987.77, now); // B5
+                        osc.frequency.setValueAtTime(1318.51, now + 0.07); // E6
+                        gain.gain.setValueAtTime(0.08, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                        osc.start(now);
+                        osc.stop(now + 0.36);
+                    } else if (type === 'powerup') {
+                        osc.type = 'triangle';
+                        const notes = [330, 392, 659, 523, 587, 784];
+                        notes.forEach((n, idx) => {
+                            osc.frequency.setValueAtTime(n, now + idx * 0.045);
+                        });
+                        gain.gain.setValueAtTime(0.09, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+                        osc.start(now);
+                        osc.stop(now + 0.33);
+                    } else if (type === 'type') {
+                        osc.type = 'square';
+                        osc.frequency.setValueAtTime(440 + Math.random() * 180, now);
+                        gain.gain.setValueAtTime(0.025, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
+                        osc.start(now);
+                        osc.stop(now + 0.03);
+                    }
+                } catch (e) {}
+            }
+
+            function playKeycapSynth(letter) {
+                if (!sfxEnabled) return;
+                try {
+                    const ctx = getAudioCtx();
+                    const now = ctx.currentTime;
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    const scaleMap = { S: 261.6, H: 293.7, A: 329.6, N: 349.2, D: 392.0, E: 440.0, R: 523.3 };
+                    const baseFreq = scaleMap[letter] || 440;
+
+                    if (keySoundMode === 'chip') {
+                        osc.type = 'square';
+                        osc.frequency.setValueAtTime(baseFreq, now);
+                        osc.frequency.setValueAtTime(baseFreq * 1.5, now + 0.04);
+                        gain.gain.setValueAtTime(0.07, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.11);
+                        osc.start(now);
+                        osc.stop(now + 0.12);
+                    } else if (keySoundMode === 'thock') {
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(150, now);
+                        osc.frequency.exponentialRampToValueAtTime(48, now + 0.08);
+                        gain.gain.setValueAtTime(0.16, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.085);
+                        osc.start(now);
+                        osc.stop(now + 0.09);
+                    } else {
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(1200, now);
+                        osc.frequency.exponentialRampToValueAtTime(280, now + 0.045);
+                        gain.gain.setValueAtTime(0.08, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                        osc.start(now);
+                        osc.stop(now + 0.055);
+                    }
+                } catch (e) {}
+            }
+
+            // 8-Bit Chiptune Arpeggiator Loop
+            const arpNotes = [220, 261.63, 329.63, 392.00, 440, 392.00, 329.63, 261.63];
+            let arpStep = 0;
+
+            function toggleBgm() {
+                bgmPlaying = !bgmPlaying;
+                const led = document.getElementById('bgm-led');
+                if (bgmPlaying) {
+                    led.className = 'w-2 h-2 bg-[#00ff66] inline-block animate-ping';
+                    bgmInterval = setInterval(() => {
+                        if (!sfxEnabled) return;
+                        try {
+                            const ctx = getAudioCtx();
+                            const now = ctx.currentTime;
+                            const osc = ctx.createOscillator();
+                            const gain = ctx.createGain();
+                            osc.type = 'square';
+                            osc.frequency.setValueAtTime(arpNotes[arpStep % arpNotes.length], now);
+                            gain.gain.setValueAtTime(0.025, now);
+                            gain.gain.exponentialRampToValueAtTime(0.0008, now + 0.14);
+                            osc.connect(gain);
+                            gain.connect(ctx.destination);
+                            osc.start(now);
+                            osc.stop(now + 0.15);
+                            arpStep++;
+                        } catch (e) {}
+                    }, 165);
+                    showPixelToast('8-BIT BGM ACTIVE', 'Chiptune square-wave arpeggiator running');
+                } else {
+                    led.className = 'w-2 h-2 bg-zinc-500 inline-block';
+                    clearInterval(bgmInterval);
+                    showPixelToast('8-BIT BGM PAUSED', 'Background synth loop stopped');
+                }
+            }
+
+            document.getElementById('bgm-toggle-btn').addEventListener('click', toggleBgm);
+
+            document.getElementById('sfx-toggle-btn').addEventListener('click', (e) => {
+                sfxEnabled = !sfxEnabled;
+                e.currentTarget.textContent = sfxEnabled ? 'SFX:ON' : 'SFX:OFF';
+                if (sfxEnabled) play8BitSound('coin');
+            });
+
+            document.getElementById('crt-toggle-btn').addEventListener('click', (e) => {
+                const layer = document.getElementById('crt-layer');
+                layer.classList.toggle('hidden');
+                const isOn = !layer.classList.contains('hidden');
+                e.currentTarget.textContent = isOn ? 'CRT:ON' : 'CRT:OFF';
+                play8BitSound('blip');
+            });
+
+            /* -----------------------------------------------------------
+             * 2. PIXEL TOAST HELPER
+             * ----------------------------------------------------------- */
+            function showPixelToast(title, msg) {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = 'pixel-box-sm p-3 bg-[var(--bg-panel)] text-[var(--text-main)] border-2 border-[var(--accent-primary)]';
+                toast.innerHTML = `
+                    <div class="font-pixel text-[9px] text-[var(--accent-primary)]">★ ${title}</div>
+                    <div class="font-vt text-lg leading-tight mt-1">${msg}</div>
+                `;
+                container.appendChild(toast);
+                setTimeout(() => toast.remove(), 2600);
+            }
+
+            /* -----------------------------------------------------------
+             * 3. 16-BIT BIOS BOOT PRELOADER
+             * ----------------------------------------------------------- */
+            let bootVal = { p: 0 };
+            const bootPct = document.getElementById('boot-pct');
+            const bootBar = document.getElementById('boot-bar');
+            const bootScreen = document.getElementById('boot-screen');
+
+            function dismissBootScreen() {
+                if (bootScreen.dataset.closed) return;
+                bootScreen.dataset.closed = 'true';
+                gsap.to(bootScreen, {
+                    yPercent: -100,
+                    duration: 0.45,
+                    ease: 'steps(8)',
+                    onComplete: () => {
+                        bootScreen.style.display = 'none';
+                        typeRpgDialogue('bio');
+                    }
+                });
+            }
+
+            gsap.to(bootVal, {
+                p: 100,
+                duration: 1.2,
+                ease: 'steps(12)',
+                onUpdate: () => {
+                    const v = Math.round(bootVal.p);
+                    bootPct.textContent = String(v).padStart(2, '0') + '%';
+                    bootBar.style.width = v + '%';
+                },
+                onComplete: dismissBootScreen
+            });
+            bootScreen.addEventListener('click', dismissBootScreen);
+
+            /* -----------------------------------------------------------
+             * 4. PALETTE SWITCHER (1-BIT, DMG-01, PICO-8, PAPER-8)
+             * ----------------------------------------------------------- */
+            document.querySelectorAll('[data-set-theme]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const theme = btn.getAttribute('data-set-theme');
+                    document.documentElement.setAttribute('data-theme', theme);
+                    document.querySelectorAll('.theme-chip').forEach(b => {
+                        b.className = 'theme-chip px-1.5 py-1 hover:text-[var(--accent-primary)]';
+                    });
+                    btn.className = 'theme-chip px-1.5 py-1 bg-[var(--accent-primary)] text-black';
+                    play8BitSound('powerup');
+                    showPixelToast('PALETTE CHANGED', `Loaded ${theme.toUpperCase()} pixel shader palette`);
+                });
+            });
+
+            /* -----------------------------------------------------------
+             * 5. LENIS SMOOTH SCROLL + HUD XP PROGRESS
+             * ----------------------------------------------------------- */
+            const lenis = new Lenis({
+                duration: 1.0,
+                smoothWheel: true
+            });
+            lenis.on('scroll', ScrollTrigger.update);
+            gsap.ticker.add((time) => lenis.raf(time * 1000));
+            gsap.ticker.lagSmoothing(0);
+
+            const xpBar = document.getElementById('hud-xp-bar');
+            const xpText = document.getElementById('hud-xp-text');
+            const velReadout = document.getElementById('velocity-readout');
+
+            lenis.on('scroll', (e) => {
+                const pct = Math.round((e.progress || 0) * 100);
+                xpBar.style.width = pct + '%';
+                xpText.textContent = String(pct).padStart(2, '0') + '%';
+                const vel = Math.round(Math.abs(e.velocity || 0) * 40);
+                velReadout.textContent = String(vel).padStart(3, '0') + ' PX/S';
+            });
+
+            /* -----------------------------------------------------------
+             * 6. HERO RPG TYPEWRITER DIALOGUE ENGINE
+             * ----------------------------------------------------------- */
+            const DIALOGUES = {
+                bio: "Greetings! I'm Shander Klient G. Santillan — a Full-Stack Developer, Digital Media Editor & BS Information Systems scholar in Escalante City, Negros Occidental. I engineer database-backed web apps & high-retention visual media!",
+                stack: "EQUIPPED ARSENAL: PHP 8, Laravel, MySQL, MongoDB, JavaScript (ES6+), React, Tailwind CSS, Python, Java, C++, Docker & Git. Ready for full-stack boss battles!",
+                video: "9:16 VISUAL CRAFT: I specialize in high-retention vertical video editing with optical-flow speed ramps, dark brand systems, beat-synced sound design, and motion graphics.",
+                quest: "CO-OP PORTAL READY! Scroll down to Stage 04 or click [INSERT COIN] to copy my direct comms and launch our next project together!"
+            };
+
+            let typeTimer = null;
+            const typeTarget = document.getElementById('rpg-typewriter');
+
+            function typeRpgDialogue(key) {
+                clearInterval(typeTimer);
+                const text = DIALOGUES[key] || DIALOGUES.bio;
+                typeTarget.textContent = '';
+                let i = 0;
+                typeTimer = setInterval(() => {
+                    typeTarget.textContent += text.charAt(i);
+                    if (i % 3 === 0) play8BitSound('type');
+                    i++;
+                    if (i >= text.length) clearInterval(typeTimer);
+                }, 18);
+            }
+
+            document.querySelectorAll('.rpg-prompt-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const key = btn.getAttribute('data-dialog');
+                    typeRpgDialogue(key);
+                    if (key === 'quest') {
+                        lenis.scrollTo('#arcade-contact');
+                    }
+                });
+            });
+
+            /* -----------------------------------------------------------
+             * 7. HERO 160x120 PIXEL ART DEVELOPER DESK DIORAMA CANVAS
+             * ----------------------------------------------------------- */
+            const dioCanvas = document.getElementById('diorama-canvas');
+            const dCtx = dioCanvas.getContext('2d');
+            let deskOverclock = false;
+            let steamParticles = [
+                { x: 126, y: 78, a: 1 },
+                { x: 128, y: 73, a: 0.7 },
+                { x: 125, y: 68, a: 0.4 }
+            ];
+            let shootingStars = [];
+            let keyboardFlashTimer = 0;
+
+            const stars = Array.from({ length: 24 }, () => ({
+                x: Math.floor(Math.random() * 58) + 8,
+                y: Math.floor(Math.random() * 42) + 8,
+                blinkOffset: Math.random() * 100
+            }));
+
+            function spawnMeteor() {
+                shootingStars.push({
+                    x: 12 + Math.floor(Math.random() * 25),
+                    y: 10 + Math.floor(Math.random() * 12),
+                    vx: 2,
+                    vy: 1,
+                    life: 18
+                });
+                play8BitSound('blip');
+            }
+
+            dioCanvas.addEventListener('click', spawnMeteor);
+            document.getElementById('desk-meteor-btn').addEventListener('click', spawnMeteor);
+
+            document.getElementById('desk-coffee-btn').addEventListener('click', () => {
+                steamParticles.forEach(s => { s.y = 78; s.a = 1; });
+                document.getElementById('rpg-mood-tag').textContent = '[MOOD: MAXIMUM ESPRESSO 🔥]';
+                play8BitSound('powerup');
+                showPixelToast('COFFEE REFILLED', '+100% Coding Speed & Stamina Restored!');
+            });
+
+            document.getElementById('desk-overclock-btn').addEventListener('click', () => {
+                deskOverclock = !deskOverclock;
+                keyboardFlashTimer = 45;
+                play8BitSound('coin');
+                showPixelToast(deskOverclock ? 'TURBO OVERCLOCK ON' : 'NORMAL CLOCK', 'Dual monitors & RGB matrix boosted!');
+            });
+
+            function renderDiorama(frame) {
+                // 1. Dark Room Wall Background
+                dCtx.fillStyle = '#0c0c14';
+                dCtx.fillRect(0, 0, 160, 120);
+
+                // 2. Window Frame (Left Side Sky View)
+                dCtx.fillStyle = '#1e1e2f';
+                dCtx.fillRect(6, 6, 64, 52);
+                dCtx.fillStyle = '#05050a';
+                dCtx.fillRect(9, 9, 58, 46);
+
+                // Pixel Moon
+                dCtx.fillStyle = '#ffcc00';
+                dCtx.fillRect(50, 15, 8, 8);
+                dCtx.fillStyle = '#05050a';
+                dCtx.fillRect(53, 14, 6, 6);
+
+                // Twinkling Pixel Stars
+                stars.forEach(st => {
+                    if (Math.sin(frame * 0.05 + st.blinkOffset) > 0) {
+                        dCtx.fillStyle = '#f4f4f6';
+                        dCtx.fillRect(st.x, st.y, 1, 1);
+                    }
+                });
+
+                // Shooting Stars
+                for (let i = shootingStars.length - 1; i >= 0; i--) {
+                    const m = shootingStars[i];
+                    dCtx.fillStyle = '#00ff66';
+                    dCtx.fillRect(m.x, m.y, 2, 2);
+                    dCtx.fillStyle = '#ffffff';
+                    dCtx.fillRect(m.x - 2, m.y - 1, 2, 1);
+                    m.x += m.vx;
+                    m.y += m.vy;
+                    m.life--;
+                    if (m.life <= 0 || m.x > 64 || m.y > 52) shootingStars.splice(i, 1);
+                }
+
+                // 3. Desk Surface
+                dCtx.fillStyle = '#261c18';
+                dCtx.fillRect(0, 86, 160, 34);
+                dCtx.fillStyle = '#3c2d26';
+                dCtx.fillRect(0, 86, 160, 4);
+
+                // 4. Dual Pixel Monitors
+                // Left Monitor (Code Editor)
+                dCtx.fillStyle = '#2a2b36';
+                dCtx.fillRect(28, 46, 44, 32);
+                dCtx.fillStyle = '#07120e';
+                dCtx.fillRect(31, 49, 38, 26);
+                // Stand
+                dCtx.fillStyle = '#1f2029';
+                dCtx.fillRect(46, 78, 8, 8);
+                dCtx.fillRect(40, 84, 20, 2);
+
+                // Scrolling Pixel Code Lines
+                const speed = deskOverclock ? 3 : 1;
+                const scrollOffset = Math.floor((frame * speed) / 6);
+                const codeColors = ['#00ff66', '#ffcc00', '#29adff', '#ff2a54'];
+                for (let line = 0; line < 6; line++) {
+                    const c = codeColors[(line + scrollOffset) % codeColors.length];
+                    const len = 10 + ((line * 7 + scrollOffset * 3) % 22);
+                    dCtx.fillStyle = c;
+                    dCtx.fillRect(34, 52 + line * 4, len, 2);
+                }
+
+                // Right Monitor (9:16 Video Timeline Preview)
+                dCtx.fillStyle = '#2a2b36';
+                dCtx.fillRect(76, 42, 38, 36);
+                dCtx.fillStyle = '#100916';
+                dCtx.fillRect(79, 45, 32, 30);
+                dCtx.fillStyle = '#1f2029';
+                dCtx.fillRect(91, 78, 8, 8);
+                dCtx.fillRect(86, 84, 18, 2);
+
+                // Animated Waveform / Playhead inside Right Monitor
+                const playheadX = 81 + (Math.floor(frame * (deskOverclock ? 1.5 : 0.5)) % 26);
+                dCtx.fillStyle = '#ff004d';
+                dCtx.fillRect(82, 50, 26, 10);
+                dCtx.fillStyle = '#29adff';
+                dCtx.fillRect(82, 63, 26, 4);
+                dCtx.fillStyle = '#00ff66';
+                dCtx.fillRect(82, 69, 20, 3);
+                dCtx.fillStyle = '#ffcc00';
+                dCtx.fillRect(playheadX, 48, 1, 25);
+
+                // 5. RGB Mechanical Keyboard on Desk
+                dCtx.fillStyle = '#181820';
+                dCtx.fillRect(42, 92, 46, 10);
+                // RGB Underglow
+                const rgbPalette = ['#00ff66', '#ff004d', '#29adff', '#ffcc00'];
+                for (let k = 0; k < 10; k++) {
+                    const activeColor = (keyboardFlashTimer > 0 || deskOverclock)
+                        ? rgbPalette[(k + Math.floor(frame / 3)) % rgbPalette.length]
+                        : '#8e929f';
+                    dCtx.fillStyle = activeColor;
+                    dCtx.fillRect(45 + k * 4, 94, 3, 2);
+                    dCtx.fillRect(45 + k * 4, 98, 3, 2);
+                }
+                if (keyboardFlashTimer > 0) keyboardFlashTimer--;
+
+                // 6. Steaming Pixel Coffee Mug
+                dCtx.fillStyle = '#ff2a54';
+                dCtx.fillRect(122, 78, 10, 10);
+                dCtx.fillStyle = '#f4f4f6';
+                dCtx.fillRect(132, 80, 2, 6);
+                // Rising Steam Pixels
+                if (frame % 10 === 0) {
+                    steamParticles.forEach(s => {
+                        s.y -= 2;
+                        if (s.y < 64) s.y = 76;
+                    });
+                }
+                dCtx.fillStyle = '#f4f4f6';
+                steamParticles.forEach(s => {
+                    dCtx.fillRect(s.x + (Math.floor(frame / 15) % 2), s.y, 2, 2);
+                });
+            }
+
+            /* -----------------------------------------------------------
+             * 8. SELECTED WORKS — 4 COLLECTIBLE ROM CARTRIDGES
+             * ----------------------------------------------------------- */
+            const ROM_PROJECTS = [
+                {
+                    id: 'pharmacore',
+                    cartNo: 'CART #01',
+                    year: '2025',
+                    title: 'PHARMACORE // 8-BIT INVENTORY',
+                    subtitle: 'Full-Stack PHP & SQL Pharmacy Medicine Inventory & Expiry Alert System',
+                    accent: '#00ff66',
+                    stack: ['PHP 8', 'MySQL', 'Tailwind CSS', 'JavaScript', 'FIFO Queue'],
+                    metrics: [
+                        { label: 'QUERY LATENCY', value: '< 18ms SQL' },
+                        { label: 'EXPIRY ALERTS', value: '99.9% AUTO' },
+                        { label: 'CAPACITY', value: '12,000+ SKUs' }
+                    ],
+                    description: 'A full-stack pharmacy medicine inventory and point-of-sale telemetry system engineered with PHP and MySQL. Tracks batch expiration dates, automates low-stock potion/medicine alerts, and enforces FIFO dispensing rules.'
+                },
+                {
+                    id: 'acadex',
+                    cartNo: 'CART #02',
+                    year: '2025',
+                    title: 'ACADEX // GRADE ENGINE',
+                    subtitle: 'Student Administration & Real-Time Grade Analytics Platform',
+                    accent: '#ffcc00',
+                    stack: ['PHP', 'MySQL', 'Bootstrap / Tailwind', 'AJAX', 'RBAC Auth'],
+                    metrics: [
+                        { label: 'ACTIVE SCHOLARS', value: '2,500+ USERS' },
+                        { label: 'GPA COMPUTATION', value: 'REAL-TIME' },
+                        { label: 'SECURITY', value: 'TIER-3 RBAC' }
+                    ],
+                    description: 'Centralized academic portal built for student administration, automated GPA analytics, faculty grade encoding workflows, and instant printable transcript generation.'
+                },
+                {
+                    id: 'creepcast',
+                    cartNo: 'CART #03',
+                    year: '2025-2026',
+                    title: 'CREEPCAST // VHS HORROR STUDIO',
+                    subtitle: 'Dark Brand Identity & 9:16 High-Retention Short-Form Production',
+                    accent: '#ff2a54',
+                    stack: ['9:16 Vertical Editing', 'Speed Ramping', 'VHS Shaders', 'Sound Design', 'Figma'],
+                    metrics: [
+                        { label: 'AVG RETENTION', value: '78% HOOK' },
+                        { label: 'FRAME RATE', value: '60 FPS FLOW' },
+                        { label: 'AESTHETIC', value: 'ANALOG HORROR' }
+                    ],
+                    description: 'A dark analog-horror visual identity and 9:16 vertical video editing pipeline featuring custom velocity speed-ramps, glitch transitions, and spatial audio design.'
+                },
+                {
+                    id: 'terradex',
+                    cartNo: 'CART #04',
+                    year: '2026',
+                    title: 'TERRA-DEX // WILDLIFE CHRONICLES',
+                    subtitle: 'Documentary Geography & Endemic Wildlife Motion Graphics',
+                    accent: '#29adff',
+                    stack: ['Motion Graphics', 'Map Telemetry', '9:16 Storytelling', 'Visual Research'],
+                    metrics: [
+                        { label: 'BIOME DATA', value: 'INTERACTIVE' },
+                        { label: 'PACING STYLE', value: 'DOCU-RETENTION' },
+                        { label: 'FORMAT', value: '9:16 & 16:9' }
+                    ],
+                    description: 'Short-form documentary motion graphics exploring world geography, island ecosystems, and endemic wildlife through pixel-styled radar maps and kinetic typography.'
+                }
+            ];
+
+            const cartGrid = document.getElementById('cartridge-grid');
+
+            function drawCartridgeCover(canvas, rom, frame) {
+                const ctx = canvas.getContext('2d');
+                const w = canvas.width;
+                const h = canvas.height;
+                ctx.fillStyle = '#08080c';
+                ctx.fillRect(0, 0, w, h);
+
+                // Pixel Grid
+                ctx.fillStyle = '#181824';
+                for (let x = 0; x < w; x += 16) ctx.fillRect(x, 0, 1, h);
+                for (let y = 0; y < h; y += 16) ctx.fillRect(0, y, w, 1);
+
+                ctx.fillStyle = rom.accent;
+                if (rom.id === 'pharmacore') {
+                    // Pixel Potion Vials & Cross
+                    for (let i = 0; i < 4; i++) {
+                        const bx = 36 + i * 58;
+                        const fillH = 24 + Math.floor(Math.sin(frame * 0.06 + i) * 14);
+                        ctx.strokeStyle = '#f4f4f6';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(bx, 30, 34, 56);
+                        ctx.fillStyle = i === 1 ? '#ff2a54' : rom.accent;
+                        ctx.fillRect(bx + 4, 82 - fillH, 26, fillH);
+                    }
+                } else if (rom.id === 'acadex') {
+                    // Pixel Bar Chart
+                    const vals = [34, 52, 44, 68, 60];
+                    vals.forEach((v, i) => {
+                        const bh = v + Math.floor(Math.cos(frame * 0.05 + i) * 8);
+                        ctx.fillStyle = i % 2 === 0 ? '#ffcc00' : '#00ff66';
+                        ctx.fillRect(40 + i * 44, 96 - bh, 28, bh);
+                    });
+                } else if (rom.id === 'creepcast') {
+                    // VHS Glitch Bars & Eye
+                    for (let y = 16; y < h - 16; y += 12) {
+                        const shift = Math.floor(Math.sin(frame * 0.08 + y) * 15);
+                        ctx.fillStyle = y % 24 === 0 ? '#ff2a54' : '#29adff';
+                        ctx.fillRect(40 + shift, y, 190, 4);
+                    }
+                } else {
+                    // Radar Sweeper
+                    ctx.strokeStyle = '#29adff';
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(70, 18, 140, 76);
+                    const blipX = 140 + Math.floor(Math.cos(frame * 0.05) * 40);
+                    const blipY = 56 + Math.floor(Math.sin(frame * 0.05) * 24);
+                    ctx.fillStyle = '#00ff66';
+                    ctx.fillRect(blipX, blipY, 8, 8);
+                }
+            }
+
+            ROM_PROJECTS.forEach((rom, idx) => {
+                const card = document.createElement('article');
+                card.className = 'pixel-box p-5 sm:p-6 flex flex-col justify-between space-y-5 group';
+                card.innerHTML = `
+                    <!-- Cartridge Top Grip Notches -->
+                    <div class="flex items-center justify-between border-b-4 border-[var(--border-color)] pb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-1 bg-[var(--accent-primary)] text-black font-pixel text-[9px]">${rom.cartNo}</span>
+                            <span class="font-pixel text-[9px] text-[var(--text-muted)]">${rom.year} // ROM</span>
+                        </div>
+                        <div class="flex gap-1">
+                            <span class="w-2 h-4 bg-[var(--border-dim)] inline-block"></span>
+                            <span class="w-2 h-4 bg-[var(--border-dim)] inline-block"></span>
+                            <span class="w-2 h-4 bg-[var(--border-dim)] inline-block"></span>
+                        </div>
+                    </div>
+
+                    <!-- Mini Procedural Pixel Art Cover Canvas -->
+                    <div class="border-4 border-[var(--border-color)] bg-black overflow-hidden">
+                        <canvas class="rom-cover-canvas w-full h-36 block" width="280" height="112" data-rom-idx="${idx}"></canvas>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h3 class="font-pixel text-base sm:text-xl group-hover:text-[var(--accent-primary)]">${rom.title}</h3>
+                        <p class="font-vt text-2xl text-[var(--accent-secondary)] leading-tight">${rom.subtitle}</p>
+                        <p class="font-vt text-xl text-[var(--text-muted)] leading-snug pt-1">${rom.description}</p>
+                    </div>
+
+                    <div class="space-y-4 pt-2">
+                        <div class="flex flex-wrap gap-1.5 font-pixel text-[8px]">
+                            ${rom.stack.map(s => `<span class="px-2 py-1 border border-[var(--border-dim)] bg-[var(--bg-main)]">${s}</span>`).join('')}
+                        </div>
+
+                        <button data-open-rom="${rom.id}" data-cursor="BOOT ROM" class="pixel-btn-primary w-full py-3.5 px-4 font-pixel text-[10px] sm:text-xs flex items-center justify-between">
+                            <span>▶ INSERT CARTRIDGE [BOOT DEMO]</span>
+                            <span>64KB</span>
+                        </button>
+                    </div>
+                `;
+                cartGrid.appendChild(card);
+            });
+
+            /* -----------------------------------------------------------
+             * 9. RETRO CONSOLE MONITOR MODAL & PLAYABLE SIMULATORS
+             * ----------------------------------------------------------- */
+            const romModal = document.getElementById('rom-modal');
+            const simCanvas = document.getElementById('rom-sim-canvas');
+            const simCtx = simCanvas.getContext('2d');
+            const simControls = document.getElementById('rom-sim-controls');
+            let activeRom = ROM_PROJECTS[0];
+
+            // Simulator state
+            let pharmaStock = [85, 22, 64, 92];
+            let acadGrades = [88, 94, 91, 96, 89];
+            let vhsGlitchPower = 12;
+            let radarCreatures = [
+                { name: 'NEGROS BLEEDING-HEART', x: 180, y: 90 },
+                { name: 'VISAYAN SPOTTED DEER', x: 340, y: 150 },
+                { name: 'PHILIPPINE EAGLE', x: 450, y: 75 }
+            ];
+
+            function openRomModal(romId) {
+                activeRom = ROM_PROJECTS.find(r => r.id === romId) || ROM_PROJECTS[0];
+                document.getElementById('rom-modal-code').textContent = `${activeRom.cartNo} // ${activeRom.year}`;
+                document.getElementById('rom-modal-title').textContent = activeRom.title;
+                document.getElementById('rom-modal-sub').textContent = activeRom.subtitle;
+                document.getElementById('rom-modal-desc').textContent = activeRom.description;
+
+                document.getElementById('rom-modal-metrics').innerHTML = activeRom.metrics.map(m => `
+                    <div class="pixel-box-sm p-3 bg-[var(--bg-main)]">
+                        <div class="font-pixel text-[8px] text-[var(--text-muted)]">${m.label}</div>
+                        <div class="font-pixel text-sm sm:text-base text-[var(--accent-primary)] mt-1">${m.value}</div>
+                    </div>
+                `).join('');
+
+                document.getElementById('rom-modal-stack').innerHTML = activeRom.stack.map(s => `
+                    <span class="px-2.5 py-1 border-2 border-[var(--border-color)] bg-[var(--bg-elevated)]">${s}</span>
+                `).join('');
+
+                // Populate Simulator Controls per Cartridge
+                simControls.innerHTML = '';
+                if (activeRom.id === 'pharmacore') {
+                    simControls.innerHTML = `
+                        <button id="sim-restock" class="pixel-btn px-3 py-1.5 font-pixel text-[9px] text-[var(--accent-primary)]">+ RESTOCK ALL POTIONS</button>
+                        <button id="sim-dispense" class="pixel-btn px-3 py-1.5 font-pixel text-[9px] text-[var(--accent-secondary)]">- DISPENSE FIFO BATCH</button>
+                    `;
+                    document.getElementById('sim-restock').onclick = () => {
+                        pharmaStock = pharmaStock.map(() => 95);
+                        play8BitSound('powerup');
+                    };
+                    document.getElementById('sim-dispense').onclick = () => {
+                        pharmaStock = pharmaStock.map(v => Math.max(10, v - 20));
+                        play8BitSound('blip');
+                    };
+                } else if (activeRom.id === 'acadex') {
+                    simControls.innerHTML = `
+                        <button id="sim-curve" class="pixel-btn px-3 py-1.5 font-pixel text-[9px] text-[var(--accent-primary)]">★ APPLY SCHOLAR HONORS CURVE</button>
+                        <button id="sim-rand-gpa" class="pixel-btn px-3 py-1.5 font-pixel text-[9px]">🎲 SIMULATE NEW SEMESTER</button>
+                    `;
+                    document.getElementById('sim-curve').onclick = () => {
+                        acadGrades = acadGrades.map(g => Math.min(99, g + 4));
+                        play8BitSound('powerup');
+                    };
+                    document.getElementById('sim-rand-gpa').onclick = () => {
+                        acadGrades = acadGrades.map(() => 82 + Math.floor(Math.random() * 17));
+                        play8BitSound('blip');
+                    };
+                } else if (activeRom.id === 'creepcast') {
+                    simControls.innerHTML = `
+                        <button id="sim-glitch" class="pixel-btn px-3 py-1.5 font-pixel text-[9px] text-[var(--accent-danger)]">⚡ TRIGGER VHS TRACKING GLITCH</button>
+                    `;
+                    document.getElementById('sim-glitch').onclick = () => {
+                        vhsGlitchPower = 55;
+                        play8BitSound('coin');
+                    };
+                } else {
+                    simControls.innerHTML = `
+                        <button id="sim-ping" class="pixel-btn px-3 py-1.5 font-pixel text-[9px] text-[var(--accent-primary)]">📡 PING ENDEMIC BIOME RADAR</button>
+                    `;
+                    document.getElementById('sim-ping').onclick = () => {
+                        play8BitSound('coin');
+                        showPixelToast('BIOME SCAN COMPLETE', '3 Endemic Philippine Species Locked');
+                    };
+                }
+
+                romModal.classList.remove('hidden');
+                romModal.classList.add('flex');
+                lenis.stop();
+                play8BitSound('powerup');
+            }
+
+            function closeRomModal() {
+                romModal.classList.add('hidden');
+                romModal.classList.remove('flex');
+                lenis.start();
+                play8BitSound('blip');
+            }
+
+            document.querySelectorAll('[data-open-rom]').forEach(btn => {
+                btn.addEventListener('click', () => openRomModal(btn.getAttribute('data-open-rom')));
+            });
+            document.getElementById('close-rom-modal').addEventListener('click', closeRomModal);
+
+            function renderActiveSimulator(frame) {
+                if (romModal.classList.contains('hidden')) return;
+                const w = simCanvas.width;
+                const h = simCanvas.height;
+                simCtx.fillStyle = '#06060a';
+                simCtx.fillRect(0, 0, w, h);
+
+                simCtx.font = '12px "Press Start 2P", monospace';
+                if (activeRom.id === 'pharmacore') {
+                    const labels = ['AMOXICILLIN', 'ASCORBIC_C', 'PARACETAMOL', 'INSULIN_VIAL'];
+                    pharmaStock.forEach((val, idx) => {
+                        const x = 45 + idx * 135;
+                        const barH = Math.floor((val / 100) * 130);
+                        simCtx.strokeStyle = '#f4f4f6';
+                        simCtx.lineWidth = 3;
+                        simCtx.strokeRect(x, 45, 75, 140);
+                        simCtx.fillStyle = val < 30 ? '#ff2a54' : '#00ff66';
+                        simCtx.fillRect(x + 5, 180 - barH, 65, barH);
+                        simCtx.fillStyle = '#f4f4f6';
+                        simCtx.fillText(`${val}%`, x + 16, 35);
+                        simCtx.font = '9px "Press Start 2P", monospace';
+                        simCtx.fillText(labels[idx].slice(0, 8), x + 2, 208);
+                    });
+                } else if (activeRom.id === 'acadex') {
+                    const subjects = ['SYS_ANLYS', 'DBMS_SQL', 'WEB_DEV', 'DATA_STR', 'NET_SEC'];
+                    acadGrades.forEach((g, idx) => {
+                        const x = 45 + idx * 108;
+                        const bh = (g - 60) * 3.4;
+                        simCtx.fillStyle = g >= 92 ? '#ffcc00' : '#00ff66';
+                        simCtx.fillRect(x, 190 - bh, 64, bh);
+                        simCtx.fillStyle = '#ffffff';
+                        simCtx.font = '11px "Press Start 2P", monospace';
+                        simCtx.fillText(`${g}`, x + 16, 180 - bh);
+                        simCtx.font = '8px "Press Start 2P", monospace';
+                        simCtx.fillText(subjects[idx], x + 2, 215);
+                    });
+                } else if (activeRom.id === 'creepcast') {
+                    for (let y = 10; y < h; y += 8) {
+                        const offset = (Math.random() - 0.5) * vhsGlitchPower;
+                        simCtx.fillStyle = y % 16 === 0 ? '#ff2a54' : '#1b1b28';
+                        simCtx.fillRect(40 + offset, y, w - 80, 4);
+                    }
+                    simCtx.fillStyle = '#f4f4f6';
+                    simCtx.font = '16px "Press Start 2P", monospace';
+                    simCtx.fillText('PLAY ▶ 00:14:22 // 9:16 TAPE', 85, 125);
+                    if (vhsGlitchPower > 10) vhsGlitchPower *= 0.94;
+                } else {
+                    // Terra-Dex Radar
+                    simCtx.strokeStyle = '#29adff';
+                    simCtx.lineWidth = 2;
+                    simCtx.strokeRect(20, 20, w - 40, h - 40);
+                    const sweepX = 20 + ((frame * 4) % (w - 40));
+                    simCtx.fillStyle = 'rgba(0, 255, 102, 0.35)';
+                    simCtx.fillRect(sweepX, 20, 6, h - 40);
+
+                    radarCreatures.forEach(c => {
+                        simCtx.fillStyle = '#00ff66';
+                        simCtx.fillRect(c.x, c.y, 10, 10);
+                        simCtx.fillStyle = '#ffcc00';
+                        simCtx.font = '8px "Press Start 2P", monospace';
+                        simCtx.fillText(c.name, c.x - 30, c.y - 8);
+                    });
+                }
+            }
+
+            /* -----------------------------------------------------------
+             * 10. BENTO MODULE 1: RPG SKILL TREE MATRIX
+             * ----------------------------------------------------------- */
+            const SKILL_DATA = {
+                frontend: [
+                    { name: 'HTML5 / CSS3 / PIXEL UI', lvl: 'LVL 96', pct: 96 },
+                    { name: 'JAVASCRIPT (ES6+) / DOM', lvl: 'LVL 92', pct: 92 },
+                    { name: 'TAILWIND CSS / BOOTSTRAP', lvl: 'LVL 95', pct: 95 },
+                    { name: 'REACT.JS + GSAP + LENIS', lvl: 'LVL 88', pct: 88 }
+                ],
+                backend: [
+                    { name: 'PHP 8+ / LARAVEL', lvl: 'LVL 94', pct: 94 },
+                    { name: 'MYSQL / RELATIONAL DB', lvl: 'LVL 95', pct: 95 },
+                    { name: 'PYTHON / JAVA / C++', lvl: 'LVL 86', pct: 86 },
+                    { name: 'GIT / DOCKER / LINUX', lvl: 'LVL 85', pct: 85 }
+                ],
+                media: [
+                    { name: '9:16 VERTICAL SPEED-RAMPING', lvl: 'LVL 98', pct: 98 },
+                    { name: 'SHORT-FORM RETENTION EDITING', lvl: 'LVL 96', pct: 96 },
+                    { name: 'FIGMA / UI DESIGN SYSTEMS', lvl: 'LVL 91', pct: 91 },
+                    { name: 'SOUND DESIGN & MOTION GFX', lvl: 'LVL 90', pct: 90 }
+                ]
+            };
+
+            const skillContainer = document.getElementById('skill-bars-container');
+
+            function renderSkillTab(tabKey) {
+                const list = SKILL_DATA[tabKey] || SKILL_DATA.frontend;
+                skillContainer.innerHTML = list.map(item => `
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between font-pixel text-[9px] sm:text-[10px]">
+                            <span>${item.name}</span>
+                            <span class="text-[var(--accent-primary)]">${item.lvl}</span>
+                        </div>
+                        <div class="w-full h-5 pixel-bar-bg">
+                            <div class="pixel-bar-fill" style="width: ${item.pct}%"></div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            renderSkillTab('frontend');
+
+            document.querySelectorAll('.skill-tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.skill-tab-btn').forEach(b => {
+                        b.className = 'skill-tab-btn pixel-btn px-3 py-2';
+                    });
+                    btn.className = 'skill-tab-btn pixel-btn-primary px-3 py-2';
+                    renderSkillTab(btn.getAttribute('data-skill-tab'));
+                    play8BitSound('blip');
+                });
+            });
+
+            document.getElementById('level-up-btn').addEventListener('click', () => {
+                document.querySelectorAll('#skill-bars-container .pixel-bar-fill').forEach(bar => {
+                    bar.style.width = '100%';
+                });
+                play8BitSound('powerup');
+                showPixelToast('OVERDRIVE BUFF APPLIED!', 'All skill attributes boosted to MAX 100%!');
+            });
+
+            /* -----------------------------------------------------------
+             * 11. BENTO MODULE 2: 16x16 PIXEL SPRITE EDITOR MINI-APP
+             * ----------------------------------------------------------- */
+            const spriteCanvas = document.getElementById('sprite-editor-canvas');
+            const sCtx = spriteCanvas.getContext('2d');
+            const GRID_SIZE = 16;
+            const CELL_PX = spriteCanvas.width / GRID_SIZE;
+            let activeBrush = '#00ff66';
+            let isPainting = false;
+
+            // 16x16 grid state
+            let spriteGrid = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(null));
+
+            function loadPresetSprite(type) {
+                spriteGrid = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(null));
+                if (type === 'sword') {
+                    for (let i = 3; i < 12; i++) {
+                        spriteGrid[i][15 - i] = '#29adff';
+                        spriteGrid[i][14 - i] = '#f4f4f6';
+                    }
+                    spriteGrid[11][3] = '#ffcc00';
+                    spriteGrid[12][4] = '#ffcc00';
+                    spriteGrid[10][2] = '#ffcc00';
+                    spriteGrid[13][2] = '#ff2a54';
+                } else if (type === 'potion') {
+                    for (let y = 6; y <= 13; y++) {
+                        for (let x = 5; x <= 10; x++) {
+                            spriteGrid[y][x] = y > 8 ? '#00ff66' : '#f4f4f6';
+                        }
+                    }
+                    spriteGrid[4][7] = '#ffcc00';
+                    spriteGrid[4][8] = '#ffcc00';
+                    spriteGrid[5][7] = '#f4f4f6';
+                    spriteGrid[5][8] = '#f4f4f6';
+                } else {
+                    // Symmetric Alien / Invader Generator
+                    const colors = ['#00ff66', '#ffcc00', '#ff2a54', '#29adff'];
+                    const c = colors[Math.floor(Math.random() * colors.length)];
+                    for (let y = 3; y < 13; y++) {
+                        for (let x = 3; x < 8; x++) {
+                            if (Math.random() > 0.42) {
+                                spriteGrid[y][x] = c;
+                                spriteGrid[y][15 - x] = c;
+                            }
+                        }
+                    }
+                }
+                drawSpriteEditor();
+            }
+
+            function drawSpriteEditor() {
+                sCtx.fillStyle = '#08080c';
+                sCtx.fillRect(0, 0, spriteCanvas.width, spriteCanvas.height);
+
+                for (let y = 0; y < GRID_SIZE; y++) {
+                    for (let x = 0; x < GRID_SIZE; x++) {
+                        if (spriteGrid[y][x]) {
+                            sCtx.fillStyle = spriteGrid[y][x];
+                            sCtx.fillRect(x * CELL_PX, y * CELL_PX, CELL_PX, CELL_PX);
+                        }
+                        sCtx.strokeStyle = 'rgba(255,255,255,0.06)';
+                        sCtx.strokeRect(x * CELL_PX, y * CELL_PX, CELL_PX, CELL_PX);
+                    }
+                }
+            }
+
+            function paintCellFromEvent(e) {
+                const rect = spriteCanvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                const x = Math.floor(((clientX - rect.left) / rect.width) * GRID_SIZE);
+                const y = Math.floor(((clientY - rect.top) / rect.height) * GRID_SIZE);
+                if (x >= 0 && x < GRID_SIZE && y >= 0 && y < GRID_SIZE) {
+                    spriteGrid[y][x] = activeBrush === 'ERASE' ? null : activeBrush;
+                    drawSpriteEditor();
+                }
+            }
+
+            spriteCanvas.addEventListener('mousedown', (e) => { isPainting = true; paintCellFromEvent(e); play8BitSound('type'); });
+            window.addEventListener('mouseup', () => { isPainting = false; });
+            spriteCanvas.addEventListener('mousemove', (e) => { if (isPainting) paintCellFromEvent(e); });
+
+            document.querySelectorAll('.swatch-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    activeBrush = btn.getAttribute('data-color');
+                    document.querySelectorAll('.swatch-btn').forEach(b => b.classList.remove('border-white'));
+                    btn.classList.add('border-white');
+                    play8BitSound('blip');
+                });
+            });
+
+            document.getElementById('preset-sword-btn').onclick = () => { loadPresetSprite('sword'); play8BitSound('blip'); };
+            document.getElementById('preset-potion-btn').onclick = () => { loadPresetSprite('potion'); play8BitSound('blip'); };
+            document.getElementById('preset-random-btn').onclick = () => { loadPresetSprite('random'); play8BitSound('powerup'); };
+
+            document.getElementById('sprite-download-btn').onclick = () => {
+                const link = document.createElement('a');
+                link.download = 'shander-pixel-sprite.png';
+                link.href = spriteCanvas.toDataURL('image/png');
+                link.click();
+                play8BitSound('coin');
+                showPixelToast('SPRITE EXPORTED', 'Saved 16x16 pixel art PNG!');
+            };
+
+            loadPresetSprite('sword');
+
+            /* -----------------------------------------------------------
+             * 12. BENTO MODULE 3: TACTILE PIXEL KEYCAP TESTER
+             * ----------------------------------------------------------- */
+            let comboHits = 0;
+            let typedBuffer = '';
+
+            function triggerPixelKey(letter) {
+                const cap = document.querySelector(`.pixel-keycap[data-keycap="${letter}"]`);
+                if (!cap) return;
+                cap.classList.add('active-key');
+                setTimeout(() => cap.classList.remove('active-key'), 120);
+
+                playKeycapSynth(letter);
+                keyboardFlashTimer = 18;
+                comboHits++;
+                document.getElementById('key-combo-readout').textContent = `${comboHits} HITS`;
+
+                typedBuffer = (typedBuffer + letter).slice(-7);
+                if (typedBuffer === 'SHANDER') {
+                    play8BitSound('powerup');
+                    spawnFireworkBurst();
+                    showPixelToast('SECRET COMBO UNLOCKED!', 'S-H-A-N-D-E-R spelled! +9999 Developer XP!');
+                }
+            }
+
+            document.querySelectorAll('.pixel-keycap').forEach(btn => {
+                btn.addEventListener('mousedown', () => {
+                    triggerPixelKey(btn.getAttribute('data-keycap'));
+                });
+            });
+
+            window.addEventListener('keydown', (e) => {
+                if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+                const k = e.key.toUpperCase();
+                if (['S', 'H', 'A', 'N', 'D', 'E', 'R'].includes(k)) {
+                    triggerPixelKey(k);
+                }
+                if (e.key === 'Escape') closeRomModal();
+            });
+
+            document.querySelectorAll('.keymode-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    keySoundMode = btn.getAttribute('data-keymode');
+                    document.querySelectorAll('.keymode-btn').forEach(b => b.className = 'keymode-btn pixel-btn px-3 py-2');
+                    btn.className = 'keymode-btn pixel-btn-primary px-3 py-2';
+                    playKeycapSynth('S');
+                });
+            });
+
+            /* -----------------------------------------------------------
+             * 13. CONTINUE? COUNTDOWN, INSERT COIN & PIXEL FIREWORKS
+             * ----------------------------------------------------------- */
+            let credits = 3;
+            let continueCount = 9;
+            const timerEl = document.getElementById('continue-timer');
+            const coinReadout = document.getElementById('coin-counter');
+
+            setInterval(() => {
+                continueCount = continueCount > 0 ? continueCount - 1 : 9;
+                timerEl.textContent = continueCount;
+            }, 1400);
+
+            const fwCanvas = document.getElementById('firework-canvas');
+            const fwCtx = fwCanvas.getContext('2d');
+            let fwParticles = [];
+
+            function spawnFireworkBurst() {
+                fwCanvas.width = fwCanvas.parentElement.clientWidth;
+                fwCanvas.height = fwCanvas.parentElement.clientHeight;
+                const cx = Math.random() * (fwCanvas.width * 0.6) + fwCanvas.width * 0.2;
+                const cy = Math.random() * (fwCanvas.height * 0.5) + 40;
+                const colors = ['#00ff66', '#ffcc00', '#ff2a54', '#29adff', '#ffffff'];
+
+                for (let i = 0; i < 36; i++) {
+                    const angle = (Math.PI * 2 * i) / 36;
+                    const speed = 2 + Math.random() * 4;
+                    fwParticles.push({
+                        x: cx,
+                        y: cy,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed,
+                        color: colors[i % colors.length],
+                        life: 40
+                    });
+                }
+            }
+
+            function insertCoinAction() {
+                credits++;
+                continueCount = 9;
+                timerEl.textContent = '9';
+                coinReadout.textContent = String(credits).padStart(2, '0');
+                play8BitSound('coin');
+                spawnFireworkBurst();
+                showPixelToast('COIN INSERTED // +1 CREDIT', `Total Arcade Credits: ${credits}`);
+            }
+
+            document.getElementById('hero-coin-btn').addEventListener('click', insertCoinAction);
+            document.getElementById('footer-coin-btn').addEventListener('click', insertCoinAction);
+
+            // Copy Email
+            document.getElementById('copy-email-btn').addEventListener('click', () => {
+                const temp = document.createElement('textarea');
+                temp.value = 'shanderklient.santillan@dev.ph';
+                document.body.appendChild(temp);
+                temp.select();
+                document.execCommand('copy');
+                temp.remove();
+                play8BitSound('coin');
+                showPixelToast('EMAIL COPIED TO CLIPBOARD', 'shanderklient.santillan@dev.ph');
+            });
+
+            // Terminal Contact Form Submit
+            document.getElementById('terminal-contact-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('sender-name').value;
+                play8BitSound('powerup');
+                spawnFireworkBurst();
+                showPixelToast('PACKET TRANSMITTED!', `Thanks ${name}! Shander will reply shortly.`);
+                e.target.reset();
+            });
+
+            /* -----------------------------------------------------------
+             * 14. 8PX-SNAPPED PIXEL CURSOR & DUST TRAIL + LIVE CLOCK
+             * ----------------------------------------------------------- */
+            const cursorEl = document.getElementById('pixel-cursor');
+            const cursorBadge = document.getElementById('cursor-badge');
+            const dustCanvas = document.getElementById('cursor-dust-canvas');
+            const dustCtx = dustCanvas.getContext('2d');
+            let dustParticles = [];
+
+            function resizeDustCanvas() {
+                dustCanvas.width = window.innerWidth;
+                dustCanvas.height = window.innerHeight;
+            }
+            resizeDustCanvas();
+            window.addEventListener('resize', resizeDustCanvas);
+
+            window.addEventListener('mousemove', (e) => {
+                // Quantize to 4px grid for crisp retro feel
+                const gx = Math.round(e.clientX / 4) * 4;
+                const gy = Math.round(e.clientY / 4) * 4;
+                cursorEl.style.transform = `translate3d(${gx}px, ${gy}px, 0)`;
+
+                if (Math.random() > 0.45) {
+                    dustParticles.push({
+                        x: Math.round(e.clientX / 8) * 8,
+                        y: Math.round(e.clientY / 8) * 8,
+                        life: 16,
+                        color: Math.random() > 0.5 ? '#00ff66' : '#ffcc00'
+                    });
+                }
+            });
+
+            document.querySelectorAll('[data-cursor]').forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    cursorBadge.textContent = el.getAttribute('data-cursor');
+                    cursorBadge.classList.remove('hidden');
+                    play8BitSound('type');
+                });
+                el.addEventListener('mouseleave', () => {
+                    cursorBadge.classList.add('hidden');
+                });
+            });
+
+            // Live Escalante City / PH Time Clock
+            function updateClock() {
+                const now = new Date();
+                document.getElementById('ph-clock').textContent = now.toLocaleTimeString('en-US', {
+                    timeZone: 'Asia/Manila',
+                    hour12: false
+                }) + ' PST';
+            }
+            updateClock();
+            setInterval(updateClock, 1000);
+
+            /* -----------------------------------------------------------
+             * 15. MASTER 60FPS PIXEL RENDER LOOP
+             * ----------------------------------------------------------- */
+            let frameCount = 0;
+            let marqueeX = 0;
+            const marqueeEl = document.getElementById('pixel-marquee');
+            const romCanvases = document.querySelectorAll('.rom-cover-canvas');
+
+            function masterPixelLoop() {
+                frameCount++;
+
+                // 1. Render Hero 160x120 Developer Desk Diorama
+                renderDiorama(frameCount);
+
+                // 2. Render ROM Cartridge Covers
+                romCanvases.forEach(c => {
+                    const idx = parseInt(c.getAttribute('data-rom-idx'), 10);
+                    drawCartridgeCover(c, ROM_PROJECTS[idx], frameCount);
+                });
+
+                // 3. Render Active Console Modal Simulator
+                renderActiveSimulator(frameCount);
+
+                // 4. Stepped Pixel Marquee
+                if (frameCount % 2 === 0) {
+                    marqueeX -= 2;
+                    if (marqueeX <= -1100) marqueeX = 0;
+                    marqueeEl.style.transform = `translate3d(${marqueeX}px, 0, 0)`;
+                }
+
+                // 5. Render Cursor Pixel Dust
+                dustCtx.clearRect(0, 0, dustCanvas.width, dustCanvas.height);
+                for (let i = dustParticles.length - 1; i >= 0; i--) {
+                    const p = dustParticles[i];
+                    dustCtx.fillStyle = p.color;
+                    dustCtx.fillRect(p.x, p.y, 4, 4);
+                    p.y += 1;
+                    p.life--;
+                    if (p.life <= 0) dustParticles.splice(i, 1);
+                }
+
+                // 6. Render Footer Pixel Fireworks
+                if (fwParticles.length > 0) {
+                    fwCtx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
+                    for (let i = fwParticles.length - 1; i >= 0; i--) {
+                        const fp = fwParticles[i];
+                        fwCtx.fillStyle = fp.color;
+                        fwCtx.fillRect(Math.round(fp.x / 4) * 4, Math.round(fp.y / 4) * 4, 6, 6);
+                        fp.x += fp.vx;
+                        fp.y += fp.vy;
+                        fp.vy += 0.12;
+                        fp.life--;
+                        if (fp.life <= 0) fwParticles.splice(i, 1);
+                    }
+                }
+
+                requestAnimationFrame(masterPixelLoop);
+            }
+
+            requestAnimationFrame(masterPixelLoop);
+        };
+    </script>
+</body>
+</html>

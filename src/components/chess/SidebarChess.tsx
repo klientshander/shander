@@ -215,27 +215,27 @@ export default function SidebarChess({ onExpand, isModal = false }) {
 
   return (
     <div className={`sidebar-chess ${isModal ? 'sidebar-chess--modal' : ''}`}>
-      {/* Header */}
-      <div className="sidebar-chess__header">
-        <div className="sidebar-chess__title-group">
-          <span className="sidebar-chess__icon">♟️</span>
-          <span className="sidebar-chess__title">Play with me</span>
-        </div>
+      {/* Mini-Game Header (Only when embedded in sidebar, modal has its own header) */}
+      {!isModal && (
+        <div className="sidebar-chess__header">
+          <div className="sidebar-chess__title-group">
+            <span className="sidebar-chess__icon">♟️</span>
+            <span className="sidebar-chess__title">Play with me</span>
+          </div>
 
-        <div className="sidebar-chess__header-actions">
-          {!isModal && onExpand && (
-            <button
-              type="button"
-              className="sidebar-chess__btn sidebar-chess__btn--icon"
-              onClick={onExpand}
-              title="Expand chessboard"
-              aria-label="Expand chessboard"
-            >
-              <FiMaximize2 />
-            </button>
-          )}
+          <div className="sidebar-chess__header-actions">
+            {onExpand && (
+              <button
+                type="button"
+                className="sidebar-chess__btn sidebar-chess__btn--icon"
+                onClick={onExpand}
+                title="Expand chessboard"
+                aria-label="Expand chessboard"
+              >
+                <FiMaximize2 />
+              </button>
+            )}
 
-          {!isModal && (
             <button
               type="button"
               className="sidebar-chess__btn sidebar-chess__btn--icon"
@@ -245,25 +245,27 @@ export default function SidebarChess({ onExpand, isModal = false }) {
             >
               {isCollapsed ? <FiChevronDown /> : <FiChevronUp />}
             </button>
-          )}
+          </div>
         </div>
-      </div>
+      )}
 
-      <AnimatePresence>
-        {(!isCollapsed || isModal) && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.22 }}
-            className="sidebar-chess__body"
-          >
-            {/* Status & Difficulty Row */}
-            <div className="sidebar-chess__status-row">
-              <span className={`sidebar-chess__badge ${turn === 'w' ? 'sidebar-chess__badge--white' : 'sidebar-chess__badge--black'}`}>
-                {statusMessage}
-              </span>
-              {vsBot && (
+      {/* Main Body Content */}
+      {isModal ? (
+        <div className="sidebar-chess__body">
+          {/* Status & Difficulty Row */}
+          <div className="sidebar-chess__status-row">
+            <div className="sidebar-chess__status-pill">
+              <span
+                className={`sidebar-chess__turn-dot ${
+                  turn === 'w' ? 'sidebar-chess__turn-dot--w' : 'sidebar-chess__turn-dot--b'
+                } ${isCheck ? 'is-check' : ''}`}
+              />
+              <span className="sidebar-chess__status-text">{statusMessage}</span>
+            </div>
+
+            {vsBot && (
+              <div className="sidebar-chess__diff-wrapper">
+                <span className="sidebar-chess__diff-tag">BOT:</span>
                 <select
                   className="sidebar-chess__difficulty"
                   value={botDifficulty}
@@ -274,142 +276,324 @@ export default function SidebarChess({ onExpand, isModal = false }) {
                   <option value="medium">Normal</option>
                   <option value="hard">Master</option>
                 </select>
+              </div>
+            )}
+          </div>
+
+          {/* Mode & Action Tools Bar */}
+          <div className="sidebar-chess__controls">
+            <div className="sidebar-chess__mode-toggle">
+              <button
+                type="button"
+                className={`sidebar-chess__mode-btn ${vsBot ? 'is-active' : ''}`}
+                onClick={() => {
+                  setVsBot(true)
+                  resetGame()
+                }}
+              >
+                <FiCpu /> vs Bot
+              </button>
+              <button
+                type="button"
+                className={`sidebar-chess__mode-btn ${!vsBot ? 'is-active' : ''}`}
+                onClick={() => {
+                  setVsBot(false)
+                  resetGame()
+                }}
+              >
+                <FiUser /> 2-Player
+              </button>
+            </div>
+
+            <div className="sidebar-chess__action-btns">
+              <button
+                type="button"
+                className={`sidebar-chess__btn sidebar-chess__btn--icon ${!soundEnabled ? 'is-muted' : ''}`}
+                onClick={() => setSoundEnabled(!soundEnabled)}
+                title={soundEnabled ? 'Mute sound effects' : 'Unmute sound effects'}
+                aria-label={soundEnabled ? 'Mute sound effects' : 'Unmute sound effects'}
+              >
+                {soundEnabled ? <FiVolume2 /> : <FiVolumeX />}
+              </button>
+              <button
+                type="button"
+                className="sidebar-chess__btn sidebar-chess__btn--icon"
+                onClick={undoMove}
+                title="Undo move"
+                aria-label="Undo move"
+              >
+                <FiRotateCcw />
+              </button>
+              <button
+                type="button"
+                className="sidebar-chess__btn sidebar-chess__btn--new"
+                onClick={resetGame}
+              >
+                New Game
+              </button>
+            </div>
+          </div>
+
+          {/* Black Captured Tray */}
+          <div className="sidebar-chess__tray sidebar-chess__tray--black">
+            <span className="sidebar-chess__tray-label">Captured White:</span>
+            <div className="sidebar-chess__tray-pieces">
+              {capturedPieces.w.length === 0 ? (
+                <span className="sidebar-chess__tray-empty">—</span>
+              ) : (
+                capturedPieces.w.map((p, idx) => (
+                  <span key={idx} className="sidebar-chess__captured-piece">
+                    {PIECE_SYMBOLS.w[p]}
+                  </span>
+                ))
               )}
             </div>
+          </div>
 
-            {/* Mode & Action Tools Bar */}
-            <div className="sidebar-chess__controls">
-              <div className="sidebar-chess__mode-toggle">
-                <button
-                  type="button"
-                  className={`sidebar-chess__mode-btn ${vsBot ? 'is-active' : ''}`}
-                  onClick={() => {
-                    setVsBot(true)
-                    resetGame()
-                  }}
-                >
-                  <FiCpu /> vs Bot
-                </button>
-                <button
-                  type="button"
-                  className={`sidebar-chess__mode-btn ${!vsBot ? 'is-active' : ''}`}
-                  onClick={() => {
-                    setVsBot(false)
-                    resetGame()
-                  }}
-                >
-                  <FiUser /> 2-Player
-                </button>
-              </div>
+          {/* Chessboard Grid (8x8) */}
+          <div className="sidebar-chess__board-wrap">
+            <div className="sidebar-chess__board">
+              {board.map((row, rIdx) =>
+                row.map((piece, cIdx) => {
+                  const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+                  const sq = `${files[cIdx]}${8 - rIdx}`
+                  const isDark = (rIdx + cIdx) % 2 === 1
+                  const isSelected = selectedSquare === sq
+                  const isLegal = legalMoves.some((m) => m.to === sq)
+                  const isCapture = isLegal && piece !== null
+                  const isLastMoveSq =
+                    lastMove && (lastMove.from === sq || lastMove.to === sq)
+                  const isKingInCheck =
+                    isCheck &&
+                    piece &&
+                    piece.type === 'k' &&
+                    piece.color === turn
 
-              <div className="sidebar-chess__action-btns">
-                <button
-                  type="button"
-                  className="sidebar-chess__btn sidebar-chess__btn--icon"
-                  onClick={undoMove}
-                  title="Undo move"
-                  aria-label="Undo move"
-                >
-                  <FiRotateCcw />
-                </button>
-                <button
-                  type="button"
-                  className="sidebar-chess__btn sidebar-chess__btn--new"
-                  onClick={resetGame}
-                >
-                  New
-                </button>
-              </div>
+                  return (
+                    <button
+                      type="button"
+                      key={sq}
+                      onClick={() => handleSquareClick(rIdx, cIdx)}
+                      className={`sidebar-chess__square ${
+                        isDark ? 'is-dark' : 'is-light'
+                      } ${isSelected ? 'is-selected' : ''} ${
+                        isLastMoveSq ? 'is-last-move' : ''
+                      } ${isKingInCheck ? 'is-check' : ''}`}
+                      aria-label={`Square ${sq} ${
+                        piece ? `${piece.color === 'w' ? 'White' : 'Black'} ${piece.type}` : 'Empty'
+                      }`}
+                    >
+                      {/* Piece Icon */}
+                      {piece && (
+                        <span
+                          className={`sidebar-chess__piece sidebar-chess__piece--${piece.color}`}
+                        >
+                          {PIECE_SYMBOLS[piece.color][piece.type]}
+                        </span>
+                      )}
+
+                      {/* Legal Move Indicator */}
+                      {isLegal && !isCapture && (
+                        <span className="sidebar-chess__legal-dot" />
+                      )}
+                      {isCapture && (
+                        <span className="sidebar-chess__capture-ring" />
+                      )}
+
+                      {/* Rank and File Notation Coordinates on Edges */}
+                      {cIdx === 0 && (
+                        <span className="sidebar-chess__coord sidebar-chess__coord--rank">
+                          {8 - rIdx}
+                        </span>
+                      )}
+                      {rIdx === 7 && (
+                        <span className="sidebar-chess__coord sidebar-chess__coord--file">
+                          {files[cIdx]}
+                        </span>
+                      )}
+                    </button>
+                  )
+                })
+              )}
             </div>
+          </div>
 
-            {/* Black Captured Tray */}
-            <div className="sidebar-chess__tray sidebar-chess__tray--black">
-              {capturedPieces.w.map((p, idx) => (
-                <span key={idx} className="sidebar-chess__captured-piece">
-                  {PIECE_SYMBOLS.w[p]}
+          {/* White Captured Tray */}
+          <div className="sidebar-chess__tray sidebar-chess__tray--white">
+            <span className="sidebar-chess__tray-label">Captured Black:</span>
+            <div className="sidebar-chess__tray-pieces">
+              {capturedPieces.b.length === 0 ? (
+                <span className="sidebar-chess__tray-empty">—</span>
+              ) : (
+                capturedPieces.b.map((p, idx) => (
+                  <span key={idx} className="sidebar-chess__captured-piece">
+                    {PIECE_SYMBOLS.b[p]}
+                  </span>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <AnimatePresence>
+          {!isCollapsed && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.22 }}
+              className="sidebar-chess__body"
+            >
+              {/* Status & Difficulty Row */}
+              <div className="sidebar-chess__status-row">
+                <span className={`sidebar-chess__badge ${turn === 'w' ? 'sidebar-chess__badge--white' : 'sidebar-chess__badge--black'}`}>
+                  {statusMessage}
                 </span>
-              ))}
-            </div>
-
-            {/* Chessboard Grid (8x8) */}
-            <div className="sidebar-chess__board-wrap">
-              <div className="sidebar-chess__board">
-                {board.map((row, rIdx) =>
-                  row.map((piece, cIdx) => {
-                    const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-                    const sq = `${files[cIdx]}${8 - rIdx}`
-                    const isDark = (rIdx + cIdx) % 2 === 1
-                    const isSelected = selectedSquare === sq
-                    const isLegal = legalMoves.some((m) => m.to === sq)
-                    const isCapture = isLegal && piece !== null
-                    const isLastMoveSq =
-                      lastMove && (lastMove.from === sq || lastMove.to === sq)
-                    const isKingInCheck =
-                      isCheck &&
-                      piece &&
-                      piece.type === 'k' &&
-                      piece.color === turn
-
-                    return (
-                      <button
-                        type="button"
-                        key={sq}
-                        onClick={() => handleSquareClick(rIdx, cIdx)}
-                        className={`sidebar-chess__square ${
-                          isDark ? 'is-dark' : 'is-light'
-                        } ${isSelected ? 'is-selected' : ''} ${
-                          isLastMoveSq ? 'is-last-move' : ''
-                        } ${isKingInCheck ? 'is-check' : ''}`}
-                        aria-label={`Square ${sq} ${
-                          piece ? `${piece.color === 'w' ? 'White' : 'Black'} ${piece.type}` : 'Empty'
-                        }`}
-                      >
-                        {/* Piece Icon */}
-                        {piece && (
-                          <span
-                            className={`sidebar-chess__piece sidebar-chess__piece--${piece.color}`}
-                          >
-                            {PIECE_SYMBOLS[piece.color][piece.type]}
-                          </span>
-                        )}
-
-                        {/* Legal Move Indicator */}
-                        {isLegal && !isCapture && (
-                          <span className="sidebar-chess__legal-dot" />
-                        )}
-                        {isCapture && (
-                          <span className="sidebar-chess__capture-ring" />
-                        )}
-
-                        {/* Rank and File Notation Coordinates on Edges */}
-                        {cIdx === 0 && (
-                          <span className="sidebar-chess__coord sidebar-chess__coord--rank">
-                            {8 - rIdx}
-                          </span>
-                        )}
-                        {rIdx === 7 && (
-                          <span className="sidebar-chess__coord sidebar-chess__coord--file">
-                            {files[cIdx]}
-                          </span>
-                        )}
-                      </button>
-                    )
-                  })
+                {vsBot && (
+                  <select
+                    className="sidebar-chess__difficulty"
+                    value={botDifficulty}
+                    onChange={(e) => setBotDifficulty(e.target.value)}
+                    aria-label="Bot difficulty"
+                  >
+                    <option value="easy">Casual</option>
+                    <option value="medium">Normal</option>
+                    <option value="hard">Master</option>
+                  </select>
                 )}
               </div>
-            </div>
 
-            {/* White Captured Tray */}
-            <div className="sidebar-chess__tray sidebar-chess__tray--white">
-              {capturedPieces.b.map((p, idx) => (
-                <span key={idx} className="sidebar-chess__captured-piece">
-                  {PIECE_SYMBOLS.b[p]}
-                </span>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              {/* Mode & Action Tools Bar */}
+              <div className="sidebar-chess__controls">
+                <div className="sidebar-chess__mode-toggle">
+                  <button
+                    type="button"
+                    className={`sidebar-chess__mode-btn ${vsBot ? 'is-active' : ''}`}
+                    onClick={() => {
+                      setVsBot(true)
+                      resetGame()
+                    }}
+                  >
+                    <FiCpu /> vs Bot
+                  </button>
+                  <button
+                    type="button"
+                    className={`sidebar-chess__mode-btn ${!vsBot ? 'is-active' : ''}`}
+                    onClick={() => {
+                      setVsBot(false)
+                      resetGame()
+                    }}
+                  >
+                    <FiUser /> 2-Player
+                  </button>
+                </div>
+
+                <div className="sidebar-chess__action-btns">
+                  <button
+                    type="button"
+                    className="sidebar-chess__btn sidebar-chess__btn--icon"
+                    onClick={undoMove}
+                    title="Undo move"
+                    aria-label="Undo move"
+                  >
+                    <FiRotateCcw />
+                  </button>
+                  <button
+                    type="button"
+                    className="sidebar-chess__btn sidebar-chess__btn--new"
+                    onClick={resetGame}
+                  >
+                    New Game
+                  </button>
+                </div>
+              </div>
+
+              {/* Black Captured Tray */}
+              <div className="sidebar-chess__tray sidebar-chess__tray--black">
+                {capturedPieces.w.map((p, idx) => (
+                  <span key={idx} className="sidebar-chess__captured-piece">
+                    {PIECE_SYMBOLS.w[p]}
+                  </span>
+                ))}
+              </div>
+
+              {/* Chessboard Grid (8x8) */}
+              <div className="sidebar-chess__board-wrap">
+                <div className="sidebar-chess__board">
+                  {board.map((row, rIdx) =>
+                    row.map((piece, cIdx) => {
+                      const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+                      const sq = `${files[cIdx]}${8 - rIdx}`
+                      const isDark = (rIdx + cIdx) % 2 === 1
+                      const isSelected = selectedSquare === sq
+                      const isLegal = legalMoves.some((m) => m.to === sq)
+                      const isCapture = isLegal && piece !== null
+                      const isLastMoveSq =
+                        lastMove && (lastMove.from === sq || lastMove.to === sq)
+                      const isKingInCheck =
+                        isCheck &&
+                        piece &&
+                        piece.type === 'k' &&
+                        piece.color === turn
+
+                      return (
+                        <button
+                          type="button"
+                          key={sq}
+                          onClick={() => handleSquareClick(rIdx, cIdx)}
+                          className={`sidebar-chess__square ${
+                            isDark ? 'is-dark' : 'is-light'
+                          } ${isSelected ? 'is-selected' : ''} ${
+                            isLastMoveSq ? 'is-last-move' : ''
+                          } ${isKingInCheck ? 'is-check' : ''}`}
+                          aria-label={`Square ${sq} ${
+                            piece ? `${piece.color === 'w' ? 'White' : 'Black'} ${piece.type}` : 'Empty'
+                          }`}
+                        >
+                          {piece && (
+                            <span
+                              className={`sidebar-chess__piece sidebar-chess__piece--${piece.color}`}
+                            >
+                              {PIECE_SYMBOLS[piece.color][piece.type]}
+                            </span>
+                          )}
+
+                          {isLegal && !isCapture && (
+                            <span className="sidebar-chess__legal-dot" />
+                          )}
+                          {isCapture && (
+                            <span className="sidebar-chess__capture-ring" />
+                          )}
+
+                          {cIdx === 0 && (
+                            <span className="sidebar-chess__coord sidebar-chess__coord--rank">
+                              {8 - rIdx}
+                            </span>
+                          )}
+                          {rIdx === 7 && (
+                            <span className="sidebar-chess__coord sidebar-chess__coord--file">
+                              {files[cIdx]}
+                            </span>
+                          )}
+                        </button>
+                      )
+                    })
+                  )}
+                </div>
+              </div>
+
+              {/* White Captured Tray */}
+              <div className="sidebar-chess__tray sidebar-chess__tray--white">
+                {capturedPieces.b.map((p, idx) => (
+                  <span key={idx} className="sidebar-chess__captured-piece">
+                    {PIECE_SYMBOLS.b[p]}
+                  </span>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
     </div>
   )
 }
