@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { createPortal, flushSync } from 'react-dom'
 import Lenis from 'lenis'
 import 'lenis/dist/lenis.css'
@@ -47,13 +47,15 @@ import {
   communityGuidelines,
 } from '../data/community'
 import { supabase } from '../utils/supabase'
-import SidebarChess from '../components/chess/SidebarChess'
 import BounceCards from '../components/ui/BounceCards'
 import Stack from '../components/ui/Stack'
 import StarBorder from '../components/ui/StarBorder'
 import { useSoundEffects } from '../hooks/useSoundEffects'
 import { playClickSound } from '../utils/sound'
+import PortfolioAI from './PortfolioAI'
 import './portfolio.css'
+
+const SidebarChess = lazy(() => import('../components/chess/SidebarChess'))
 
 declare global {
   namespace JSX {
@@ -99,13 +101,13 @@ const HERO_MODEL_CONFIG = JSON.stringify({
     type: 'tesserae',
     params: {
       sun: 41,
-      boil: 25,
+      boil: 0,
       tilt: 35,
       gloss: 75,
       grout: 70,
       relief: 45,
       sizeMix: 45,
-      boilRate: 8,
+      boilRate: 0,
       colorMix: 50,
       tileSize: 0,
       elevation: 45,
@@ -207,6 +209,7 @@ const MAIN_NAV = [
   { id: 'skills', label: 'Skills' },
   { id: 'contact', label: 'Collab' },
 ]
+const MAIN_NAV_IDS = MAIN_NAV.map((n) => n.id)
 
 // Standalone sections accessible only when clicked from nav links
 const STANDALONE_NAV = [
@@ -365,21 +368,23 @@ function useSmoothScroll() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
 
     const lenis = new Lenis({
-      duration: 1.15,
+      duration: 0.95,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
       wheelMultiplier: 1.0,
       touchMultiplier: 1.0,
-      syncTouch: true,
+      syncTouch: false,
       infinite: false,
       autoRaf: false,
     })
 
     let frameId = 0
     const animate = (time: number) => {
-      lenis.raf(time)
+      if (!document.hidden) {
+        lenis.raf(time)
+      }
       frameId = requestAnimationFrame(animate)
     }
 
@@ -585,7 +590,9 @@ function ChessModal({ open, onClose }) {
           </button>
         </div>
         <div className="rd-chess-modal__body">
-          <SidebarChess isModal={true} />
+          <Suspense fallback={<div style={{ padding: '40px', textAlign: 'center', color: 'var(--muted)' }}>Loading Chess Board...</div>}>
+            <SidebarChess isModal={true} />
+          </Suspense>
         </div>
       </div>
     </div>,
@@ -618,7 +625,6 @@ function Nav({
   onToggleTheme,
   soundEnabled,
   onToggleSound,
-  activeMain,
   activeStandalone,
   onNavigateMain,
   onNavigateStandalone,
@@ -626,10 +632,18 @@ function Nav({
 }) {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const scrolledRef = useRef(false)
   const progressRef = useScrollProgress()
+  const activeMain = useActiveSection(MAIN_NAV_IDS, Boolean(activeStandalone))
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8)
+    const onScroll = () => {
+      const next = window.scrollY > 8
+      if (next !== scrolledRef.current) {
+        scrolledRef.current = next
+        setScrolled(next)
+      }
+    }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
@@ -801,6 +815,9 @@ function Nav({
 
 /* -------------------------------- sections ------------------------------ */
 function Hero({ theme }: { theme?: 'dark' | 'light' }) {
+  const frameRef = useRef<HTMLDivElement | null>(null)
+  const [modelVisible, setModelVisible] = useState(true)
+
   useEffect(() => {
     const src = 'https://thrine.app/embed/v1.js'
     if (!document.querySelector(`script[src="${src}"]`)) {
@@ -809,6 +826,19 @@ function Hero({ theme }: { theme?: 'dark' | 'light' }) {
       script.src = src
       document.head.appendChild(script)
     }
+  }, [])
+
+  useEffect(() => {
+    const el = frameRef.current
+    if (!el || typeof IntersectionObserver === 'undefined') return
+    const io = new IntersectionObserver(
+      (entries) => {
+        setModelVisible(entries.some((e) => e.isIntersecting))
+      },
+      { rootMargin: '150px 0px' }
+    )
+    io.observe(el)
+    return () => io.disconnect()
   }, [])
 
   const stats = [
@@ -874,7 +904,7 @@ function Hero({ theme }: { theme?: 'dark' | 'light' }) {
         </div>
 
         <figure className="rd-hero__photo" data-reveal>
-          <div className="rd-hero__frame">
+          <div className="rd-hero__frame" ref={frameRef}>
             <model-embed
               src="/models/happy_ghast_minecraft_fanart.glb"
               config={HERO_MODEL_CONFIG}
@@ -885,6 +915,8 @@ function Hero({ theme }: { theme?: 'dark' | 'light' }) {
                 border: 'none',
                 background: 'var(--bg)',
                 transition: 'background-color 0.4s ease',
+                visibility: modelVisible ? 'visible' : 'hidden',
+                pointerEvents: modelVisible ? 'auto' : 'none',
               }}
             ></model-embed>
           </div>
@@ -902,28 +934,44 @@ function Hero({ theme }: { theme?: 'dark' | 'light' }) {
 
 function ProjectMedia({ project }: { project: any }) {
   const videoRef = useRef<HTMLVideoElement | null>(null)
+  const slideRef = useRef<HTMLDivElement | null>(null)
   const thumb = THUMB_OVERRIDES[project.id] || (!isVideo(project.cover) && project.cover)
   const isImageArray = Array.isArray(thumb)
   const [activeIdx, setActiveIdx] = useState(0)
+  const [inView, setInView] = useState(true)
 
   useEffect(() => {
-    if (!isImageArray || (thumb as string[]).length <= 1) return
+    const el = slideRef.current
+    if (!isImageArray || !el || typeof IntersectionObserver === 'undefined') return
+    const io = new IntersectionObserver(
+      (entries) => setInView(entries.some((e) => e.isIntersecting)),
+      { rootMargin: '100px 0px' }
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [isImageArray])
+
+  useEffect(() => {
+    if (!isImageArray || !inView || (thumb as string[]).length <= 1) return
     const interval = setInterval(() => {
-      setActiveIdx((prev) => (prev + 1) % (thumb as string[]).length)
+      if (!document.hidden) {
+        setActiveIdx((prev) => (prev + 1) % (thumb as string[]).length)
+      }
     }, 5000)
     return () => clearInterval(interval)
-  }, [isImageArray, thumb])
+  }, [isImageArray, inView, thumb])
 
   if (isImageArray) {
     const list = thumb as string[]
     return (
-      <div className="rd-card__slideshow">
+      <div className="rd-card__slideshow" ref={slideRef}>
         {list.map((imgSrc, idx) => (
           <img
             key={imgSrc}
             src={imgSrc}
             alt={`${project.title} preview ${idx + 1}`}
             loading={idx === 0 ? 'eager' : 'lazy'}
+            decoding="async"
             className={`rd-card__slideshow-img ${idx === activeIdx ? 'is-active' : ''}`}
           />
         ))}
@@ -941,7 +989,7 @@ function ProjectMedia({ project }: { project: any }) {
     )
   }
 
-  if (thumb && typeof thumb === 'string') return <img src={thumb} alt="" loading="lazy" />
+  if (thumb && typeof thumb === 'string') return <img src={thumb} alt="" loading="lazy" decoding="async" />
   const video = isVideo(project.cover) ? project.cover : project.videoUrl
   if (!video) return <div className="rd-card__placeholder">{project.title[0]}</div>
 
@@ -1137,6 +1185,10 @@ const ABOUT_STACK_IMAGES = [
   '/gallery/stack-about/367949082_188282470815708_6616340306164672621_n.jpg',
 ]
 
+const ABOUT_STACK_CARDS = ABOUT_STACK_IMAGES.map((src, i) => (
+  <img key={src} src={src} alt={`About photo ${i + 1}`} loading="lazy" decoding="async" draggable={false} />
+))
+
 function About({ onMore }: { onMore?: () => void }) {
   return (
     <section className="rd-section rd-container" id="about">
@@ -1166,9 +1218,7 @@ function About({ onMore }: { onMore?: () => void }) {
             <Stack
               layout="fan"
               sendToBackOnClick={true}
-              cards={ABOUT_STACK_IMAGES.map((src, i) => (
-                <img key={src} src={src} alt={`About photo ${i + 1}`} />
-              ))}
+              cards={ABOUT_STACK_CARDS}
               visible={4}
               spread={0.5}
               depth={0.5}
@@ -1315,9 +1365,19 @@ function Gallery({ onOpen }) {
   const [screenWidth, setScreenWidth] = useState(() => (typeof window !== 'undefined' ? window.innerWidth : 1200))
 
   useEffect(() => {
-    const onResize = () => setScreenWidth(window.innerWidth)
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
+    let raf = 0
+    const onResize = () => {
+      if (raf) return
+      raf = requestAnimationFrame(() => {
+        raf = 0
+        setScreenWidth((prev) => (Math.abs(prev - window.innerWidth) > 12 ? window.innerWidth : prev))
+      })
+    }
+    window.addEventListener('resize', onResize, { passive: true })
+    return () => {
+      window.removeEventListener('resize', onResize)
+      cancelAnimationFrame(raf)
+    }
   }, [])
 
   const isSmall = screenWidth < 520
@@ -1821,9 +1881,7 @@ function AboutView({ onBack }: { onBack: () => void }) {
               <Stack
                 layout="fan"
                 sendToBackOnClick={true}
-                cards={ABOUT_STACK_IMAGES.map((src, i) => (
-                  <img key={src} src={src} alt={`About photo ${i + 1}`} />
-                ))}
+                cards={ABOUT_STACK_CARDS}
                 visible={4}
                 spread={0.5}
                 depth={0.5}
@@ -2649,7 +2707,6 @@ export default function Portfolio() {
         onToggleTheme={toggleTheme}
         soundEnabled={soundEnabled}
         onToggleSound={toggleSound}
-        activeMain={useActiveSection(MAIN_NAV.map((n) => n.id), Boolean(standalone))}
         activeStandalone={standalone}
         onNavigateMain={handleNavigateMain}
         onNavigateStandalone={handleNavigateStandalone}
@@ -2724,6 +2781,12 @@ export default function Portfolio() {
       </footer>
       <Lightbox item={lightbox} onClose={() => setLightbox(null)} />
       <ChessModal open={chessOpen} onClose={() => setChessOpen(false)} />
+      <PortfolioAI
+        onSelectProject={handleSelectProject}
+        onNavigateMain={handleNavigateMain}
+        onNavigateStandalone={handleNavigateStandalone}
+        onOpenChess={() => setChessOpen(true)}
+      />
     </>
   )
 }

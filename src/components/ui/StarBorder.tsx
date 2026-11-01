@@ -273,7 +273,7 @@ const StarBorder = <T extends React.ElementType = 'button'>({
     const measure = () => {
       state.width = root.offsetWidth;
       state.height = root.offsetHeight;
-      state.dpr = Math.min(window.devicePixelRatio || 1, 2);
+      state.dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       canvas.width = Math.max(1, Math.round((state.width + BLEED * 2) * state.dpr));
       canvas.height = Math.max(1, Math.round((state.height + BLEED * 2) * state.dpr));
       wake();
@@ -312,7 +312,7 @@ const StarBorder = <T extends React.ElementType = 'button'>({
       tip = true
     ) => {
       if (length < 0.5 || intensity <= 0) return;
-      const steps = clamp(Math.ceil(length / 2), 2, 90);
+      const steps = clamp(Math.ceil(length / 5), 2, 28);
       pointAt(shape, head, point);
       let px = point.x;
       let py = point.y;
@@ -323,7 +323,7 @@ const StarBorder = <T extends React.ElementType = 'button'>({
         let tone = mix(colors.tail, colors.head, u);
         if (!s.light) tone = mix(tone, WHITE, u ** 6 * 0.65);
         ctx.lineCap = tip && i === 1 ? 'round' : 'butt';
-        stroke(px, py, point.x, point.y, 2 + 6 * s.glow, rgba(tone, fade * (s.light ? 0.1 : 0.2) * s.glow));
+        stroke(px, py, point.x, point.y, 2 + 5 * s.glow, rgba(tone, fade * (s.light ? 0.1 : 0.18) * s.glow));
         stroke(px, py, point.x, point.y, s.thickness, rgba(tone, fade));
         px = point.x;
         py = point.y;
@@ -531,7 +531,9 @@ const StarBorder = <T extends React.ElementType = 'button'>({
         dust.length > 0;
       const moving = Math.abs(state.motion) > 0.05 || cruise !== 0 || state.lap >= 0;
       const showing = state.reveal > 0.002 || revealTarget > 0;
-      if (state.visible && (settling || (moving && showing) || state.hovered)) raf = requestAnimationFrame(frame);
+      if (!document.hidden && state.visible && (settling || (moving && showing) || state.hovered)) {
+        raf = requestAnimationFrame(frame);
+      }
     };
 
     const wake = () => {
@@ -614,7 +616,7 @@ const StarBorder = <T extends React.ElementType = 'button'>({
 
   useEffect(() => {
     wakeRef.current?.();
-  });
+  }, [theme, color, trailColor, duration, thickness, radius, trailLength, stars, glow, sparkle, direction, hover]);
 
   return (
     <Component
