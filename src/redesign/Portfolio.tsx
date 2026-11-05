@@ -25,6 +25,7 @@ import {
   FiChevronUp,
   FiVolume2,
   FiVolumeX,
+  FiMusic,
   FiUsers,
   FiMessageSquare,
   FiSend,
@@ -51,11 +52,13 @@ import BounceCards from '../components/ui/BounceCards'
 import Stack from '../components/ui/Stack'
 import StarBorder from '../components/ui/StarBorder'
 import { useSoundEffects } from '../hooks/useSoundEffects'
+import { useBackgroundMusic } from '../hooks/useBackgroundMusic'
 import { playClickSound } from '../utils/sound'
 import PortfolioAI from './PortfolioAI'
 import './portfolio.css'
 
 const SidebarChess = lazy(() => import('../components/chess/SidebarChess'))
+const MeadowBlush = lazy(() => import('../components/ui/MeadowBlush'))
 
 declare global {
   namespace JSX {
@@ -288,7 +291,7 @@ function useTheme() {
 
   const toggleTheme = (e?: React.MouseEvent) => {
     const nextTheme: 'dark' | 'light' = theme === 'dark' ? 'light' : 'dark'
-    playClickSound(0.22)
+    playClickSound(0.18)
 
     const prefersReducedMotion =
       typeof window !== 'undefined' &&
@@ -302,7 +305,7 @@ function useTheme() {
       document.documentElement.classList.add('theme-transitioning')
       setTimeout(() => {
         document.documentElement.classList.remove('theme-transitioning')
-      }, 450)
+      }, 400)
       setTheme(nextTheme)
       document.documentElement.setAttribute('data-theme', nextTheme)
       try {
@@ -350,8 +353,9 @@ function useTheme() {
               clipPath,
             },
             {
-              duration: 520,
+              duration: 500,
               easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+              fill: 'forwards',
               pseudoElement: '::view-transition-new(root)',
             }
           )
@@ -399,45 +403,39 @@ function useSmoothScroll() {
 }
 
 // Adds `is-in` to every [data-reveal] element as it scrolls into view.
-function useReveal(trigger) {
+function useReveal(trigger?: any) {
   useEffect(() => {
-    const markVisible = () => {
-      const els = document.querySelectorAll('[data-reveal]')
-      if (!els.length) return
+    const els = document.querySelectorAll<HTMLElement>('[data-reveal]:not(.is-in)')
+    if (!els.length) return undefined
 
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        els.forEach((el) => el.classList.add('is-in'))
-        return
-      }
-
-      const io = new IntersectionObserver(
-        (entries) =>
-          entries.forEach((e) => {
-            if (e.isIntersecting) {
-              e.target.classList.add('is-in')
-              io.unobserve(e.target)
-            }
-          }),
-        { rootMargin: '0px 0px -5% 0px', threshold: 0.02 }
-      )
-
-      els.forEach((el) => {
-        const rect = el.getBoundingClientRect()
-        // If element is already in or near viewport, immediately reveal it
-        if (rect.top <= window.innerHeight + 100 && rect.bottom >= -100) {
-          el.classList.add('is-in')
-        } else {
-          io.observe(el)
-        }
-      })
-      return io
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      els.forEach((el) => el.classList.add('is-in'))
+      return undefined
     }
 
-    const io1 = markVisible()
-    const t = setTimeout(markVisible, 60)
+    const io = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add('is-in')
+            io.unobserve(e.target)
+          }
+        }),
+      { rootMargin: '0px 0px -5% 0px', threshold: 0.02 }
+    )
+
+    els.forEach((el) => {
+      const rect = el.getBoundingClientRect()
+      // If element is already in or near viewport, immediately reveal it
+      if (rect.top <= window.innerHeight + 100 && rect.bottom >= -100) {
+        el.classList.add('is-in')
+      } else {
+        io.observe(el)
+      }
+    })
+
     return () => {
-      clearTimeout(t)
-      if (io1) io1.disconnect()
+      io.disconnect()
     }
   }, [trigger])
 }
@@ -625,10 +623,23 @@ function Nav({
   onToggleTheme,
   soundEnabled,
   onToggleSound,
+  isMusicPlaying,
+  onToggleMusic,
   activeStandalone,
   onNavigateMain,
   onNavigateStandalone,
   onOpenChess,
+}: {
+  theme?: 'dark' | 'light'
+  onToggleTheme?: (e?: React.MouseEvent) => void
+  soundEnabled?: boolean
+  onToggleSound?: () => void
+  isMusicPlaying?: boolean
+  onToggleMusic?: () => void
+  activeStandalone?: string | null
+  onNavigateMain?: (id: string) => void
+  onNavigateStandalone?: (id: string) => void
+  onOpenChess?: () => void
 }) {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -714,6 +725,23 @@ function Nav({
         </div>
 
         <div className="rd-nav__actions">
+          <button
+            type="button"
+            className={`rd-icon-btn rd-music-toggle ${isMusicPlaying ? 'is-playing' : 'is-muted'}`}
+            onClick={onToggleMusic}
+            aria-label={isMusicPlaying ? 'Pause background music' : 'Play background music'}
+            title={isMusicPlaying ? '♫ Mice on Venus - C418 (Playing)' : '♫ Mice on Venus - C418 (Muted)'}
+          >
+            {isMusicPlaying ? (
+              <span className="rd-music-equalizer" aria-hidden="true">
+                <span className="rd-eq-bar rd-eq-bar--1" />
+                <span className="rd-eq-bar rd-eq-bar--2" />
+                <span className="rd-eq-bar rd-eq-bar--3" />
+              </span>
+            ) : (
+              <FiMusic />
+            )}
+          </button>
           <button
             type="button"
             className="rd-icon-btn rd-sound-toggle"
@@ -817,6 +845,22 @@ function Nav({
 function Hero({ theme }: { theme?: 'dark' | 'light' }) {
   const frameRef = useRef<HTMLDivElement | null>(null)
   const [modelVisible, setModelVisible] = useState(true)
+  const [meadowMounted, setMeadowMounted] = useState(theme === 'light')
+
+  useEffect(() => {
+    if (theme === 'light') {
+      // Delay mounting Three.js meadow until the ripple transition finishes (500ms)
+      const timer = setTimeout(() => {
+        setMeadowMounted(true)
+      }, 500)
+      return () => clearTimeout(timer)
+    } else {
+      const timer = setTimeout(() => {
+        setMeadowMounted(false)
+      }, 400)
+      return () => clearTimeout(timer)
+    }
+  }, [theme])
 
   useEffect(() => {
     const src = 'https://thrine.app/embed/v1.js'
@@ -826,6 +870,10 @@ function Hero({ theme }: { theme?: 'dark' | 'light' }) {
       script.src = src
       document.head.appendChild(script)
     }
+    const timer = setTimeout(() => {
+      import('../components/ui/MeadowBlush').catch(() => {})
+    }, 1200)
+    return () => clearTimeout(timer)
   }, [])
 
   useEffect(() => {
@@ -848,7 +896,27 @@ function Hero({ theme }: { theme?: 'dark' | 'light' }) {
   ]
 
   return (
-    <section className="rd-hero-wrap" id="top">
+    <section className={`rd-hero-wrap ${theme === 'light' ? 'rd-hero-wrap--meadow' : ''}`} id="top">
+      {meadowMounted && (
+        <div
+          className="rd-hero__meadow"
+          aria-hidden="true"
+          style={{
+            opacity: theme === 'light' ? 1 : 0,
+            transition: 'opacity 0.6s ease',
+            pointerEvents: theme === 'light' ? 'auto' : 'none',
+          }}
+        >
+          <Suspense fallback={null}>
+            <MeadowBlush
+              sky={{ top: '#FFFFFF', horizon: '#F8A68E', glow: '#FFCB8C' }}
+              horizon={64}
+              grass={3.8}
+            />
+          </Suspense>
+          <div className="rd-hero__meadow-fade" />
+        </div>
+      )}
       <div className="rd-hero__grid" aria-hidden="true" />
       <div className="rd-hero rd-container">
         <div className="rd-hero__text">
@@ -872,8 +940,11 @@ function Hero({ theme }: { theme?: 'dark' | 'light' }) {
               as="a"
               href="#work"
               className="rd-btn-star"
-              color={theme === 'light' ? '#18181b' : '#ffffff'}
-              trailColor={theme === 'light' ? '#18181b' : '#ffffff'}
+              color="#ffffff"
+              trailColor="#ffffff"
+              backgroundColor="#111315"
+              textColor="#ffffff"
+              borderColor="rgba(255, 255, 255, 0.2)"
               duration={4}
               direction="clockwise"
               stars={1}
@@ -884,7 +955,7 @@ function Hero({ theme }: { theme?: 'dark' | 'light' }) {
               hover="lap"
               sparkle={false}
               clickPulse
-              theme={theme || 'dark'}
+              theme="dark"
               onClick={() => playClickSound()}
             >
               View my work <FiArrowUpRight />
@@ -893,14 +964,16 @@ function Hero({ theme }: { theme?: 'dark' | 'light' }) {
               <FiDownload /> Download resume
             </a>
           </div>
-          <dl className="rd-stats" data-reveal>
-            {stats.map((s) => (
-              <div key={s.label}>
-                <dt>{s.label}</dt>
-                <dd>{String(s.n).padStart(2, '0')}</dd>
-              </div>
-            ))}
-          </dl>
+          {theme !== 'light' && (
+            <dl className="rd-stats" data-reveal>
+              {stats.map((s) => (
+                <div key={s.label}>
+                  <dt>{s.label}</dt>
+                  <dd>{String(s.n).padStart(2, '0')}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
         </div>
 
         <figure className="rd-hero__photo" data-reveal>
@@ -913,19 +986,21 @@ function Hero({ theme }: { theme?: 'dark' | 'light' }) {
                 width: '100%',
                 aspectRatio: '474/376',
                 border: 'none',
-                background: 'var(--bg)',
+                background: theme === 'light' ? 'transparent' : 'var(--bg)',
                 transition: 'background-color 0.4s ease',
                 visibility: modelVisible ? 'visible' : 'hidden',
                 pointerEvents: modelVisible ? 'auto' : 'none',
               }}
             ></model-embed>
           </div>
-          <figcaption>
-            <span>
-              <FiMapPin /> {profile.location.split(',')[0]}
-            </span>
-            <span className="rd-badge rd-badge--mono">3D Interactive</span>
-          </figcaption>
+          {theme !== 'light' && (
+            <figcaption>
+              <span>
+                <FiMapPin /> {profile.location.split(',')[0]}
+              </span>
+              <span className="rd-badge rd-badge--mono">3D Interactive</span>
+            </figcaption>
+          )}
         </figure>
       </div>
     </section>
@@ -2588,6 +2663,7 @@ export default function Portfolio() {
   const [theme, toggleTheme] = useTheme()
   useSmoothScroll()
   const { soundEnabled, toggleSound } = useSoundEffects()
+  const { isPlaying: isMusicPlaying, toggleMusic } = useBackgroundMusic()
   const [lightbox, setLightbox] = useState(null)
   const [chessOpen, setChessOpen] = useState(false)
 
@@ -2707,6 +2783,11 @@ export default function Portfolio() {
         onToggleTheme={toggleTheme}
         soundEnabled={soundEnabled}
         onToggleSound={toggleSound}
+        isMusicPlaying={isMusicPlaying}
+        onToggleMusic={() => {
+          playClickSound(0.12)
+          toggleMusic()
+        }}
         activeStandalone={standalone}
         onNavigateMain={handleNavigateMain}
         onNavigateStandalone={handleNavigateStandalone}

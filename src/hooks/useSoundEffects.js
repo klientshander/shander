@@ -86,6 +86,10 @@ export function useSoundEffects() {
       '.tag',
       '.interactive',
       '.rd-card',
+      '.rd-btn',
+      '.rd-btn-star',
+      '.rd-icon-btn',
+      '.rd-pill',
       '.rd-resource-card',
       '.rd-blog-card',
       '.rd-tags li',
@@ -93,6 +97,8 @@ export function useSoundEffects() {
       '.rd-gallery__item',
       '.rd-service',
       '.rd-timeline li',
+      '.rd-skills__item',
+      '.rd-timeline__row',
     ].join(', ')
 
     const handleMouseOver = (e) => {

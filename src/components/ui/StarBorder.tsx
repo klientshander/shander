@@ -312,7 +312,7 @@ const StarBorder = <T extends React.ElementType = 'button'>({
       tip = true
     ) => {
       if (length < 0.5 || intensity <= 0) return;
-      const steps = clamp(Math.ceil(length / 5), 2, 28);
+      const steps = clamp(Math.ceil(length / 8), 2, 14);
       pointAt(shape, head, point);
       let px = point.x;
       let py = point.y;
@@ -323,8 +323,10 @@ const StarBorder = <T extends React.ElementType = 'button'>({
         let tone = mix(colors.tail, colors.head, u);
         if (!s.light) tone = mix(tone, WHITE, u ** 6 * 0.65);
         ctx.lineCap = tip && i === 1 ? 'round' : 'butt';
-        stroke(px, py, point.x, point.y, 2 + 5 * s.glow, rgba(tone, fade * (s.light ? 0.1 : 0.18) * s.glow));
-        stroke(px, py, point.x, point.y, s.thickness, rgba(tone, fade));
+        if (!s.light) {
+          stroke(px, py, point.x, point.y, 2 + 5 * s.glow, rgba(tone, fade * 0.18 * s.glow));
+        }
+        stroke(px, py, point.x, point.y, s.light ? s.thickness * 1.35 : s.thickness, rgba(tone, fade));
         px = point.x;
         py = point.y;
       }
@@ -333,15 +335,22 @@ const StarBorder = <T extends React.ElementType = 'button'>({
     const drawHead = (s: Settings, x: number, y: number, intensity: number, twinkle: number) => {
       if (intensity <= 0) return;
       const tone = colors.head;
-      const reach = (12 + 40 * s.glow) * (s.light ? 0.6 : 1);
-      const bloom = ctx.createRadialGradient(x, y, 0, x, y, reach);
-      const strength = (s.light ? 0.08 : 0.4) * s.glow * intensity;
-      bloom.addColorStop(0, rgba(tone, strength));
-      bloom.addColorStop(0.2, rgba(tone, strength * 0.4));
-      bloom.addColorStop(0.5, rgba(tone, strength * 0.1));
-      bloom.addColorStop(1, rgba(tone, 0));
-      ctx.fillStyle = bloom;
-      ctx.fillRect(x - reach, y - reach, reach * 2, reach * 2);
+      if (!s.light) {
+        const reach = 12 + 40 * s.glow;
+        const bloom = ctx.createRadialGradient(x, y, 0, x, y, reach);
+        const strength = 0.4 * s.glow * intensity;
+        bloom.addColorStop(0, rgba(tone, strength));
+        bloom.addColorStop(0.2, rgba(tone, strength * 0.4));
+        bloom.addColorStop(0.5, rgba(tone, strength * 0.1));
+        bloom.addColorStop(1, rgba(tone, 0));
+        ctx.fillStyle = bloom;
+        ctx.fillRect(x - reach, y - reach, reach * 2, reach * 2);
+      } else {
+        ctx.fillStyle = rgba(tone, Math.min(1, intensity * 0.9));
+        ctx.beginPath();
+        ctx.arc(x, y, s.thickness * 1.15, 0, TAU);
+        ctx.fill();
+      }
       if (!s.sparkle) return;
 
       const size = (1 + s.thickness * 0.6) * (s.light ? 0.85 : 1);
