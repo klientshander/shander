@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 750" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="750" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0b0d13" />
+      <stop offset="50%" stop-color="#121624" />
+      <stop offset="100%" stop-color="#090a0f" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#777bb3" />
+      <stop offset="100%" stop-color="#4f5b93" />
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1" />
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="750" fill="url(#bg)" />
+  <rect width="1200" height="750" fill="url(#grid)" />
+
+  <!-- Subtle Glow -->
+  <circle cx="600" cy="375" r="320" fill="#4f5b93" opacity="0.14" filter="blur(60px)" />
+
+  <!-- Terminal Window -->
+  <rect x="90" y="75" width="1020" height="600" rx="16" fill="#0d0f17" stroke="rgba(255,255,255,0.14)" stroke-width="2" />
+  <rect x="90" y="75" width="1020" height="48" rx="16" fill="#161925" />
+  <line x1="90" y1="123" x2="1110" y2="123" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+
+  <!-- Window Dots -->
+  <circle cx="122" cy="99" r="7" fill="#ef4444" />
+  <circle cx="144" cy="99" r="7" fill="#f59e0b" />
+  <circle cx="166" cy="99" r="7" fill="#10b981" />
+
+  <text x="600" y="105" text-anchor="middle" fill="#9ba1b0" font-family="monospace" font-size="15" letter-spacing="2">FIRST_YEAR_PROJECTS // PHP_COLLECTION (12 ACTIVITIES)</text>
+
+  <!-- PHP Badge -->
+  <rect x="135" y="158" width="110" height="42" rx="21" fill="url(#accent)" />
+  <text x="190" y="185" text-anchor="middle" fill="#ffffff" font-family="monospace" font-weight="bold" font-size="20" letter-spacing="1">&lt;?php</text>
+
+  <text x="265" y="186" fill="#f4f5f7" font-family="monospace" font-weight="bold" font-size="26">First Year Projects — 12 Core PHP Activities</text>
+
+  <!-- 12 Activity Grid Pills inside SVG -->
+  <g font-family="monospace" font-size="14">
+    <!-- Col 1 -->
+    <rect x="135" y="230" width="450" height="58" rx="8" fill="#151926" stroke="rgba(255,255,255,0.08)" />
+    <text x="155" y="255" fill="#818cf8" font-weight="bold">01. Hello World Program</text>
+    <text x="155" y="276" fill="#9ba1b0" font-size="12">PHP Syntax and Output</text>
+
+    <rect x="135" y="300" width="450" height="58" rx="8" fill="#151926" stroke="rgba(255,255,255,0.08)" />
+    <text x="155" y="325" fill="#818cf8" font-weight="bold">02. Personal Information Display</text>
+    <text x="155" y="346" fill="#9ba1b0" font-size="12">Variables and Data Types</text>
+
+    <rect x="135" y="370" width="450" height="58" rx="8" fill="#151926" stroke="rgba(255,255,255,0.08)" />
+    <text x="155" y="395" fill="#818cf8" font-weight="bold">03. Simple Calculator</text>
+    <text x="155" y="416" fill="#9ba1b0" font-size="12">Operators</text>
+
+    <rect x="135" y="440" width="450" height="58" rx="8" fill="#151926" stroke="rgba(255,255,255,0.08)" />
+    <text x="155" y="465" fill="#818cf8" font-weight="bold">04. Student Grade Calculator</text>
+    <text x="155" y="486" fill="#9ba1b0" font-size="12">Conditional Statements</text>
+
+    <rect x="135" y="510" width="450" height="58" rx="8" fill="#151926" stroke="rgba(255,255,255,0.08)" />
+    <text x="155" y="535" fill="#818cf8" font-weight="bold">05. Odd or Even Checker</text>
+    <text x="155" y="556" fill="#9ba1b0" font-size="12">If-Else Statements</text>
+
+    <rect x="135" y="580" width="450" height="58" rx="8" fill="#151926" stroke="rgba(255,255,255,0.08)" />
+    <text x="155" y="605" fill="#818cf8" font-weight="bold">06. Multiplication Table</text>
+    <text x="155" y="626" fill="#9ba1b0" font-size="12">Loops</text>
+
+    <!-- Col 2 -->
+    <rect x="615" y="230" width="450" height="58" rx="8" fill="#151926" stroke="rgba(255,255,255,0.08)" />
+    <text x="635" y="255" fill="#34d399" font-weight="bold">07. Number Guessing Program</text>
+    <text x="635" y="276" fill="#9ba1b0" font-size="12">Loops and Conditions</text>
+
+    <rect x="615" y="300" width="450" height="58" rx="8" fill="#151926" stroke="rgba(255,255,255,0.08)" />
+    <text x="635" y="325" fill="#34d399" font-weight="bold">08. Student Score Analyzer</text>
+    <text x="635" y="346" fill="#9ba1b0" font-size="12">Arrays</text>
+
+    <rect x="615" y="370" width="450" height="58" rx="8" fill="#151926" stroke="rgba(255,255,255,0.08)" />
+    <text x="635" y="395" fill="#34d399" font-weight="bold">09. Student Information Management</text>
+    <text x="635" y="416" fill="#9ba1b0" font-size="12">Associative Arrays</text>
+
+    <rect x="615" y="440" width="450" height="58" rx="8" fill="#151926" stroke="rgba(255,255,255,0.08)" />
+    <text x="635" y="465" fill="#34d399" font-weight="bold">10. PHP Functions Collection</text>
+    <text x="635" y="486" fill="#9ba1b0" font-size="12">User-Defined Functions</text>
+
+    <rect x="615" y="510" width="450" height="58" rx="8" fill="#151926" stroke="rgba(255,255,255,0.08)" />
+    <text x="635" y="535" fill="#34d399" font-weight="bold">11. Form Processing</text>
+    <text x="635" y="556" fill="#9ba1b0" font-size="12">GET and POST</text>
+
+    <rect x="615" y="580" width="450" height="58" rx="8" fill="#151926" stroke="rgba(255,255,255,0.08)" />
+    <text x="635" y="605" fill="#34d399" font-weight="bold">12. Login Form Demonstration</text>
+    <text x="635" y="626" fill="#9ba1b0" font-size="12">Form Validation and Sessions</text>
+  </g>
+</svg>

@@ -334,7 +334,7 @@ function buildMeadow(W: number, H: number, o: BuildOpts): Built {
         const fPx = f * Math.min(H, 900)
         const sq = Math.sqrt(dens)
         let d = dBottom * 0.6
-        while (d < 24) {
+        while (d < 18) {
             const c = v * Math.max(1, d / 14)
             const step = Math.max(0.8 * c * d, (2 * d * d) / fPx) / sq
             const sx = (c * 1.5) / sq
@@ -1061,16 +1061,18 @@ export default function MeadowBlush(props: MeadowBlushProps) {
 
         let W = 0
         let H = 0
-        let dpr = 1
+        let dpr = 0.85
         let cachedRect = { left: 0, top: 0, width: 0, height: 0 }
+        let lastRectTime = -1e9
         const updateRect = () => {
             const r = host.getBoundingClientRect()
             cachedRect = { left: r.left, top: r.top, width: r.width, height: r.height }
+            lastRectTime = performance.now()
         }
         const resize = () => {
             W = host.clientWidth
             H = host.clientHeight
-            dpr = 1
+            dpr = 0.85
             if (W < 2 || H < 2) return
             updateRect()
             renderer.setPixelRatio(dpr)
@@ -1089,6 +1091,9 @@ export default function MeadowBlush(props: MeadowBlushProps) {
         io?.observe(host)
 
         const onMove = (e: PointerEvent) => {
+            if (!visible) return
+            const now = performance.now()
+            if (now - lastRectTime > 150) updateRect()
             const r = cachedRect
             if (r.width < 2 || r.height < 2) return
             if (e.clientY < r.top || e.clientY > r.top + r.height || e.clientX < r.left || e.clientX > r.left + r.width) {
@@ -1110,7 +1115,6 @@ export default function MeadowBlush(props: MeadowBlushProps) {
         }
         const onUp = () => (pointer.down = false)
         const onLeave = () => (pointer.inside = false)
-        window.addEventListener("scroll", updateRect, { passive: true })
         window.addEventListener("pointermove", onMove, { passive: true })
         window.addEventListener("pointerdown", onDown, { passive: true })
         document.addEventListener("mouseleave", onLeave)
@@ -1247,7 +1251,6 @@ export default function MeadowBlush(props: MeadowBlushProps) {
             cancelAnimationFrame(raf)
             ro?.disconnect()
             io?.disconnect()
-            window.removeEventListener("scroll", updateRect)
             window.removeEventListener("pointermove", onMove)
             window.removeEventListener("pointerdown", onDown)
             document.removeEventListener("mouseleave", onLeave)

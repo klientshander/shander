@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>First Year Projects — 12 PHP Activities | Shander Santillan</title>
+  <style>
+    @font-face {
+      font-family: 'VCR OSD Mono';
+      src: url('/fonts/VCR_OSD_MONO.ttf') format('truetype');
+      font-display: swap;
+    }
+    :root {
+      --bg: #090a0c;
+      --surface: #111317;
+      --surface-2: #181a20;
+      --text: #f4f5f7;
+      --muted: #9ba1b0;
+      --line: rgba(255, 255, 255, 0.1);
+      --line-strong: rgba(255, 255, 255, 0.22);
+      --accent: #818cf8;
+      --ok: #10b981;
+      --mono: 'VCR OSD Mono', ui-monospace, 'Courier New', monospace;
+      --sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 36px 24px 80px;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--line-strong);
+      color: var(--text);
+      text-decoration: none;
+      font-family: var(--mono);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: var(--surface);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .back-btn:hover {
+      border-color: var(--text);
+      transform: translateY(-1px);
+    }
+    .badge {
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: rgba(129, 140, 248, 0.14);
+      border: 1px solid rgba(129, 140, 248, 0.35);
+      color: #a5b4fc;
+      letter-spacing: 0.06em;
+    }
+    h1 {
+      font-family: var(--mono);
+      font-size: clamp(26px, 4vw, 40px);
+      margin: 0 0 8px;
+      letter-spacing: 0.02em;
+    }
+    .lead {
+      color: var(--muted);
+      max-width: 720px;
+      margin: 0 0 32px;
+    }
+    .table-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 36px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    th {
+      font-family: var(--mono);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      background: var(--surface-2);
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+    td {
+      padding: 13px 18px;
+      border-bottom: 1px solid var(--line);
+      font-size: 14px;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255, 255, 255, 0.03); }
+    .no-col {
+      font-family: var(--mono);
+      color: var(--accent);
+      width: 64px;
+    }
+    .concept-pill {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      color: var(--text);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+    .card h3 {
+      font-family: var(--mono);
+      font-size: 17px;
+      margin: 0;
+    }
+    pre {
+      margin: 0;
+      padding: 12px;
+      background: #07080a;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 12px;
+      color: #d1d5db;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <a href="/#project-proj-first-year" class="back-btn">← Back to Portfolio</a>
+      <span class="badge">BSIS 1ST YEAR // 12 PHP ACTIVITIES</span>
+    </div>
+
+    <h1>First year Projects</h1>
+    <p class="lead">Complete collection of 12 foundational PHP programming activities covering syntax, variables, operators, conditional statements, loops, arrays, associative arrays, user-defined functions, GET/POST forms, and sessions.</p>
+
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th>Project / Activity</th>
+            <th>PHP Concepts</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="no-col">01</td><td><strong>Hello World Program</strong></td><td><span class="concept-pill">PHP Syntax and Output</span></td></tr>
+          <tr><td class="no-col">02</td><td><strong>Personal Information Display</strong></td><td><span class="concept-pill">Variables and Data Types</span></td></tr>
+          <tr><td class="no-col">03</td><td><strong>Simple Calculator</strong></td><td><span class="concept-pill">Operators</span></td></tr>
+          <tr><td class="no-col">04</td><td><strong>Student Grade Calculator</strong></td><td><span class="concept-pill">Conditional Statements</span></td></tr>
+          <tr><td class="no-col">05</td><td><strong>Odd or Even Checker</strong></td><td><span class="concept-pill">If-Else Statements</span></td></tr>
+          <tr><td class="no-col">06</td><td><strong>Multiplication Table</strong></td><td><span class="concept-pill">Loops</span></td></tr>
+          <tr><td class="no-col">07</td><td><strong>Number Guessing Program</strong></td><td><span class="concept-pill">Loops and Conditions</span></td></tr>
+          <tr><td class="no-col">08</td><td><strong>Student Score Analyzer</strong></td><td><span class="concept-pill">Arrays</span></td></tr>
+          <tr><td class="no-col">09</td><td><strong>Student Information Management</strong></td><td><span class="concept-pill">Associative Arrays</span></td></tr>
+          <tr><td class="no-col">10</td><td><strong>PHP Functions Collection</strong></td><td><span class="concept-pill">User-Defined Functions</span></td></tr>
+          <tr><td class="no-col">11</td><td><strong>Form Processing</strong></td><td><span class="concept-pill">GET and POST</span></td></tr>
+          <tr><td class="no-col">12</td><td><strong>Login Form Demonstration</strong></td><td><span class="concept-pill">Form Validation and Sessions</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

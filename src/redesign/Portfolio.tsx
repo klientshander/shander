@@ -55,6 +55,7 @@ import { useSoundEffects } from '../hooks/useSoundEffects'
 import { useBackgroundMusic } from '../hooks/useBackgroundMusic'
 import { playClickSound } from '../utils/sound'
 import PortfolioAI from './PortfolioAI'
+import FirstYearProjectsLab from './FirstYearProjectsLab'
 import './portfolio.css'
 
 const SidebarChess = lazy(() => import('../components/chess/SidebarChess'))
@@ -462,24 +463,28 @@ function useActiveSection(ids, disabled = false) {
 }
 
 function useScrollProgress() {
-  const ref = useRef(null)
+  const ref = useRef<HTMLDivElement | null>(null)
   useEffect(() => {
     let raf = 0
+    let maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight)
     const update = () => {
       raf = 0
-      const max = document.documentElement.scrollHeight - window.innerHeight
-      const p = max > 0 ? window.scrollY / max : 0
+      const p = Math.min(1, Math.max(0, window.scrollY / maxScroll))
       if (ref.current) ref.current.style.transform = `scaleX(${p})`
     }
     const onScroll = () => {
       if (!raf) raf = requestAnimationFrame(update)
     }
-    update()
+    const onResize = () => {
+      maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight)
+      onScroll()
+    }
+    onResize()
     window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll)
+    window.addEventListener('resize', onResize, { passive: true })
     return () => {
       window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
+      window.removeEventListener('resize', onResize)
       cancelAnimationFrame(raf)
     }
   }, [])
@@ -842,7 +847,7 @@ function Nav({
 }
 
 /* -------------------------------- sections ------------------------------ */
-function Hero({ theme }: { theme?: 'dark' | 'light' }) {
+function Hero({ theme, paused }: { theme?: 'dark' | 'light'; paused?: boolean }) {
   const frameRef = useRef<HTMLDivElement | null>(null)
   const [modelVisible, setModelVisible] = useState(true)
   const [meadowMounted, setMeadowMounted] = useState(theme === 'light')
@@ -902,16 +907,17 @@ function Hero({ theme }: { theme?: 'dark' | 'light' }) {
           className="rd-hero__meadow"
           aria-hidden="true"
           style={{
+            display: paused ? 'none' : 'block',
             opacity: theme === 'light' ? 1 : 0,
             transition: 'opacity 0.6s ease',
-            pointerEvents: theme === 'light' ? 'auto' : 'none',
+            pointerEvents: theme === 'light' && !paused ? 'auto' : 'none',
           }}
         >
           <Suspense fallback={null}>
             <MeadowBlush
               sky={{ top: '#FFFFFF', horizon: '#F8A68E', glow: '#FFCB8C' }}
               horizon={64}
-              grass={3.8}
+              grass={2.8}
             />
           </Suspense>
           <div className="rd-hero__meadow-fade" />
@@ -988,8 +994,8 @@ function Hero({ theme }: { theme?: 'dark' | 'light' }) {
                 border: 'none',
                 background: theme === 'light' ? 'transparent' : 'var(--bg)',
                 transition: 'background-color 0.4s ease',
-                visibility: modelVisible ? 'visible' : 'hidden',
-                pointerEvents: modelVisible ? 'auto' : 'none',
+                visibility: modelVisible && !paused ? 'visible' : 'hidden',
+                pointerEvents: modelVisible && !paused ? 'auto' : 'none',
               }}
             ></model-embed>
           </div>
@@ -1112,7 +1118,7 @@ function Work({
 
   const shown = filter === 'All' ? projects : projects.filter((p) => p.category === filter)
   const featuredProjects = shown.slice(0, 2)
-  const listProjects = showAll ? shown.slice(2) : shown.slice(2, 4)
+  const listProjects = showAll ? shown.slice(2) : shown.slice(2, 5)
 
   const handleFilterChange = (c: string) => {
     setFilter(c)
@@ -1700,6 +1706,9 @@ function ProjectDetailsView({
           </div>
         )}
       </div>
+
+      {/* Interactive 12-Activity PHP Lab (for First year Projects) */}
+      {project.id === 'proj-first-year' && <FirstYearProjectsLab />}
 
       {/* Main Grid: Media Showcase & Information Column */}
       <div className="rd-project-details__grid">
@@ -2828,7 +2837,7 @@ export default function Portfolio() {
         )}
 
         <div className={`rd-main-sections ${isOtherStandalone ? 'is-hidden-view' : ''}`}>
-          <Hero theme={theme} />
+          <Hero theme={theme} paused={Boolean(standalone)} />
           <Marquee items={allSkills} />
           <Work
             theme={theme}
