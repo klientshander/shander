@@ -36,7 +36,7 @@ import { projects } from '../data/projects'
 import { education } from '../data/education'
 import { certifications } from '../data/certifications'
 import { techGroups } from '../data/techstacks'
-import { techIconMap, fallbackTechIcon } from '../data/techIcons'
+import { techIconMap, techColorMap, fallbackTechIcon } from '../data/techIcons'
 import { gallery } from '../data/gallery'
 import { freelanceIntro, freelanceOfferings } from '../data/freelance'
 import { resourcesIntro, resourceCategories } from '../data/resources'
@@ -51,6 +51,33 @@ import { supabase } from '../utils/supabase'
 import BounceCards from '../components/ui/BounceCards'
 import Stack from '../components/ui/Stack'
 import StarBorder from '../components/ui/StarBorder'
+import LogoLoop, { type LogoItem } from '../components/ui/LogoLoop'
+import {
+  SiReact,
+  SiNextdotjs,
+  SiTypescript,
+  SiTailwindcss,
+  SiHtml5,
+  SiCss,
+  SiJavascript,
+  SiAngular,
+  SiPhp,
+  SiLaravel,
+  SiNodedotjs,
+  SiExpress,
+  SiApache,
+  SiPython,
+  SiMysql,
+  SiPostgresql,
+  SiMongodb,
+  SiTensorflow,
+  SiScikitlearn,
+  SiPandas,
+  SiFigma,
+  SiGit,
+  SiAnthropic,
+  SiGooglegemini,
+} from 'react-icons/si'
 import { useSoundEffects } from '../hooks/useSoundEffects'
 import { useBackgroundMusic } from '../hooks/useBackgroundMusic'
 import { playClickSound } from '../utils/sound'
@@ -268,6 +295,33 @@ const SHOP_ITEMS = [
 ]
 
 const allSkills = techGroups.flatMap((g) => g.items.map((i) => i.name))
+
+const TECH_LOGOS: LogoItem[] = [
+  { node: <SiReact />, title: 'React', href: 'https://react.dev', hoverColor: '#61dafb' },
+  { node: <SiNextdotjs />, title: 'Next.js', href: 'https://nextjs.org' },
+  { node: <SiTypescript />, title: 'TypeScript', href: 'https://www.typescriptlang.org', hoverColor: '#3178c6' },
+  { node: <SiTailwindcss />, title: 'Tailwind CSS', href: 'https://tailwindcss.com', hoverColor: '#38bdf8' },
+  { node: <SiJavascript />, title: 'JavaScript', href: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript', hoverColor: '#f7df1e' },
+  { node: <SiHtml5 />, title: 'HTML5', href: 'https://developer.mozilla.org/en-US/docs/Web/HTML', hoverColor: '#e34f26' },
+  { node: <SiCss />, title: 'CSS3', href: 'https://developer.mozilla.org/en-US/docs/Web/CSS', hoverColor: '#1572b6' },
+  { node: <SiAngular />, title: 'Angular', href: 'https://angular.dev', hoverColor: '#dd0031' },
+  { node: <SiPhp />, title: 'PHP', href: 'https://www.php.net', hoverColor: '#777bb4' },
+  { node: <SiLaravel />, title: 'Laravel', href: 'https://laravel.com', hoverColor: '#ff2d20' },
+  { node: <SiNodedotjs />, title: 'Node.js', href: 'https://nodejs.org', hoverColor: '#339933' },
+  { node: <SiExpress />, title: 'Express.js', href: 'https://expressjs.com' },
+  { node: <SiApache />, title: 'Apache', href: 'https://httpd.apache.org', hoverColor: '#d22128' },
+  { node: <SiPython />, title: 'Python', href: 'https://www.python.org', hoverColor: '#3776ab' },
+  { node: <SiMysql />, title: 'MySQL', href: 'https://www.mysql.com', hoverColor: '#4479a1' },
+  { node: <SiPostgresql />, title: 'PostgreSQL', href: 'https://www.postgresql.org', hoverColor: '#4169e1' },
+  { node: <SiMongodb />, title: 'MongoDB', href: 'https://www.mongodb.com', hoverColor: '#47a248' },
+  { node: <SiTensorflow />, title: 'TensorFlow', href: 'https://www.tensorflow.org', hoverColor: '#ff6f00' },
+  { node: <SiScikitlearn />, title: 'scikit-learn', href: 'https://scikit-learn.org', hoverColor: '#f7931e' },
+  { node: <SiPandas />, title: 'Pandas', href: 'https://pandas.pydata.org', hoverColor: '#150458' },
+  { node: <SiFigma />, title: 'Figma', href: 'https://www.figma.com', hoverColor: '#f24e1e' },
+  { node: <SiGit />, title: 'Git', href: 'https://git-scm.com', hoverColor: '#f05032' },
+  { node: <SiAnthropic />, title: 'Claude Code', href: 'https://www.anthropic.com', hoverColor: '#d97757' },
+  { node: <SiGooglegemini />, title: 'Antigravity / Gemini', href: 'https://deepmind.google', hoverColor: '#8e75b2' },
+]
 
 const isVideo = (src = '') => /\.(mp4|webm|mov)$/i.test(src)
 const isRealLink = (url) => url && url !== '#'
@@ -1273,7 +1327,7 @@ const ABOUT_STACK_CARDS = ABOUT_STACK_IMAGES.map((src, i) => (
 function About({ onMore }: { onMore?: () => void }) {
   return (
     <section className="rd-section rd-container" id="about">
-      <SectionHead index="02" label="About" title="A little about me" />
+      <SectionHead index="03" label="About" title="A little about me" />
       <div className="rd-about">
         <div className="rd-about__text" data-reveal>
           <p>{BIO}</p>
@@ -1336,7 +1390,8 @@ function Skills({ theme }: { theme?: 'dark' | 'light' }) {
 
   return (
     <section className="rd-section rd-container" id="skills">
-      <SectionHead index="03" label="Skills" title="Tools I work with" count={allSkills.length} />
+      <SectionHead index="02" label="Skills" title="Tools I work with" count={allSkills.length} />
+
       <div className="rd-skills">
         {displayedGroups.map((g, i) => (
           <div className="rd-skills__group" key={g.id} data-reveal>
@@ -1346,12 +1401,20 @@ function Skills({ theme }: { theme?: 'dark' | 'light' }) {
             <ul className="rd-tags rd-tags--lg">
               {g.items.map((item) => {
                 const IconComponent = techIconMap[item.icon] || fallbackTechIcon
+                const hoverColor = techColorMap[item.icon]
                 return (
-                  <li key={item.name}>
+                  <li
+                    key={item.name}
+                    style={
+                      hoverColor
+                        ? ({ '--skill-hover-color': hoverColor } as React.CSSProperties)
+                        : undefined
+                    }
+                  >
                     <span className="rd-tag__icon" aria-hidden="true">
                       <IconComponent />
                     </span>
-                    <span>{item.name}</span>
+                    <span className="rd-tag__label">{item.name}</span>
                   </li>
                 )
               })}
@@ -2838,14 +2901,39 @@ export default function Portfolio() {
 
         <div className={`rd-main-sections ${isOtherStandalone ? 'is-hidden-view' : ''}`}>
           <Hero theme={theme} paused={Boolean(standalone)} />
-          <Marquee items={allSkills} />
+          <div className="rd-logoloop-band">
+            <LogoLoop
+              logos={TECH_LOGOS}
+              speed={100}
+              direction="left"
+              logoHeight={40}
+              gap={56}
+              hoverSpeed={0}
+              scaleOnHover
+              layout="line"
+              bend={0.5}
+              magnify={0}
+              labels="none"
+              muted={0}
+              focus={0}
+              tiltX={0}
+              tiltY={0}
+              fadeOut
+              fadeOutWidth={0.12}
+              scrollBoost={0}
+              step={false}
+              draggable
+              intro
+              ariaLabel="Technology partners and tools"
+            />
+          </div>
           <Work
             theme={theme}
             onSelectProject={handleSelectProject}
             targetProjectId={lastSelectedProjectRef.current || activeProjectId}
           />
-          <About onMore={() => handleNavigateStandalone('about-me')} />
           <Skills theme={theme} />
+          <About onMore={() => handleNavigateStandalone('about-me')} />
           <Education />
           <Certifications onOpen={setLightbox} />
           <Gallery onOpen={setLightbox} />

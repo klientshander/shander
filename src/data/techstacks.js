@@ -11,6 +11,8 @@ export const techGroups = [
       { name: 'JavaScript', icon: 'javascript', level: 88 },
       { name: 'TypeScript', icon: 'typescript', level: 70 },
       { name: 'React', icon: 'react', level: 78 },
+      { name: 'Next.js', icon: 'nextjs', level: 75 },
+      { name: 'Tailwind CSS', icon: 'tailwindcss', level: 85 },
       { name: 'Angular', icon: 'angular', level: 75 },
     ],
   },
